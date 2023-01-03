@@ -134,9 +134,9 @@ int32_t AudioSDLWindow::CreateGlad()
 {
 	if (!gladLoadGLLoader(SDL_GL_GetProcAddress))
 	{
-		printf("Couldn't initialize GLAD.");
+		printf("Couldn't initialize GLAD.\n");
 		return -1;
 	}
-	printf("Initialized GLAD.");
+	printf("Initialized GLAD.\n");
 	return 0;
 }
