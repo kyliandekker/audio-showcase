@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 
+#include "utils/Logger.h"
+
 AudioSDLWindow::AudioSDLWindow()
 { }
 
@@ -101,7 +103,7 @@ int32_t AudioSDLWindow::CreateSDLWindow()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
-		printf("%s.", SDL_GetError());
+		LOGF(LOGSERVERITY_ASSERT, "%s", SDL_GetError());
 		return -1;
 	}
 
@@ -115,7 +117,7 @@ int32_t AudioSDLWindow::CreateSDLWindow()
 
 	SDL_SetWindowMinimumSize(m_Window, 500, 300);
 
-	printf("Created SDL Window.\n");
+	LOG(LOGSERVERITY_INFO, "Created SDL Window.");
 
 	return 0;
 }
@@ -127,7 +129,7 @@ int32_t AudioSDLWindow::CreateContext()
 
 	SDL_GL_SetSwapInterval(1);
 
-	printf("Created SDL Context.\n");
+	LOG(LOGSERVERITY_INFO, "Created SDL Context.");
 
 	return 0;
 }
@@ -136,9 +138,9 @@ int32_t AudioSDLWindow::CreateGlad()
 {
 	if (!gladLoadGLLoader(SDL_GL_GetProcAddress))
 	{
-		printf("Couldn't initialize GLAD.\n");
+		LOG(LOGSERVERITY_ASSERT, "Couldn't initialize GLAD.");
 		return -1;
 	}
-	printf("Initialized GLAD.\n");
+	LOG(LOGSERVERITY_INFO, "Initialized GLAD.");
 	return 0;
 }

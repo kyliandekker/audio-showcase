@@ -189,10 +189,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\imgui\AudioImGuiWindow.cpp" />
     <ClCompile Include="src\sdl\AudioSDLWindow.cpp" />
+    <ClCompile Include="src\utils\Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\imgui\AudioImGuiWindow.h" />
     <ClInclude Include="include\sdl\AudioSDLWindow.h" />
+    <ClInclude Include="include\utils\Logger.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
