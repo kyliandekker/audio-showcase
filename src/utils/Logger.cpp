@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-uint8_t filter = 0b00000000;
-
 char arr[5][10] =
 {
 	"INFO:",
@@ -18,17 +16,11 @@ char arr[5][10] =
 
 void Log(LogSeverity a_serverity, const char* a_message, const char* a_file, int a_line)
 {
-	if (CheckSeverity(a_serverity))
-		return;
-
 	PrintMessage(a_serverity, a_message, a_file, a_line);
 }
 
 void LogF(LogSeverity a_serverity, const char* a_message, const char* a_file, int a_line, ...)
 {
-	if (CheckSeverity(a_serverity))
-		return;
-
 	va_list va_format_list;
 	va_start(va_format_list, a_line);
 
@@ -39,12 +31,6 @@ void LogF(LogSeverity a_serverity, const char* a_message, const char* a_file, in
 	PrintMessage(a_serverity, formatted_message, a_file, a_line);
 
 	free(formatted_message);
-}
-
-bool CheckSeverity(LogSeverity a_serverity)
-{
-	uint8_t currentFlag = (1 << a_serverity);
-	return 0;
 }
 
 void PrintMessage(LogSeverity a_serverity, const char* a_message, const char* a_file, int a_line)
