@@ -187,10 +187,12 @@
     <ClCompile Include="external\imgui\implot_items.cpp" />
     <ClCompile Include="external\imgui\piano.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\sdl\SDLWindow.cpp" />
+    <ClCompile Include="src\imgui\AudioImGuiWindow.cpp" />
+    <ClCompile Include="src\sdl\AudioSDLWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\sdl\SDLWindow.h" />
+    <ClInclude Include="include\imgui\AudioImGuiWindow.h" />
+    <ClInclude Include="include\sdl\AudioSDLWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

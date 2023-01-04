@@ -1,15 +1,9 @@
-#include "sdl/SDLWindow.h"
+#include "sdl/AudioSDLWindow.h"
 
 #include <glad/glad.h>
 
 AudioSDLWindow::AudioSDLWindow()
-{
-	CreateSDLWindow();
-	CreateContext();
-	CreateGlad();
-	if (m_Initialize != nullptr)
-		m_Initialize();
-}
+{ }
 
 AudioSDLWindow::~AudioSDLWindow()
 {
@@ -23,6 +17,15 @@ AudioSDLWindow::~AudioSDLWindow()
 	SDL_Quit();
 }
 
+void AudioSDLWindow::Init()
+{
+	CreateSDLWindow();
+	CreateContext();
+	CreateGlad();
+	if (m_Initialize != nullptr)
+		m_Initialize();
+}
+
 void AudioSDLWindow::RenderWindow()
 {
 	glViewport(0, 0, m_Width, m_Height);
@@ -33,13 +36,12 @@ void AudioSDLWindow::RenderWindow()
 
 		glClearColor(0, 0, 0, 255);
 
-		SDL_Event event;
-		while (SDL_PollEvent(&event))
+		while (SDL_PollEvent(&m_Event))
 		{
 			if (m_EventProcess != nullptr)
-				m_EventProcess(&event);
+				m_EventProcess(&m_Event);
 
-			switch (event.type)
+			switch (m_Event.type)
 			{
 				case SDL_QUIT:
 				{
@@ -48,12 +50,12 @@ void AudioSDLWindow::RenderWindow()
 				}
 				case SDL_WINDOWEVENT:
 				{
-					switch (event.window.event)
+					switch (m_Event.window.event)
 					{
 					case SDL_WINDOWEVENT_RESIZED:
 					{
-						m_Width = event.window.data1;
-						m_Height = event.window.data2;
+						m_Width = m_Event.window.data1;
+						m_Height = m_Event.window.data2;
 						glViewport(0, 0, m_Width, m_Height);
 						break;
 					}
@@ -66,7 +68,7 @@ void AudioSDLWindow::RenderWindow()
 				}
 				case SDL_KEYDOWN:
 				{
-					switch (event.key.keysym.sym)
+					switch (m_Event.key.keysym.sym)
 					{
 					case SDLK_ESCAPE:
 					{
