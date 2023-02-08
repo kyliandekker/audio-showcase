@@ -188,13 +188,23 @@
     <ClCompile Include="external\imgui\piano.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\imgui\AudioImGuiWindow.cpp" />
+    <ClCompile Include="src\imgui\tools\BaseTool.cpp" />
+    <ClCompile Include="src\imgui\tools\MainWindow.cpp" />
     <ClCompile Include="src\sdl\AudioSDLWindow.cpp" />
     <ClCompile Include="src\utils\Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\audio\AudioChannel.h" />
+    <ClInclude Include="include\audio\Defines.h" />
+    <ClInclude Include="include\audio\UAUDIO_PLAYER_RESULT.h" />
+    <ClInclude Include="include\audio\XAudio2Callback.h" />
     <ClInclude Include="include\imgui\AudioImGuiWindow.h" />
+    <ClInclude Include="include\imgui\ImguiDefines.h" />
+    <ClInclude Include="include\imgui\tools\BaseTool.h" />
     <ClInclude Include="include\sdl\AudioSDLWindow.h" />
     <ClInclude Include="include\utils\Logger.h" />
+    <ClInclude Include="include\utils\Utils.h" />
+    <ClInclude Include="include\imgui\tools\MainWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

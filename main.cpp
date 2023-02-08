@@ -3,15 +3,15 @@
 
 int main(int, char* [])
 {
-	AudioSDLWindow audioSDLWindow = AudioSDLWindow();
+	uaudio::sdl::AudioSDLWindow audioSDLWindow = uaudio::sdl::AudioSDLWindow();
 
-	AudioImGuiWindow imGuiWindow = AudioImGuiWindow();
+	uaudio::imgui::AudioImGuiWindow imGuiWindow = uaudio::imgui::AudioImGuiWindow();
 	imGuiWindow.SetWindow(&audioSDLWindow);
 
-	audioSDLWindow.m_Initialize = std::bind(&AudioImGuiWindow::CreateContext, &imGuiWindow);
-	audioSDLWindow.m_Unitialize = std::bind(&AudioImGuiWindow::DeleteWindow, &imGuiWindow);
-	audioSDLWindow.m_UpdateFrame = std::bind(&AudioImGuiWindow::Render, &imGuiWindow);
-	audioSDLWindow.m_EventProcess = std::bind(&AudioImGuiWindow::ProcessEvent, &imGuiWindow, &audioSDLWindow.GetLastEvent());
+	audioSDLWindow.m_Initialize = std::bind(&uaudio::imgui::AudioImGuiWindow::CreateContext, &imGuiWindow);
+	audioSDLWindow.m_Unitialize = std::bind(&uaudio::imgui::AudioImGuiWindow::DeleteWindow, &imGuiWindow);
+	audioSDLWindow.m_UpdateFrame = std::bind(&uaudio::imgui::AudioImGuiWindow::Render, &imGuiWindow);
+	audioSDLWindow.m_EventProcess = std::bind(&uaudio::imgui::AudioImGuiWindow::ProcessEvent, &imGuiWindow, &audioSDLWindow.GetLastEvent());
 	audioSDLWindow.Init();
 
 	imGuiWindow.CreateImGui();
