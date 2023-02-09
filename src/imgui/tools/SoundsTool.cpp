@@ -37,15 +37,13 @@ namespace uaudio
 
 		void SoundsTool::RenderSound(uaudio::player::Sound& a_Sound)
 		{
-			//uaudio::WaveFormat* a_WaveFile = nullptr;
-			//uaudio::SoundSys.FindSound(a_WaveFile, a_SoundHash);
-
 			std::string sound_hash_id = "##sound_" + std::to_string(a_Sound.m_Hash) + "_";
 
-			std::string sound_header = a_Sound.m_Name + sound_hash_id + "sound_collapse";
+			std::string sound_header = std::string(MUSIC) + " " + a_Sound.m_Name + sound_hash_id + "sound_collapse";
 			if (!ImGui::CollapsingHeader(sound_header.c_str()))
 				return;
 
+			ImGui::Indent(IMGUI_INDENT);
 			uaudio::wave_reader::ChunkCollection& chunkCollection = *a_Sound.m_ChunkCollection;
 			bool hasFmtChunk = false, hasDataChunk = false;
 			chunkCollection.HasChunk(hasFmtChunk, uaudio::wave_reader::FMT_CHUNK_ID);
@@ -285,6 +283,25 @@ namespace uaudio
 							ImGui::Unindent(IMGUI_INDENT);
 						}
 					}
+					else if (uaudio::utils::chunkcmp(uaudio::wave_reader::INST_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+					{
+						if (ImGui::CollapsingHeader(chunk_header.c_str()))
+						{
+							ImGui::Indent(IMGUI_INDENT);
+							ShowBaseChunk(chunk_id, chunkCollection);
+
+							uaudio::wave_reader::INST_Chunk smpl_chunk;
+							chunkCollection.GetChunkFromData<uaudio::wave_reader::INST_Chunk>(smpl_chunk, uaudio::wave_reader::INST_CHUNK_ID);
+							ShowValue("Unshifted Note: ", std::to_string(smpl_chunk.unshiftedNote).c_str());
+							ShowValue("Fine Tune: ", std::to_string(smpl_chunk.fineTune).c_str());
+							ShowValue("Gain: ", std::to_string(smpl_chunk.gain).c_str());
+							ShowValue("Low Note: ", std::to_string(smpl_chunk.lowNote).c_str());
+							ShowValue("High Note: ", std::to_string(smpl_chunk.highNote).c_str());
+							ShowValue("Low Velocity: ", std::to_string(smpl_chunk.lowVelocity).c_str());
+							ShowValue("High Velocity: ", std::to_string(smpl_chunk.highVelocity).c_str());
+							ImGui::Unindent(IMGUI_INDENT);
+						}
+					}
 					else
 					{
 						if (ImGui::CollapsingHeader(chunk_header.c_str()))
@@ -300,6 +317,7 @@ namespace uaudio
 				ImGui::Unindent(IMGUI_INDENT);
 			}
 #pragma endregion
+			ImGui::Unindent(IMGUI_INDENT);
 		}
 	}
 }
