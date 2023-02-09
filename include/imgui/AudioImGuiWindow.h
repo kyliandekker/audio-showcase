@@ -27,7 +27,7 @@ namespace uaudio
 			void Render();
 			void DeleteWindow() const;
 			void ProcessEvent(SDL_Event* a_Event);
-			void AddTool(BaseTool* a_Tool);
+			void AddTool(BaseTool& a_Tool);
 		private:
 			sdl::AudioSDLWindow* m_Window = nullptr;
 			bool m_Enabled = true;

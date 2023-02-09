@@ -90,7 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -134,7 +134,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -156,7 +156,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -186,22 +186,31 @@
     <ClCompile Include="external\imgui\implot.cpp" />
     <ClCompile Include="external\imgui\implot_items.cpp" />
     <ClCompile Include="external\imgui\piano.cpp" />
+    <ClCompile Include="src\audio\player\AudioSystem.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\audio\player\Sound.cpp" />
     <ClCompile Include="src\imgui\AudioImGuiWindow.cpp" />
     <ClCompile Include="src\imgui\tools\BaseTool.cpp" />
     <ClCompile Include="src\imgui\tools\MainWindow.cpp" />
+    <ClCompile Include="src\imgui\tools\MasterTool.cpp" />
+    <ClCompile Include="src\imgui\tools\SoundsTool.cpp" />
     <ClCompile Include="src\sdl\AudioSDLWindow.cpp" />
     <ClCompile Include="src\utils\Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\audio\AudioChannel.h" />
     <ClInclude Include="include\audio\Defines.h" />
+    <ClInclude Include="include\audio\player\AudioSystem.h" />
+    <ClInclude Include="include\audio\player\Sound.h" />
     <ClInclude Include="include\audio\UAUDIO_PLAYER_RESULT.h" />
     <ClInclude Include="include\audio\XAudio2Callback.h" />
     <ClInclude Include="include\imgui\AudioImGuiWindow.h" />
     <ClInclude Include="include\imgui\ImguiDefines.h" />
     <ClInclude Include="include\imgui\tools\BaseTool.h" />
+    <ClInclude Include="include\imgui\tools\MasterTool.h" />
+    <ClInclude Include="include\imgui\tools\SoundsTool.h" />
     <ClInclude Include="include\sdl\AudioSDLWindow.h" />
+    <ClInclude Include="include\utils\Hash.h" />
     <ClInclude Include="include\utils\Logger.h" />
     <ClInclude Include="include\utils\Utils.h" />
     <ClInclude Include="include\imgui\tools\MainWindow.h" />

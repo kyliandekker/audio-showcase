@@ -209,9 +209,9 @@ namespace uaudio
 			ImGui_ImplSDL2_ProcessEvent(a_Event);
 		}
 
-		void AudioImGuiWindow::AddTool(BaseTool* a_Tool)
+		void AudioImGuiWindow::AddTool(BaseTool& a_Tool)
 		{
-			m_Tools.push_back(a_Tool);
+			m_Tools.push_back(&a_Tool);
 		}
 	}
 }

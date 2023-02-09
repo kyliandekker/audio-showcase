@@ -1,5 +1,7 @@
 #include "sdl/AudioSDLWindow.h"
 #include "imgui/AudioImGuiWindow.h"
+#include "imgui/tools/MasterTool.h"
+#include "imgui/tools/SoundsTool.h"
 
 int main(int, char* [])
 {
@@ -13,6 +15,12 @@ int main(int, char* [])
 	audioSDLWindow.m_UpdateFrame = std::bind(&uaudio::imgui::AudioImGuiWindow::Render, &imGuiWindow);
 	audioSDLWindow.m_EventProcess = std::bind(&uaudio::imgui::AudioImGuiWindow::ProcessEvent, &imGuiWindow, &audioSDLWindow.GetLastEvent());
 	audioSDLWindow.Init();
+
+	uaudio::imgui::MasterTool masterTool = uaudio::imgui::MasterTool();
+	imGuiWindow.AddTool(masterTool);
+
+	uaudio::imgui::SoundsTool soundsTool = uaudio::imgui::SoundsTool();
+	imGuiWindow.AddTool(soundsTool);
 
 	imGuiWindow.CreateImGui();
 
