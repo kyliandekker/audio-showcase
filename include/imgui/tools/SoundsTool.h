@@ -9,6 +9,11 @@ namespace uaudio
 		class Sound;
 	}
 
+	namespace wave_reader
+	{
+		class ChunkCollection;
+	}
+
 	namespace imgui
 	{
 		class SoundsTool : public BaseTool
@@ -16,6 +21,7 @@ namespace uaudio
 		public:
 			SoundsTool();
 			void Render() override;
+            void ShowBaseChunk(char* a_ChunkId, uaudio::wave_reader::ChunkCollection& chunkCollection);
 			void RenderSound(uaudio::player::Sound& a_Sound);
 		};
 	}

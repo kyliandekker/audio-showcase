@@ -189,6 +189,7 @@
     <ClCompile Include="src\audio\player\AudioSystem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\audio\player\Sound.cpp" />
+    <ClCompile Include="src\audio\utils\Utils.cpp" />
     <ClCompile Include="src\imgui\AudioImGuiWindow.cpp" />
     <ClCompile Include="src\imgui\tools\BaseTool.cpp" />
     <ClCompile Include="src\imgui\tools\MainWindow.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="include\audio\player\AudioSystem.h" />
     <ClInclude Include="include\audio\player\Sound.h" />
     <ClInclude Include="include\audio\UAUDIO_PLAYER_RESULT.h" />
+    <ClInclude Include="include\audio\utils\Utils.h" />
     <ClInclude Include="include\audio\XAudio2Callback.h" />
     <ClInclude Include="include\imgui\AudioImGuiWindow.h" />
     <ClInclude Include="include\imgui\ImguiDefines.h" />
