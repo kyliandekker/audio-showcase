@@ -1,23 +1,34 @@
 #pragma once
 
-#include <unordered_map>
+#include <cstdint>
 
-#include "utils/Hash.h"
+#include "audio/player/Defines.h"
 
 namespace uaudio
 {
 	namespace player
 	{
-		class Sound;
+		class AudioBackend;
 
 		class AudioSystem
 		{
 		public:
-			void AddSound(const char* a_Path);
-			void UnloadSound(uaudio::player::Hash a_Hash);
-			std::vector<Sound*> GetSounds() const;
+			AudioSystem();
+			uint32_t GetBufferSize() const;
+			void SetBufferSize(uint32_t a_BufferSize);
+			void SetBufferSize(BUFFERSIZE a_BufferSize);
+
+			bool IsPaused() const;
+			void SetPaused(bool a_Paused);
+
+			float GetVolume() const;
+			void SetVolume(float a_Volume);
+
+			float GetPanning() const;
+			void SetPanning(float a_Panning);
+
 		private:
-			std::unordered_map<uaudio::player::Hash, uaudio::player::Sound*> m_Sounds;
+			AudioBackend* m_AudioBackend = nullptr;
 		};
 		extern AudioSystem audioSystem;
 	}

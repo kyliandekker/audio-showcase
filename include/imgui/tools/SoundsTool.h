@@ -23,6 +23,7 @@ namespace uaudio
 			void Render() override;
             void ShowBaseChunk(char* a_ChunkId, uaudio::wave_reader::ChunkCollection& chunkCollection);
 			void RenderSound(uaudio::player::Sound& a_Sound);
+			void SaveFile(uaudio::wave_reader::ChunkCollection& chunkCollection);
 		};
 	}
 }

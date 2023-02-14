@@ -1,13 +1,15 @@
 #include "imgui/tools/SoundsTool.h"
 
 #include <vector>
+#include <OleCtl.h>
 #include <uaudio_wave_reader/WaveChunks.h>
+#include <uaudio_wave_reader/WaveReader.h>
 #include <uaudio_wave_reader/ChunkCollection.h>
 #include <uaudio_wave_reader/WaveChunkData.h>
 #include <imgui/imgui_helpers.h>
 #include <imgui/implot.h>
 
-#include "audio/player/AudioSystem.h"
+#include "audio/player/SoundsSystem.h"
 #include "audio/player/Sound.h"
 #include "audio/utils/Utils.h"
 #include "imgui/ImguiDefines.h"
@@ -22,7 +24,7 @@ namespace uaudio
 
 		void SoundsTool::Render()
 		{
-			std::vector<uaudio::player::Sound*> sounds = uaudio::player::audioSystem.GetSounds();
+			std::vector<uaudio::player::Sound*> sounds = uaudio::player::soundSystem.GetSounds();
 			for (const auto sound : sounds)
 				RenderSound(*sound);
 		}
@@ -55,6 +57,15 @@ namespace uaudio
 			{
 				chunkCollection.GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);
 
+				//float* samples = a_Sound.m_Samples;
+
+				//if (samples != nullptr)
+				//{
+				//	ImPlot::BeginPlot("Audio Data");
+				//	ImPlot::PlotLine("Waveform", samples, 2048);
+				//	ImPlot::EndPlot();
+				//}
+
 				std::string play_button_text = std::string(PLAY) + " Play" + sound_hash_id + "play_button";
 				if (ImGui::Button(play_button_text.c_str()))
 				{
@@ -70,7 +81,7 @@ namespace uaudio
 			std::string remove_sound_text = std::string(MINUS) + " Unload" + sound_hash_id + "unload_sound_button";
 			if (ImGui::Button(remove_sound_text.c_str()))
 			{
-				uaudio::player::audioSystem.UnloadSound(a_Sound.m_Hash);
+				uaudio::player::soundSystem.UnloadSound(a_Sound.m_Hash);
 				return;
 			}
 
@@ -78,7 +89,7 @@ namespace uaudio
 			std::string save_sound_text = std::string(SAVE) + " Save" + sound_hash_id + "save_sound_button";
 			if (ImGui::Button(save_sound_text.c_str()))
 			{
-				// SaveFile(a_WaveFile);
+				SaveFile(chunkCollection);
 			}
 
 			ImGui::SameLine();
@@ -91,14 +102,17 @@ namespace uaudio
 
 #pragma region duration
 
-			uaudio::wave_reader::FMT_Chunk fmt_chunk;
-			chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+			if (hasFmtChunk && hasDataChunk)
+			{
+				uaudio::wave_reader::FMT_Chunk fmt_chunk;
+				chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
 
-			ImGui::Text("%s", std::string(
-				uaudio::utils::FormatDuration(uaudio::utils::PosToSeconds(0, fmt_chunk.byteRate), true) +
-				"/" +
-				uaudio::utils::FormatDuration(uaudio::utils::PosToSeconds(data_chunk_size, fmt_chunk.byteRate), true))
-				.c_str());
+				ImGui::Text("%s", std::string(
+					uaudio::utils::FormatDuration(uaudio::utils::PosToSeconds(0, fmt_chunk.byteRate), true) +
+					"/" +
+					uaudio::utils::FormatDuration(uaudio::utils::PosToSeconds(data_chunk_size, fmt_chunk.byteRate), true))
+					.c_str());
+			}
 
 #pragma endregion
 
@@ -133,6 +147,9 @@ namespace uaudio
 						{
 							ImGui::Indent(IMGUI_INDENT);
 							ShowBaseChunk(chunk_id, chunkCollection);
+
+							uaudio::wave_reader::FMT_Chunk fmt_chunk;
+							chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
 
 							ShowValue("Audio Format: ", std::to_string(fmt_chunk.audioFormat).c_str());
 							ShowValue("Number of Channels: ", std::to_string(fmt_chunk.numChannels).c_str());
@@ -267,7 +284,7 @@ namespace uaudio
 							ShowValue("Sampler Data: ", std::to_string(smpl_chunk.sampler_data).c_str());
 							for (uint32_t i = 0; i < smpl_chunk.num_sample_loops; i++)
 							{
-								const std::string chunk_smpl_loop_text = chunk_header + "loop_point_" + std::to_string(i);
+								const std::string chunk_smpl_loop_text = "Cue Point " + std::to_string(i) + sound_hash_id + "loop_point_" + std::to_string(i);
 								if (ImGui::CollapsingHeader(chunk_smpl_loop_text.c_str()))
 								{
 									ImGui::Indent(IMGUI_INDENT);
@@ -318,6 +335,32 @@ namespace uaudio
 			}
 #pragma endregion
 			ImGui::Unindent(IMGUI_INDENT);
+		}
+
+		void SoundsTool::SaveFile(uaudio::wave_reader::ChunkCollection& chunkCollection)
+		{
+			OPENFILENAME ofn;
+			TCHAR sz_file[260] = { 0 };
+
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.lpstrFile = sz_file;
+			ofn.nMaxFile = sizeof(sz_file);
+			ofn.lpstrFilter = L"WAV Files (*.wav;*.wave)\0*.wav;*.wave";
+			ofn.nFilterIndex = 1;
+			ofn.lpstrFileTitle = nullptr;
+			ofn.nMaxFileTitle = 0;
+			ofn.lpstrInitialDir = nullptr;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+			if (GetOpenFileName(&ofn))
+			{
+				const auto path = new char[wcslen(ofn.lpstrFile) + 1];
+				wsprintfA(path, "%S", ofn.lpstrFile);
+
+				uaudio::wave_reader::WaveReader::SaveWave(path, chunkCollection);
+				delete[] path;
+			}
 		}
 	}
 }

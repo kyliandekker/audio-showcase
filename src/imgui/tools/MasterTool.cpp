@@ -7,7 +7,9 @@
 #include <uaudio_wave_reader/WaveChunks.h>
 
 #include "imgui/ImguiDefines.h"
-#include <audio/player/AudioSystem.h>
+#include "audio/player/SoundsSystem.h"
+#include "audio/player/AudioSystem.h"
+#include <uaudio_wave_reader/WaveReader.h>
 
 namespace uaudio
 {
@@ -15,11 +17,10 @@ namespace uaudio
 	{
 		MasterTool::MasterTool() : BaseTool(0, "Actions", "Master Actions")
 		{
-			//uaudio::BUFFERSIZE buffer_size;
-			//m_AudioSystem.GetBufferSize(buffer_size);
-			//for (int i = 0; i < m_BufferSizeOptions.size(); i++)
-			//	if (m_BufferSizeOptions[i] == buffer_size)
-			//		m_BufferSizeSelection = i;
+			uaudio::player::BUFFERSIZE buffer_size = static_cast<uaudio::player::BUFFERSIZE>(player::audioSystem.GetBufferSize());
+			for (int i = 0; i < m_BufferSizeOptions.size(); i++)
+				if (m_BufferSizeOptions[i] == buffer_size)
+					m_BufferSizeSelection = i;
 
 			//m_WaveConfig.bitsPerSample = uaudio::UAUDIO_DEFAULT_BITS_PER_SAMPLE;
 			//for (uint32_t i = 0; i < m_BitsPerSampleOptions.size(); i++)
@@ -38,46 +39,41 @@ namespace uaudio
 
 		void MasterTool::Render()
 		{
-			bool playback = false;
-			// m_AudioSystem.GetPlayback(playback);
-			if (playback)
+			bool paused = player::audioSystem.IsPaused();
+			if (paused)
 			{
-				if (ImGui::Button(PAUSE, ImVec2(50, 50)))
+				if (ImGui::Button(PLAY, ImVec2(50, 50)))
 				{
-					// m_AudioSystem.SetPlayback(false);
+					player::audioSystem.SetPaused(false);
 				}
 			}
 			else
 			{
-				if (ImGui::Button(PLAY, ImVec2(50, 50)))
+				if (ImGui::Button(PAUSE, ImVec2(50, 50)))
 				{
-					// m_AudioSystem.SetPlayback(true);
+					player::audioSystem.SetPaused(true);
 				}
 			}
 			ImGui::SameLine();
-			//if (ImGui::Button(STOP, ImVec2(50, 50)))
-			//{
-			//    m_AudioSystem.SetPlayback(false);
-			//    for (int32_t i = 0; i < static_cast<int32_t>(m_AudioSystem.ChannelSize()); i++)
-			//        m_AudioSystem.GetChannel(i)->SetPos(0);
-			//}
+			if (ImGui::Button(STOP, ImVec2(50, 50)))
+			{
+				player::audioSystem.SetPaused(true);
+			    //for (int32_t i = 0; i < static_cast<int32_t>(m_AudioSystem.ChannelSize()); i++)
+			    //    m_AudioSystem.GetChannel(i)->SetPos(0);
+			}
 
-			float panning = 0;
-			// m_AudioSystem.GetMasterPanning(panning);
+			float panning = player::audioSystem.GetPanning();
 			const std::string master_panning_text = std::string(PANNING) + " Master Panning (affects all channels)";
 			if (ImGui::Knob("Panning##Master_Panning", &panning, -1.0f, 1.0f, ImVec2(50, 50), master_panning_text.c_str(), 0.0f))
-			{
-				// m_AudioSystem.SetMasterPanning(panning);
-			}
+				player::audioSystem.SetPanning(panning);
 
 			ImGui::SameLine();
-			float volume = 0;
-			// m_AudioSystem.GetMasterVolume(volume);
+			float volume = player::audioSystem.GetVolume();
 			const std::string master_volume_text = std::string(VOLUME_UP) + " Master Volume (affects all channels)";
 			if (ImGui::Knob("Volume##Master_Volume", &volume, 0, 1, ImVec2(50, 50), master_volume_text.c_str(), 1.0f))
-			{
-				// m_AudioSystem.SetMasterVolume(volume);
-			}
+				player::audioSystem.SetVolume(volume);
+
+			ImGui::Separator();
 
 			const std::string buffer_size_text = "Buffer Size";
 			ImGui::Text("%s", buffer_size_text.c_str());
@@ -89,11 +85,13 @@ namespace uaudio
 					if (ImGui::Selectable(m_BufferSizeTextOptions[n], is_selected))
 					{
 						m_BufferSizeSelection = n;
-						// m_AudioSystem.SetBufferSize(m_BufferSizeOptions[n]);
+						player::audioSystem.SetBufferSize(m_BufferSizeOptions[n]);
 					}
 				}
 				ImGui::EndCombo();
 			}
+
+			ImGui::Separator();
 
 			const std::string add_sound_text = std::string(ADD) + " Load Sound";
 			if (ImGui::Button(add_sound_text.c_str()))
@@ -204,8 +202,22 @@ namespace uaudio
 			{
 				const auto path = new char[wcslen(ofn.lpstrFile) + 1];
 				wsprintfA(path, "%S", ofn.lpstrFile);
+				
+				std::vector<std::string> chosenIds;
+				for (size_t i = 0; i < m_ChunkIds.size(); i++)
+					if (m_ChunkIds[i].selected)
+						chosenIds.push_back(m_ChunkIds[i].chunk_id);
 
-				uaudio::player::audioSystem.AddSound(path);
+				char* text = reinterpret_cast<char*>(malloc(chosenIds.size() * uaudio::wave_reader::CHUNK_ID_SIZE));
+				for (size_t i = 0; i < chosenIds.size(); i++)
+					memcpy(text + (i * uaudio::wave_reader::CHUNK_ID_SIZE), chosenIds[i].c_str(), uaudio::wave_reader::CHUNK_ID_SIZE);
+
+				std::string_view sv(reinterpret_cast<const char*>(text), chosenIds.size());
+
+				const uaudio::wave_reader::Filter filters{ &sv, chosenIds.size()};
+
+				uaudio::player::soundSystem.AddSound(path, filters);
+
 				delete[] path;
 			}
 		}

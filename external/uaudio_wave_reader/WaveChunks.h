@@ -5,7 +5,7 @@
 
 #include "./Defines.h"
 #include "./Utils.h"
-#include "./WaveChunkData.h"
+#include "./ChunkHeader.h"
 
 /*
  * WHAT IS THIS FILE?
@@ -62,16 +62,13 @@ namespace uaudio
 #pragma pack(push, 1)
 		constexpr auto RIFF_CHUNK_ID = "RIFF";
 		constexpr auto RIFF_CHUNK_FORMAT = "WAVE";
-		struct RIFF_Chunk : WaveChunkData
+		struct RIFF_Chunk : ChunkHeader
 		{
 			RIFF_Chunk() = default;
-			RIFF_Chunk(RIFF_Chunk* a_DataBuffer) : WaveChunkData()
+			RIFF_Chunk(RIFF_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
 			{
 				if (a_DataBuffer != nullptr)
 				{
-					memcpy(chunk_id, a_DataBuffer->chunk_id, CHUNK_ID_SIZE);
-					chunkSize = a_DataBuffer->chunkSize;
-
 					memcpy(format, a_DataBuffer->format, sizeof(format));
 				}
 			}
@@ -134,16 +131,13 @@ namespace uaudio
 		*/
 
 		constexpr auto FMT_CHUNK_ID = "fmt ";
-		struct FMT_Chunk : WaveChunkData
+		struct FMT_Chunk : ChunkHeader
 		{
 			FMT_Chunk() = default;
-			FMT_Chunk(FMT_Chunk* a_DataBuffer) : WaveChunkData()
+			FMT_Chunk(FMT_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
 			{
 				if (a_DataBuffer != nullptr)
 				{
-					memcpy(chunk_id, a_DataBuffer->chunk_id, CHUNK_ID_SIZE);
-					chunkSize = a_DataBuffer->chunkSize;
-
 					audioFormat = a_DataBuffer->audioFormat;
 					numChannels = a_DataBuffer->numChannels;
 					sampleRate = a_DataBuffer->sampleRate;
@@ -182,16 +176,13 @@ namespace uaudio
 		*/
 
 		constexpr auto DATA_CHUNK_ID = "data";
-		struct DATA_Chunk : WaveChunkData
+		struct DATA_Chunk : ChunkHeader
 		{
 			DATA_Chunk() = default;
-			DATA_Chunk(DATA_Chunk* a_DataBuffer) : WaveChunkData()
+			DATA_Chunk(DATA_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
 			{
 				if (a_DataBuffer != nullptr)
 				{
-					memcpy(chunk_id, a_DataBuffer->chunk_id, CHUNK_ID_SIZE);
-					chunkSize = a_DataBuffer->chunkSize;
-
 					// data is a pointer to everything after the data header.
 					data = reinterpret_cast<unsigned char*>(utils::add(a_DataBuffer, sizeof(DATA_Chunk) - sizeof(data)));
 				}
@@ -240,16 +231,13 @@ namespace uaudio
 		*/
 
 		constexpr auto ACID_CHUNK_ID = "acid";
-		struct ACID_Chunk : WaveChunkData
+		struct ACID_Chunk : ChunkHeader
 		{
 			ACID_Chunk() = default;
-			ACID_Chunk(ACID_Chunk* a_DataBuffer) : WaveChunkData()
+			ACID_Chunk(ACID_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
 			{
 				if (a_DataBuffer != nullptr)
 				{
-					memcpy(chunk_id, a_DataBuffer->chunk_id, CHUNK_ID_SIZE);
-					chunkSize = a_DataBuffer->chunkSize;
-
 					type_of_file = a_DataBuffer->type_of_file;
 					root_note = a_DataBuffer->root_note;
 					unknown1 = a_DataBuffer->unknown1;
@@ -359,16 +347,13 @@ namespace uaudio
 		*/
 
 		constexpr auto BEXT_CHUNK_ID = "bext";
-		struct BEXT_Chunk : WaveChunkData
+		struct BEXT_Chunk : ChunkHeader
 		{
 			BEXT_Chunk() = default;
-			BEXT_Chunk(BEXT_Chunk* a_DataBuffer) : WaveChunkData()
+			BEXT_Chunk(BEXT_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
 			{
 				if (a_DataBuffer != nullptr)
 				{
-					memcpy(chunk_id, a_DataBuffer->chunk_id, CHUNK_ID_SIZE);
-					chunkSize = a_DataBuffer->chunkSize;
-
 					memcpy(description, a_DataBuffer->description, sizeof(description));
 					memcpy(originator, a_DataBuffer->originator, sizeof(originator));
 					memcpy(originator_reference, a_DataBuffer->originator_reference, sizeof(originator_reference));
@@ -420,16 +405,13 @@ namespace uaudio
 		*/
 
 		constexpr auto FACT_CHUNK_ID = "fact";
-		struct FACT_Chunk : WaveChunkData
+		struct FACT_Chunk : ChunkHeader
 		{
 			FACT_Chunk() = default;
-			FACT_Chunk(FACT_Chunk* a_DataBuffer) : WaveChunkData()
+			FACT_Chunk(FACT_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
 			{
 				if (a_DataBuffer != nullptr)
 				{
-					memcpy(chunk_id, a_DataBuffer->chunk_id, CHUNK_ID_SIZE);
-					chunkSize = a_DataBuffer->chunkSize;
-
 					sample_length = a_DataBuffer->sample_length;
 				}
 			}
@@ -497,16 +479,13 @@ namespace uaudio
 		*/
 
 		constexpr auto CUE_CHUNK_ID = "cue ";
-		struct CUE_Chunk : WaveChunkData
+		struct CUE_Chunk : ChunkHeader
 		{
 			CUE_Chunk() = default;
-			CUE_Chunk(CUE_Chunk* a_DataBuffer) : WaveChunkData()
+			CUE_Chunk(CUE_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
 			{
 				if (a_DataBuffer != nullptr)
 				{
-					memcpy(chunk_id, a_DataBuffer->chunk_id, CHUNK_ID_SIZE);
-					chunkSize = a_DataBuffer->chunkSize;
-
 					num_cue_points = a_DataBuffer->num_cue_points;
 
 					// cue_points is a pointer to everything after the cue_chunk header and the num_cue_points field.
@@ -704,16 +683,13 @@ namespace uaudio
 		*/
 
 		constexpr auto SMPL_CHUNK_ID = "smpl";
-		struct SMPL_Chunk : WaveChunkData
+		struct SMPL_Chunk : ChunkHeader
 		{
 			SMPL_Chunk() = default;
-			SMPL_Chunk(SMPL_Chunk* a_DataBuffer) : WaveChunkData()
+			SMPL_Chunk(SMPL_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
 			{
 				if (a_DataBuffer != nullptr)
 				{
-					memcpy(chunk_id, a_DataBuffer->chunk_id, CHUNK_ID_SIZE);
-					chunkSize = a_DataBuffer->chunkSize;
-
 					manufacturer = a_DataBuffer->manufacturer;
 					product = a_DataBuffer->product;
 					sample_period = a_DataBuffer->sample_period;
@@ -784,16 +760,13 @@ namespace uaudio
 		*/
 
 		constexpr auto INST_CHUNK_ID = "inst";
-		struct INST_Chunk : WaveChunkData
+		struct INST_Chunk : ChunkHeader
 		{
 			INST_Chunk() = default;
-			INST_Chunk(INST_Chunk* a_DataBuffer) : WaveChunkData()
+			INST_Chunk(INST_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
 			{
 				if (a_DataBuffer != nullptr)
 				{
-					memcpy(chunk_id, a_DataBuffer->chunk_id, CHUNK_ID_SIZE);
-					chunkSize = a_DataBuffer->chunkSize;
-
 					unshiftedNote = a_DataBuffer->unshiftedNote;
 					fineTune = a_DataBuffer->fineTune;
 					gain = a_DataBuffer->gain;

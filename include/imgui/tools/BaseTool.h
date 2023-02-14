@@ -15,7 +15,7 @@ namespace uaudio
 			~BaseTool();
 
 			static float GetRGBColor(int color);
-			void ShowValue(const char* a_Text, const char* a_Value);
+			void ShowValue(std::string a_Text, const char* a_Value);
 			virtual void WindowBegin();
 			virtual void WindowEnd();
 			void Update();

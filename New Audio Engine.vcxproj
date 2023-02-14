@@ -187,6 +187,7 @@
     <ClCompile Include="external\imgui\implot_items.cpp" />
     <ClCompile Include="external\imgui\piano.cpp" />
     <ClCompile Include="src\audio\player\AudioSystem.cpp" />
+    <ClCompile Include="src\audio\player\SoundsSystem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\audio\player\Sound.cpp" />
     <ClCompile Include="src\audio\utils\Utils.cpp" />
@@ -200,12 +201,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\audio\AudioChannel.h" />
-    <ClInclude Include="include\audio\Defines.h" />
+    <ClInclude Include="include\audio\player\Defines.h" />
     <ClInclude Include="include\audio\player\AudioSystem.h" />
+    <ClInclude Include="include\audio\player\backends\AudioBackend.h" />
+    <ClInclude Include="include\audio\player\SoundsSystem.h" />
     <ClInclude Include="include\audio\player\Sound.h" />
-    <ClInclude Include="include\audio\UAUDIO_PLAYER_RESULT.h" />
+    <ClInclude Include="include\audio\player\backends\xaudio2\UAUDIO_PLAYER_RESULT.h" />
     <ClInclude Include="include\audio\utils\Utils.h" />
-    <ClInclude Include="include\audio\XAudio2Callback.h" />
+    <ClInclude Include="include\audio\player\backends\xaudio2\XAudio2Callback.h" />
     <ClInclude Include="include\imgui\AudioImGuiWindow.h" />
     <ClInclude Include="include\imgui\ImguiDefines.h" />
     <ClInclude Include="include\imgui\tools\BaseTool.h" />

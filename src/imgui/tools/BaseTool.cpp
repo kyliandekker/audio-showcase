@@ -17,10 +17,10 @@ namespace uaudio
 			return 1.0f / 255.0f * static_cast<float>(color);
 		}
 
-		void BaseTool::ShowValue(const char* a_Text, const char* a_Value)
+		void BaseTool::ShowValue(std::string a_Text, const char* a_Value)
 		{
 			const ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-			ImGui::Text("%s\n", a_Text);
+			ImGui::Text("%s\n", a_Text.c_str());
 			ImGui::SameLine();
 			ImGui::TextColored(color, "%s\n", a_Value);
 		}

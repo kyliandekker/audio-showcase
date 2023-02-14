@@ -1,11 +1,7 @@
 #include "audio/player/AudioSystem.h"
 
-#include <uaudio_wave_reader/WaveReader.h>
-#include <uaudio_wave_reader/ChunkCollection.h>
-#include <uaudio_wave_reader/WaveChunks.h>
-
-#include "audio/player/Sound.h"
-#include "audio/utils/Utils.h"
+#include "audio/player/backends/AudioBackend.h"
+#include "audio/player/Defines.h"
 
 uaudio::player::AudioSystem uaudio::player::audioSystem;
 
@@ -13,52 +9,54 @@ namespace uaudio
 {
 	namespace player
 	{
-		void AudioSystem::AddSound(const char* a_Path)
+		AudioSystem::AudioSystem()
 		{
-			uaudio::player::Hash hash = uaudio::player::GetHash(a_Path);
-			if (m_Sounds.find(hash) != m_Sounds.end())
-				return;
-
-			size_t size = 0;
-			uaudio::wave_reader::WaveReader::FTell(a_Path, size);
-			void* allocated_space = malloc(size);
-
-			uaudio::wave_reader::ChunkCollection* chunkCollection = new uaudio::wave_reader::ChunkCollection(allocated_space, size);
-			uaudio::wave_reader::WaveReader::LoadWave(a_Path, *chunkCollection);
-
-			Sound* sound = new Sound();
-			sound->m_ChunkCollection = chunkCollection;
-			sound->m_Hash = hash;
-			sound->m_Name = a_Path;
-
-			bool hasDataChunk = false;
-			chunkCollection->HasChunk(hasDataChunk, uaudio::wave_reader::DATA_CHUNK_ID);
-
-			if (hasDataChunk)
-			{
-				uaudio::wave_reader::DATA_Chunk data_chunk;
-				chunkCollection->GetChunkFromData<uaudio::wave_reader::DATA_Chunk>(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
-				uint32_t data_chunk_size = 0;
-				chunkCollection->GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);
-				float* samples = uaudio::utils::ToSample(data_chunk.data, data_chunk_size);
-				sound->m_Samples = samples;
-			}
-
-			m_Sounds.insert(std::make_pair(hash, sound));
+			m_AudioBackend = new AudioBackend();
 		}
 
-		void AudioSystem::UnloadSound(uaudio::player::Hash a_Hash)
+		uint32_t AudioSystem::GetBufferSize() const
 		{
-			delete m_Sounds[a_Hash];
-			m_Sounds.erase(a_Hash);
+			return m_AudioBackend->GetBufferSize();
 		}
 
-        std::vector<Sound*> AudioSystem::GetSounds() const
-        {
-			std::vector<Sound*> sounds;
-			for (auto& resource : m_Sounds)
-				sounds.push_back(resource.second);
-            return sounds;
-        }
+		void AudioSystem::SetBufferSize(uint32_t a_BufferSize)
+		{
+			m_AudioBackend->SetBufferSize(a_BufferSize);
+		}
+
+		void AudioSystem::SetBufferSize(BUFFERSIZE a_BufferSize)
+		{
+			m_AudioBackend->SetBufferSize(a_BufferSize);
+		}
+
+		bool AudioSystem::IsPaused() const
+		{
+			return m_AudioBackend->IsPaused();
+		}
+
+		void AudioSystem::SetPaused(bool a_Paused)
+		{
+			m_AudioBackend->SetPaused(a_Paused);
+		}
+
+		float AudioSystem::GetVolume() const
+		{
+			return m_AudioBackend->GetVolume();
+		}
+
+		void AudioSystem::SetVolume(float a_Volume)
+		{
+			m_AudioBackend->SetVolume(a_Volume);
+		}
+
+		float AudioSystem::GetPanning() const
+		{
+			return m_AudioBackend->GetPanning();
+		}
+
+		void AudioSystem::SetPanning(float a_Panning)
+		{
+			m_AudioBackend->SetPanning(a_Panning);
+		}
 	}
 }
