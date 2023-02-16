@@ -1,9 +1,9 @@
 #pragma once
 
 #include <unordered_map>
-#include <uaudio_wave_reader/WaveReader.h>
 
 #include "utils/Hash.h"
+#include <uaudio_wave_reader/ChunkFilter.h>
 
 namespace uaudio
 {
@@ -14,7 +14,7 @@ namespace uaudio
 		class SoundsSystem
 		{
 		public:
-			void AddSound(const char* a_Path, uaudio::wave_reader::Filter a_Filter);
+			void AddSound(const char* a_Path, uaudio::wave_reader::ChunkFilter a_Filter);
 			void UnloadSound(uaudio::player::Hash a_Hash);
 			std::vector<Sound*> GetSounds() const;
 		private:

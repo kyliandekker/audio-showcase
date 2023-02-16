@@ -5,7 +5,6 @@
 #include <uaudio_wave_reader/WaveChunks.h>
 #include <uaudio_wave_reader/WaveReader.h>
 #include <uaudio_wave_reader/ChunkCollection.h>
-#include <uaudio_wave_reader/WaveChunkData.h>
 #include <imgui/imgui_helpers.h>
 #include <imgui/implot.h>
 
@@ -128,7 +127,7 @@ namespace uaudio
 
 				for (size_t i = 0; i < num_chunks; i++)
 				{
-					uaudio::WaveChunkData* data = nullptr;
+					uaudio::wave_reader::ChunkHeader* data = nullptr;
 					chunkCollection.GetChunkFromData(data, static_cast<uint32_t>(i));
 
 					char chunk_id[uaudio::wave_reader::CHUNK_ID_SIZE + 1];
@@ -353,7 +352,7 @@ namespace uaudio
 			ofn.lpstrInitialDir = nullptr;
 			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-			if (GetOpenFileName(&ofn))
+			if (GetSaveFileName(&ofn))
 			{
 				const auto path = new char[wcslen(ofn.lpstrFile) + 1];
 				wsprintfA(path, "%S", ofn.lpstrFile);

@@ -24,9 +24,9 @@ namespace uaudio
 		{
 		private:
 			void* m_Start = nullptr;
-			void* m_Buffer = nullptr;
 			void* m_End = nullptr;
 			size_t m_Size = 0;
+			size_t m_Allocated = 0;
 
 			friend class WaveReader;
 
@@ -35,93 +35,23 @@ namespace uaudio
 			/// </summary>
 			/// <param name="a_ChunkID">The chunk id (must be a length of 4 characters).</param>
 			/// <returns>The chunk on success, nullptr on failure.</returns>
-			ChunkHeader* GetChunkFromAllocator(const char* a_ChunkID) const
-			{
-				assert(m_Start != nullptr);
-
-				unsigned char* data = reinterpret_cast<unsigned char*>(m_Start);
-				while (data < m_End)
-				{
-					ChunkHeader* wave_chunk_data = reinterpret_cast<ChunkHeader*>(data);
-					if (strncmp(&a_ChunkID[0], &reinterpret_cast<char*>(wave_chunk_data->chunk_id)[0], CHUNK_ID_SIZE) == 0)
-					{
-						return wave_chunk_data;
-					}
-					data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(ChunkHeader) + wave_chunk_data->chunkSize));
-				}
-				return nullptr;
-			}
+			ChunkHeader* GetChunkFromAllocator(const char* a_ChunkID) const;
 
 			/// <summary>
 			/// Retrieves a chunk by index.
 			/// </summary>
 			/// <param name="a_Index">The index.</param>
 			/// <returns>The chunk on success, nullptr on failure.</returns>
-			ChunkHeader* GetChunkFromAllocator(uint32_t a_Index) const
-			{
-				assert(m_Start != nullptr);
+			ChunkHeader* GetChunkFromAllocator(uint32_t a_Index) const;
 
-				unsigned char* data = reinterpret_cast<unsigned char*>(m_Start);
-				uint32_t index = 0;
-				while (data < m_End)
-				{
-					ChunkHeader* wave_chunk_data = reinterpret_cast<ChunkHeader*>(data);
-					data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(ChunkHeader) + wave_chunk_data->chunkSize));
-					if (index == a_Index)
-						return wave_chunk_data;
-					index++;
-				}
-				return nullptr;
-			}
+			void* Alloc(size_t a_Size);
 
-			uint32_t GetNumberOfChunks() const
-			{
-				assert(m_Start != nullptr);
-
-				unsigned char* data = reinterpret_cast<unsigned char*>(m_Start);
-				uint32_t index = 0;
-				while (data < m_End)
-				{
-					ChunkHeader* wave_chunk_data = reinterpret_cast<ChunkHeader*>(data);
-					data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(ChunkHeader) + wave_chunk_data->chunkSize));
-					index++;
-				}
-				return index;
-			}
-
-			void* Alloc(size_t a_Size)
-			{
-				assert(m_Start != nullptr);
-				assert(m_Size > 0);
-				void* current = m_Buffer;
-				m_Buffer = utils::add(m_Buffer, a_Size);
-				return current;
-			}
-
-			void* Start() const
-			{
-				return m_Start;
-			}
-
-			void* End() const
-			{
-				return m_End;
-			}
-
-			void* GetBuffer() const
-			{
-				return m_Buffer;
-			}
+			void* End() const;
 		public:
+			void Realloc(void* a_Buffer, size_t a_Size);
+			void* Alloc(size_t a_Size, const char* a_ChunkId);
 
-			ChunkCollection(void* a_Ptr, size_t a_Size)
-			{
-				assert(a_Size != 0);
-				m_Size = a_Size;
-				m_Start = a_Ptr;
-				m_Buffer = m_Start;
-				m_End = utils::add(m_Start, m_Size);
-			}
+			ChunkCollection(void* a_Ptr, size_t a_Size);
 
 			ChunkCollection(const ChunkCollection& rhs) = default;
 
@@ -133,10 +63,7 @@ namespace uaudio
 			/// Returns the data.
 			/// </summary>
 			/// <returns></returns>
-			void* GetData() const
-			{
-				return m_Start;
-			}
+			void* data() const;
 
 			/// <summary>
 			/// Adds a chunk to the chunk list.
@@ -197,57 +124,27 @@ namespace uaudio
 			/// </summary>
 			/// <param name="a_ChunkID">The chunk id (must be a length of 4 characters).</param>
 			/// <returns>UAudio Result.</returns>
-			UAUDIO_WAVE_READER_RESULT GetChunkSize(uint32_t& a_Size, const char* a_ChunkID) const
-			{
-				a_Size = 0;
-				ChunkHeader* data = GetChunkFromAllocator(a_ChunkID);
-				if (data != nullptr)
-				{
-					a_Size = data->chunkSize;
-					return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
-				}
-
-				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_CHUNK_NOT_FOUND;
-			}
+			UAUDIO_WAVE_READER_RESULT GetChunkSize(uint32_t& a_Size, const char* a_ChunkID) const;
 
 			/// <summary>
 			/// Returns the number of loaded chunks.
 			/// </summary>
 			/// <param name="a_Size"></param>
 			/// <returns>UAudio Result.</returns>
-			UAUDIO_WAVE_READER_RESULT GetNumberOfChunks(size_t& a_Size) const
-			{
-				a_Size = GetNumberOfChunks();
-				return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
-			}
+			UAUDIO_WAVE_READER_RESULT GetNumberOfChunks(size_t& a_Size) const;
 
 			/// <summary>
 			/// Checks whether a chunk that shares the chunk id exists.
 			/// </summary>
 			/// <param name="a_ChunkID">The chunk id (must be a length of 4 characters).</param>
 			/// <returns>UAudio Result.</returns>
-			UAUDIO_WAVE_READER_RESULT HasChunk(bool& a_ChunkFound, const char* a_ChunkID) const
-			{
-				a_ChunkFound = false;
-
-				ChunkHeader* data = GetChunkFromAllocator(a_ChunkID);
-				if (data != nullptr)
-				{
-					a_ChunkFound = true;
-					return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
-				}
-
-				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_CHUNK_NOT_FOUND;
-			}
+			UAUDIO_WAVE_READER_RESULT HasChunk(bool& a_ChunkFound, const char* a_ChunkID) const;
 
 			/// <summary>
 			/// Returns the total size of all chunks.
 			/// </summary>
 			/// <returns></returns>
-			size_t GetSize() const
-			{
-				return m_Size;
-			}
+			size_t size() const;
 		};
 	}
 }

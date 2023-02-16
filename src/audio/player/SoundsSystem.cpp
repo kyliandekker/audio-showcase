@@ -13,7 +13,7 @@ namespace uaudio
 {
 	namespace player
 	{
-		void SoundsSystem::AddSound(const char* a_Path, uaudio::wave_reader::Filter a_Filter)
+		void SoundsSystem::AddSound(const char* a_Path, uaudio::wave_reader::ChunkFilter a_Filter)
 		{
 			uaudio::player::Hash hash = uaudio::player::GetHash(a_Path);
 			if (m_Sounds.find(hash) != m_Sounds.end())

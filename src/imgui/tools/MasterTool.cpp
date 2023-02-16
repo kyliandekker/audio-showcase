@@ -203,20 +203,14 @@ namespace uaudio
 				const auto path = new char[wcslen(ofn.lpstrFile) + 1];
 				wsprintfA(path, "%S", ofn.lpstrFile);
 				
-				std::vector<std::string> chosenIds;
-				for (size_t i = 0; i < m_ChunkIds.size(); i++)
-					if (m_ChunkIds[i].selected)
-						chosenIds.push_back(m_ChunkIds[i].chunk_id);
+				//std::vector<std::string> chosenIds;
+				//for (size_t i = 0; i < m_ChunkIds.size(); i++)
+				//	if (m_ChunkIds[i].selected)
+				//		chosenIds.push_back(m_ChunkIds[i].chunk_id);
 
-				char* text = reinterpret_cast<char*>(malloc(chosenIds.size() * uaudio::wave_reader::CHUNK_ID_SIZE));
-				for (size_t i = 0; i < chosenIds.size(); i++)
-					memcpy(text + (i * uaudio::wave_reader::CHUNK_ID_SIZE), chosenIds[i].c_str(), uaudio::wave_reader::CHUNK_ID_SIZE);
+				//const uaudio::wave_reader::Filter filters{ chosenIds };
 
-				std::string_view sv(reinterpret_cast<const char*>(text), chosenIds.size());
-
-				const uaudio::wave_reader::Filter filters{ &sv, chosenIds.size()};
-
-				uaudio::player::soundSystem.AddSound(path, filters);
+				uaudio::player::soundSystem.AddSound(path, uaudio::wave_reader::ChunkFilter());
 
 				delete[] path;
 			}
