@@ -138,26 +138,26 @@ namespace uaudio
 
 					std::string chunk_header = std::string(chunk_id) + sound_hash_id + "chunk_" + std::to_string(i);
 
-					if (uaudio::utils::chunkcmp(uaudio::wave_reader::FMT_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
-					{
-						if (ImGui::CollapsingHeader(chunk_header.c_str()))
-						{
-							ImGui::Indent(IMGUI_INDENT);
-							ShowBaseChunk(chunk_id, chunkCollection);
+					//if (uaudio::utils::chunkcmp(uaudio::wave_reader::FMT_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+					//{
+					//	if (ImGui::CollapsingHeader(chunk_header.c_str()))
+					//	{
+					//		ImGui::Indent(IMGUI_INDENT);
+					//		ShowBaseChunk(chunk_id, chunkCollection);
 
-							uaudio::wave_reader::FMT_Chunk fmt_chunk;
-							chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+					//		uaudio::wave_reader::FMT_Chunk fmt_chunk;
+					//		chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
 
-							ShowValue("Audio Format: ", std::to_string(fmt_chunk.audioFormat).c_str());
-							ShowValue("Number of Channels: ", std::to_string(fmt_chunk.numChannels).c_str());
-							ShowValue("Sample Rate: ", std::to_string(fmt_chunk.sampleRate).c_str());
-							ShowValue("Byte Rate: ", std::to_string(fmt_chunk.byteRate).c_str());
-							ShowValue("Block Align: ", std::to_string(fmt_chunk.blockAlign).c_str());
-							ShowValue("Bits per Sample: ", std::to_string(fmt_chunk.bitsPerSample).c_str());
-							ImGui::Unindent(IMGUI_INDENT);
-						}
-					}
-					else if (uaudio::utils::chunkcmp(uaudio::wave_reader::DATA_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+					//		ShowValue("Audio Format: ", std::to_string(fmt_chunk.audioFormat).c_str());
+					//		ShowValue("Number of Channels: ", std::to_string(fmt_chunk.numChannels).c_str());
+					//		ShowValue("Sample Rate: ", std::to_string(fmt_chunk.sampleRate).c_str());
+					//		ShowValue("Byte Rate: ", std::to_string(fmt_chunk.byteRate).c_str());
+					//		ShowValue("Block Align: ", std::to_string(fmt_chunk.blockAlign).c_str());
+					//		ShowValue("Bits per Sample: ", std::to_string(fmt_chunk.bitsPerSample).c_str());
+					//		ImGui::Unindent(IMGUI_INDENT);
+					//	}
+					//}
+					if (uaudio::utils::chunkcmp(uaudio::wave_reader::DATA_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
 					{
 						if (ImGui::CollapsingHeader(chunk_header.c_str()))
 						{
@@ -327,8 +327,8 @@ namespace uaudio
 							if (ImGui::CollapsingHeader(view_as_header.c_str()))
 							{
 								ImGui::Indent(IMGUI_INDENT);
-								static uint32_t option = 0;
-								std::string options[12] =
+								static uint32_t view_option = 0;
+								std::string view_options[12] =
 								{
 									"CHOOSE OPTION",
 									"int8",
@@ -344,73 +344,94 @@ namespace uaudio
 									"char",
 								};
 
-								const std::string buffer_size_text = "View as";
-								ImGui::Text("%s", buffer_size_text.c_str());
-								if (ImGui::BeginCombo("##Buffer_Size", options[option].c_str(), ImGuiComboFlags_PopupAlignLeft))
+								const std::string view_as_text = "View as";
+								ImGui::Text("%s", view_as_text.c_str());
+								if (ImGui::BeginCombo("##View_As", view_options[view_option].c_str(), ImGuiComboFlags_PopupAlignLeft))
 								{
-									for (uint32_t n = 0; n < static_cast<uint32_t>(ARRAYSIZE(options)); n++)
+									for (uint32_t n = 0; n < static_cast<uint32_t>(ARRAYSIZE(view_options)); n++)
 									{
-										const bool is_selected = n == option;
-										if (ImGui::Selectable(options[n].c_str(), is_selected))
-											option = n;
+										const bool is_selected = n == view_option;
+										if (ImGui::Selectable(view_options[n].c_str(), is_selected))
+											view_option = n;
 									}
 									ImGui::EndCombo();
 								}
-								switch (option)
+
+								const std::string endianness_text = "Endianness";
+								static uint32_t endianness_option = 0;
+								std::string endianness_options[2] =
+								{
+									"Little Endian",
+									"Big Endian",
+								};
+
+								ImGui::Text("%s", endianness_text.c_str());
+								if (ImGui::BeginCombo("##Endianness", endianness_options[endianness_option].c_str(), ImGuiComboFlags_PopupAlignLeft))
+								{
+									for (uint32_t n = 0; n < static_cast<uint32_t>(ARRAYSIZE(endianness_options)); n++)
+									{
+										const bool is_selected = n == endianness_option;
+										if (ImGui::Selectable(endianness_options[n].c_str(), is_selected))
+											endianness_option = n;
+									}
+									ImGui::EndCombo();
+								}
+
+								switch (view_option)
 								{
 									case 1:
 									{
-										ViewAs<int8_t>(data);
+										ViewAs<int8_t>(data, endianness_option);
 										break;
 									}
 									case 2:
 									{
-										ViewAs<uint8_t>(data);
+										ViewAs<uint8_t>(data, endianness_option);
 										break;
 									}
 									case 3:
 									{
-										ViewAs<int16_t>(data);
+										ViewAs<int16_t>(data, endianness_option);
 										break;
 									}
 									case 4:
 									{
-										ViewAs<uint16_t>(data);
+										ViewAs<uint16_t>(data, endianness_option);
 										break;
 									}
 									case 5:
 									{
-										ViewAs<int24_t>(data);
+										ViewAs<int24_t>(data, endianness_option);
 										break;
 									}
 									case 6:
 									{
-										ViewAs<uint24_t>(data);
+										ViewAs<uint24_t>(data, endianness_option);
 										break;
 									}
 									case 7:
 									{
-										ViewAs<int32_t>(data);
+										ViewAs<int32_t>(data, endianness_option);
 										break;
 									}
 									case 8:
 									{
-										ViewAs<uint32_t>(data);
+										ViewAs<uint32_t>(data, endianness_option);
 										break;
 									}
 									case 9:
 									{
-										ViewAs<int64_t>(data);
+										ViewAs<int64_t>(data, endianness_option);
 										break;
 									}
 									case 10:
 									{
-										ViewAs<uint64_t>(data);
+										ViewAs<uint64_t>(data, endianness_option);
 										break;
 									}
 									case 11:
 									{
-										ViewAs<char>(data);
+										ViewAs<char>(data, endianness_option);
 										break;
 									}
 									default:
@@ -456,9 +477,22 @@ namespace uaudio
 				delete[] path;
 			}
 		}
+		
+		void reverseBytes(unsigned char* start, int size)
+		{
+			unsigned char* lo = start;
+			unsigned char* hi = start + size - 1;
+			unsigned char swap;
+			while (lo < hi)
+			{
+				swap = *lo;
+				*lo++ = *hi;
+				*hi-- = swap;
+			}
+		}
 
 		template <class T>
-		void SoundsTool::ViewAs(uaudio::wave_reader::ChunkHeader* a_ChunkHeader)
+		void SoundsTool::ViewAs(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness)
 		{
 			for (size_t i = 0; i < a_ChunkHeader->chunkSize / sizeof(T); i++)
 			{
@@ -468,6 +502,8 @@ namespace uaudio
 				for (size_t i = 0; i < sizeof(T); i++)
 					complete[i] = ptr[i];
 
+				if (a_Endianness == 1)
+					reverseBytes(complete, sizeof(T));
 				T cast;
 				std::memcpy(&cast, complete, sizeof(T));
 				ShowValue(std::to_string(i).c_str(), std::to_string(cast).c_str());
