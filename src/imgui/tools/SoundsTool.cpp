@@ -12,6 +12,8 @@
 #include "audio/player/Sound.h"
 #include "audio/utils/Utils.h"
 #include "imgui/ImguiDefines.h"
+#include "audio/utils/int24_t.h"
+#include "audio/utils/uint24_t.h"
 
 namespace uaudio
 {
@@ -325,6 +327,103 @@ namespace uaudio
 							ImGui::Indent(IMGUI_INDENT);
 							ShowBaseChunk(chunk_id, chunkCollection);
 
+							std::string view_as_header = "View Unknown Data" + sound_hash_id + "chunk_" + std::to_string(i);
+							if (ImGui::CollapsingHeader(view_as_header.c_str()))
+							{
+								ImGui::Indent(IMGUI_INDENT);
+								static uint32_t option = 0;
+								std::string options[12] =
+								{
+									"CHOOSE OPTION",
+									"int8",
+									"uint8",
+									"int16",
+									"uint16",
+									"int24",
+									"uint24",
+									"int32",
+									"uint32",
+									"int64",
+									"uint64",
+									"char",
+								};
+
+								const std::string buffer_size_text = "View as";
+								ImGui::Text("%s", buffer_size_text.c_str());
+								if (ImGui::BeginCombo("##Buffer_Size", options[option].c_str(), ImGuiComboFlags_PopupAlignLeft))
+								{
+									for (uint32_t n = 0; n < static_cast<uint32_t>(ARRAYSIZE(options)); n++)
+									{
+										const bool is_selected = n == option;
+										if (ImGui::Selectable(options[n].c_str(), is_selected))
+											option = n;
+									}
+									ImGui::EndCombo();
+								}
+								switch (option)
+								{
+									case 1:
+									{
+										ViewAs<int8_t>(data);
+										break;
+									}
+									case 2:
+									{
+										ViewAs<uint8_t>(data);
+										break;
+									}
+									case 3:
+									{
+										ViewAs<int16_t>(data);
+										break;
+									}
+									case 4:
+									{
+										ViewAs<uint16_t>(data);
+										break;
+									}
+									case 5:
+									{
+										ViewAs<int24_t>(data);
+										break;
+									}
+									case 6:
+									{
+										ViewAs<uint24_t>(data);
+										break;
+									}
+									case 7:
+									{
+										ViewAs<int32_t>(data);
+										break;
+									}
+									case 8:
+									{
+										ViewAs<uint32_t>(data);
+										break;
+									}
+									case 9:
+									{
+										ViewAs<int64_t>(data);
+										break;
+									}
+									case 10:
+									{
+										ViewAs<uint64_t>(data);
+										break;
+									}
+									case 11:
+									{
+										ViewAs<char>(data);
+										break;
+									}
+									default:
+									{
+										break;
+									}
+								}
+								ImGui::Unindent(IMGUI_INDENT);
+							}
 							ImGui::Unindent(IMGUI_INDENT);
 						}
 					}
@@ -359,6 +458,23 @@ namespace uaudio
 
 				uaudio::wave_reader::WaveReader::SaveWave(path, chunkCollection);
 				delete[] path;
+			}
+		}
+
+		template <class T>
+		void SoundsTool::ViewAs(uaudio::wave_reader::ChunkHeader* a_ChunkHeader)
+		{
+			for (size_t i = 0; i < a_ChunkHeader->chunkSize / sizeof(T); i++)
+			{
+				unsigned char* ptr = reinterpret_cast<unsigned char*>(utils::add(a_ChunkHeader, sizeof(uaudio::wave_reader::ChunkHeader)));
+				ptr = reinterpret_cast<unsigned char*>(utils::add(ptr, i * sizeof(T)));
+				unsigned char complete[sizeof(T)];
+				for (size_t i = 0; i < sizeof(T); i++)
+					complete[i] = ptr[i];
+
+				T cast;
+				std::memcpy(&cast, complete, sizeof(T));
+				ShowValue(std::to_string(i).c_str(), std::to_string(cast).c_str());
 			}
 		}
 	}

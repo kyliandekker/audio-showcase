@@ -12,6 +12,7 @@ namespace uaudio
 	namespace wave_reader
 	{
 		class ChunkCollection;
+		class ChunkHeader;
 	}
 
 	namespace imgui
@@ -24,6 +25,9 @@ namespace uaudio
             void ShowBaseChunk(char* a_ChunkId, uaudio::wave_reader::ChunkCollection& chunkCollection);
 			void RenderSound(uaudio::player::Sound& a_Sound);
 			void SaveFile(uaudio::wave_reader::ChunkCollection& chunkCollection);
+
+			template<class T>
+			void ViewAs(uaudio::wave_reader::ChunkHeader* a_ChunkHeader);
 		};
 	}
 }
