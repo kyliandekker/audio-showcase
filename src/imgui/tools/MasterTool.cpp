@@ -202,15 +202,15 @@ namespace uaudio
 			{
 				const auto path = new char[wcslen(ofn.lpstrFile) + 1];
 				wsprintfA(path, "%S", ofn.lpstrFile);
-				
-				//std::vector<std::string> chosenIds;
-				//for (size_t i = 0; i < m_ChunkIds.size(); i++)
-				//	if (m_ChunkIds[i].selected)
-				//		chosenIds.push_back(m_ChunkIds[i].chunk_id);
 
-				//const uaudio::wave_reader::Filter filters{ chosenIds };
+				std::string chunks = "";
+				for (size_t i = 0; i < m_ChunkIds.size(); i++)
+					if (m_ChunkIds[i].selected)
+						chunks += m_ChunkIds[i].chunk_id;
 
-				uaudio::player::soundSystem.AddSound(path, uaudio::wave_reader::ChunkFilter());
+				const uaudio::wave_reader::ChunkFilter filters{ chunks.c_str(), chunks.size() / uaudio::wave_reader::CHUNK_ID_SIZE};
+
+				uaudio::player::soundSystem.AddSound(path, filters);
 
 				delete[] path;
 			}

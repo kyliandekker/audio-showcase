@@ -76,9 +76,9 @@ namespace uaudio
 					//m_AudioSystem.GetSoundChannel(channel, channel_index);
 					//channel->Play();
 				}
+				ImGui::SameLine();
 			}
 
-			ImGui::SameLine();
 			std::string remove_sound_text = std::string(MINUS) + " Unload" + sound_hash_id + "unload_sound_button";
 			if (ImGui::Button(remove_sound_text.c_str()))
 			{
@@ -133,11 +133,7 @@ namespace uaudio
 					chunkCollection.GetChunkFromData(data, static_cast<uint32_t>(i));
 
 					char chunk_id[uaudio::wave_reader::CHUNK_ID_SIZE + 1];
-					char* id = &reinterpret_cast<char*>(data->chunk_id)[0];
-					for (int j = 0; j < uaudio::wave_reader::CHUNK_ID_SIZE; j++)
-					{
-						chunk_id[j] = id[j];
-					}
+					memcpy(&chunk_id, data->chunk_id, uaudio::wave_reader::CHUNK_ID_SIZE);
 					chunk_id[uaudio::wave_reader::CHUNK_ID_SIZE] = '\0';
 
 					std::string chunk_header = std::string(chunk_id) + sound_hash_id + "chunk_" + std::to_string(i);

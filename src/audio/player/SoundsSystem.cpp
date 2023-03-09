@@ -21,6 +21,10 @@ namespace uaudio
 
 			size_t size = 0;
 			uaudio::wave_reader::WaveReader::FTell(a_Path, size, a_Filter);
+
+			if (size == 0)
+				return;
+
 			void* allocated_space = malloc(size);
 
 			uaudio::wave_reader::ChunkCollection* chunkCollection = new uaudio::wave_reader::ChunkCollection(allocated_space, size);
