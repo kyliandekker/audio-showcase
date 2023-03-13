@@ -8,8 +8,8 @@
 #include <imgui/imgui_helpers.h>
 #include <imgui/implot.h>
 
-#include "audio/player/SoundsSystem.h"
-#include "audio/player/Sound.h"
+#include "audio/storage/SoundsSystem.h"
+#include "audio/storage/Sound.h"
 #include "audio/utils/Utils.h"
 #include "imgui/ImguiDefines.h"
 #include "audio/utils/int24_t.h"
@@ -25,7 +25,7 @@ namespace uaudio
 
 		void SoundsTool::Render()
 		{
-			std::vector<uaudio::player::Sound*> sounds = uaudio::player::soundSystem.GetSounds();
+			std::vector<uaudio::storage::Sound*> sounds = uaudio::storage::soundSystem.GetSounds();
 			for (const auto sound : sounds)
 				RenderSound(*sound);
 		}
@@ -38,7 +38,7 @@ namespace uaudio
 			ShowValue("Chunk Size: ", std::to_string(size).c_str());
 		}
 
-		void SoundsTool::RenderSound(uaudio::player::Sound& a_Sound)
+		void SoundsTool::RenderSound(uaudio::storage::Sound& a_Sound)
 		{
 			std::string sound_hash_id = "##sound_" + std::to_string(a_Sound.m_Hash) + "_";
 
@@ -82,7 +82,7 @@ namespace uaudio
 			std::string remove_sound_text = std::string(MINUS) + " Unload" + sound_hash_id + "unload_sound_button";
 			if (ImGui::Button(remove_sound_text.c_str()))
 			{
-				uaudio::player::soundSystem.UnloadSound(a_Sound.m_Hash);
+				uaudio::storage::soundSystem.UnloadSound(a_Sound.m_Hash);
 				return;
 			}
 

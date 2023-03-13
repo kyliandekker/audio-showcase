@@ -41,14 +41,14 @@ namespace uaudio
 
 			uint32_t m_BufferSizeSelection = 0;
 
-			std::array<uaudio::player::BUFFERSIZE, 7> m_BufferSizeOptions = {
-				uaudio::player::BUFFERSIZE::BUFFERSIZE_256,
-				uaudio::player::BUFFERSIZE::BUFFERSIZE_384,
-				uaudio::player::BUFFERSIZE::BUFFERSIZE_512,
-				uaudio::player::BUFFERSIZE::BUFFERSIZE_1024,
-				uaudio::player::BUFFERSIZE::BUFFERSIZE_2048,
-				uaudio::player::BUFFERSIZE::BUFFERSIZE_4096,
-				uaudio::player::BUFFERSIZE::BUFFERSIZE_8192,
+			std::array<uint32_t, 7> m_BufferSizeOptions = {
+				256,
+				384,
+				512,
+				1024,
+				2048,
+				4096,
+				8192,
 			};
 
 			std::array<const char*, 4> m_BitsPerSampleTextOptions = {
@@ -79,7 +79,9 @@ namespace uaudio
 			};
 
 			std::vector<chunk_select> m_ChunkIds;
-			char m_SelectedChunkName[uaudio::wave_reader::CHUNK_ID_SIZE];
+			char m_SelectedChunkName[uaudio::wave_reader::CHUNK_ID_SIZE] = 
+			{
+			};
 
 			uint32_t m_SelectedBitsPerSample = 0;
 		};

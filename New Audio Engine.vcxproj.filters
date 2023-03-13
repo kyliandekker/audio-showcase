@@ -78,16 +78,19 @@
     <ClCompile Include="src\imgui\tools\SoundsTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\audio\player\SoundsSystem.cpp">
+    <ClCompile Include="src\audio\storage\SoundsSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\audio\player\Sound.cpp">
+    <ClCompile Include="src\audio\storage\Sound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\audio\utils\Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\audio\player\AudioSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\audio\player\backends\AudioBackend.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -107,7 +110,7 @@
     <ClInclude Include="include\audio\AudioChannel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\audio\player\backends\xaudio2\UAUDIO_PLAYER_RESULT.h">
+    <ClInclude Include="include\audio\player\UAUDIO_PLAYER_RESULT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\audio\player\backends\xaudio2\XAudio2Callback.h">
@@ -131,13 +134,13 @@
     <ClInclude Include="include\imgui\tools\SoundsTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\audio\player\Sound.h">
+    <ClInclude Include="include\audio\storage\Sound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\utils\Hash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\audio\player\SoundsSystem.h">
+    <ClInclude Include="include\audio\storage\SoundsSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\audio\utils\Utils.h">
@@ -153,6 +156,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\audio\utils\int24_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio\player\backends\xaudio2\XAudio2Backend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

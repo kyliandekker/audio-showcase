@@ -14,7 +14,6 @@ namespace uaudio
 		AudioSDLWindow::~AudioSDLWindow()
 		{
 			m_Running = false;
-
 			if (m_Unitialize != nullptr)
 				m_Unitialize();
 

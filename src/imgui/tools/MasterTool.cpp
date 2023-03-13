@@ -7,7 +7,7 @@
 #include <uaudio_wave_reader/WaveChunks.h>
 
 #include "imgui/ImguiDefines.h"
-#include "audio/player/SoundsSystem.h"
+#include "audio/storage/SoundsSystem.h"
 #include "audio/player/AudioSystem.h"
 #include <uaudio_wave_reader/WaveReader.h>
 
@@ -17,8 +17,15 @@ namespace uaudio
 	{
 		MasterTool::MasterTool() : BaseTool(0, "Actions", "Master Actions")
 		{
-			uaudio::player::BUFFERSIZE buffer_size = static_cast<uaudio::player::BUFFERSIZE>(player::audioSystem.GetBufferSize());
-			for (int i = 0; i < m_BufferSizeOptions.size(); i++)
+			uint32_t buffer_size = 0;
+			uaudio::player::UAUDIO_PLAYER_RESULT result = player::audioSystem.GetBufferSize(buffer_size);
+			if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				printf("Cannot retrieve buffer size: %i.\n", result);
+				return;
+			}
+
+			for (size_t i = 0; i < m_BufferSizeOptions.size(); i++)
 				if (m_BufferSizeOptions[i] == buffer_size)
 					m_BufferSizeSelection = i;
 
@@ -39,7 +46,13 @@ namespace uaudio
 
 		void MasterTool::Render()
 		{
-			bool paused = player::audioSystem.IsPaused();
+			bool paused = false;
+			uaudio::player::UAUDIO_PLAYER_RESULT result = player::audioSystem.IsPaused(paused);
+			if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				printf("Cannot retrieve pause state: %i.\n", result);
+				return;
+			}
 			if (paused)
 			{
 				if (ImGui::Button(PLAY, ImVec2(50, 50)))
@@ -62,13 +75,25 @@ namespace uaudio
 			    //    m_AudioSystem.GetChannel(i)->SetPos(0);
 			}
 
-			float panning = player::audioSystem.GetPanning();
+			float panning = 0;
+			result = player::audioSystem.GetPanning(panning);
+			if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				printf("Cannot retrieve panning: %i.\n", result);
+				return;
+			}
 			const std::string master_panning_text = std::string(PANNING) + " Master Panning (affects all channels)";
 			if (ImGui::Knob("Panning##Master_Panning", &panning, -1.0f, 1.0f, ImVec2(50, 50), master_panning_text.c_str(), 0.0f))
 				player::audioSystem.SetPanning(panning);
 
 			ImGui::SameLine();
-			float volume = player::audioSystem.GetVolume();
+			float volume = 0;
+			result = player::audioSystem.GetVolume(volume);
+			if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				printf("Cannot retrieve volume: %i.\n", result);
+				return;
+			}
 			const std::string master_volume_text = std::string(VOLUME_UP) + " Master Volume (affects all channels)";
 			if (ImGui::Knob("Volume##Master_Volume", &volume, 0, 1, ImVec2(50, 50), master_volume_text.c_str(), 1.0f))
 				player::audioSystem.SetVolume(volume);
@@ -210,7 +235,7 @@ namespace uaudio
 
 				const uaudio::wave_reader::ChunkFilter filters{ chunks.c_str(), chunks.size() / uaudio::wave_reader::CHUNK_ID_SIZE};
 
-				uaudio::player::soundSystem.AddSound(path, filters);
+				uaudio::storage::soundSystem.AddSound(path, filters);
 
 				delete[] path;
 			}

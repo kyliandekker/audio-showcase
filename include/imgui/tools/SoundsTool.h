@@ -4,7 +4,7 @@
 
 namespace uaudio
 {
-	namespace player
+	namespace storage
 	{
 		class Sound;
 	}
@@ -23,7 +23,7 @@ namespace uaudio
 			SoundsTool();
 			void Render() override;
             void ShowBaseChunk(char* a_ChunkId, uaudio::wave_reader::ChunkCollection& chunkCollection);
-			void RenderSound(uaudio::player::Sound& a_Sound);
+			void RenderSound(uaudio::storage::Sound& a_Sound);
 			void SaveFile(uaudio::wave_reader::ChunkCollection& chunkCollection);
 
             template<class T>

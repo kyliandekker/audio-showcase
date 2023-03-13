@@ -186,10 +186,11 @@
     <ClCompile Include="external\imgui\implot.cpp" />
     <ClCompile Include="external\imgui\implot_items.cpp" />
     <ClCompile Include="external\imgui\piano.cpp" />
+    <ClCompile Include="include\audio\player\backends\AudioBackend.cpp" />
     <ClCompile Include="src\audio\player\AudioSystem.cpp" />
-    <ClCompile Include="src\audio\player\SoundsSystem.cpp" />
+    <ClCompile Include="src\audio\storage\SoundsSystem.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\audio\player\Sound.cpp" />
+    <ClCompile Include="src\audio\storage\Sound.cpp" />
     <ClCompile Include="src\audio\utils\Utils.cpp" />
     <ClCompile Include="src\imgui\AudioImGuiWindow.cpp" />
     <ClCompile Include="src\imgui\tools\BaseTool.cpp" />
@@ -201,12 +202,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\audio\AudioChannel.h" />
+    <ClInclude Include="include\audio\player\backends\xaudio2\XAudio2Backend.h" />
     <ClInclude Include="include\audio\player\Defines.h" />
     <ClInclude Include="include\audio\player\AudioSystem.h" />
     <ClInclude Include="include\audio\player\backends\AudioBackend.h" />
-    <ClInclude Include="include\audio\player\SoundsSystem.h" />
-    <ClInclude Include="include\audio\player\Sound.h" />
-    <ClInclude Include="include\audio\player\backends\xaudio2\UAUDIO_PLAYER_RESULT.h" />
+    <ClInclude Include="include\audio\storage\SoundsSystem.h" />
+    <ClInclude Include="include\audio\storage\Sound.h" />
+    <ClInclude Include="include\audio\player\UAUDIO_PLAYER_RESULT.h" />
     <ClInclude Include="include\audio\utils\int24_t.h" />
     <ClInclude Include="include\audio\utils\uint24_t.h" />
     <ClInclude Include="include\audio\utils\Utils.h" />

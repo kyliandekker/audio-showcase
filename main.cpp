@@ -2,6 +2,7 @@
 #include "imgui/AudioImGuiWindow.h"
 #include "imgui/tools/MasterTool.h"
 #include "imgui/tools/SoundsTool.h"
+#include <uaudio_wave_reader/WaveReader.h>
 
 int main(int, char* [])
 {
