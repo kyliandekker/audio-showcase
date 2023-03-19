@@ -454,28 +454,28 @@ namespace uaudio
 
 		void SoundsTool::SaveFile(uaudio::wave_reader::ChunkCollection& chunkCollection)
 		{
-			OPENFILENAME ofn;
-			TCHAR sz_file[260] = { 0 };
+			//OPENFILENAME ofn;
+			//TCHAR sz_file[260] = { 0 };
 
-			ZeroMemory(&ofn, sizeof(ofn));
-			ofn.lStructSize = sizeof(ofn);
-			ofn.lpstrFile = sz_file;
-			ofn.nMaxFile = sizeof(sz_file);
-			ofn.lpstrFilter = L"WAV Files (*.wav;*.wave)\0*.wav;*.wave";
-			ofn.nFilterIndex = 1;
-			ofn.lpstrFileTitle = nullptr;
-			ofn.nMaxFileTitle = 0;
-			ofn.lpstrInitialDir = nullptr;
-			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+			//ZeroMemory(&ofn, sizeof(ofn));
+			//ofn.lStructSize = sizeof(ofn);
+			//ofn.lpstrFile = sz_file;
+			//ofn.nMaxFile = sizeof(sz_file);
+			//ofn.lpstrFilter = L"WAV Files (*.wav;*.wave)\0*.wav;*.wave";
+			//ofn.nFilterIndex = 1;
+			//ofn.lpstrFileTitle = nullptr;
+			//ofn.nMaxFileTitle = 0;
+			//ofn.lpstrInitialDir = nullptr;
+			//ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-			if (GetSaveFileName(&ofn))
-			{
-				const auto path = new char[wcslen(ofn.lpstrFile) + 1];
-				wsprintfA(path, "%S", ofn.lpstrFile);
+			//if (GetSaveFileName(&ofn))
+			//{
+			//	const auto path = new char[wcslen(ofn.lpstrFile) + 1];
+			//	wsprintfA(path, "%S", ofn.lpstrFile);
 
-				uaudio::wave_reader::WaveReader::SaveWave(path, chunkCollection);
-				delete[] path;
-			}
+			//	uaudio::wave_reader::WaveReader::SaveWave(path, chunkCollection);
+			//	delete[] path;
+			//}
 		}
 		
 		void reverseBytes(unsigned char* start, int size)

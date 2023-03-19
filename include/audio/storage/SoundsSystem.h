@@ -14,7 +14,7 @@ namespace uaudio
 		class SoundsSystem
 		{
 		public:
-			void AddSound(const char* a_Path, uaudio::wave_reader::ChunkFilter a_Filter);
+			Sound* AddSound(const char* a_Path, uaudio::wave_reader::ChunkFilter a_Filter);
 			void UnloadSound(uaudio::player::Hash a_Hash);
 			std::vector<Sound*> GetSounds() const;
 		private:

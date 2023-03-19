@@ -48,6 +48,8 @@ namespace uaudio
 
 			void* End() const;
 		public:
+			void* data() { return m_Start; }
+
 			void Realloc(void* a_Buffer, size_t a_Size);
 			void* Alloc(size_t a_Size, const char* a_ChunkId);
 
@@ -55,10 +57,7 @@ namespace uaudio
 
 			ChunkCollection(const ChunkCollection& rhs) = default;
 
-			~ChunkCollection()
-			{
-				free(m_Start);
-			};
+			~ChunkCollection() = default;
 
 			ChunkCollection& operator=(const ChunkCollection& rhs) = default;
 

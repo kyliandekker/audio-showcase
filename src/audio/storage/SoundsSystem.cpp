@@ -13,17 +13,17 @@ namespace uaudio
 {
 	namespace storage
 	{
-		void SoundsSystem::AddSound(const char* a_Path, uaudio::wave_reader::ChunkFilter a_Filter)
+		Sound* SoundsSystem::AddSound(const char* a_Path, uaudio::wave_reader::ChunkFilter a_Filter)
 		{
 			uaudio::player::Hash hash = uaudio::player::GetHash(a_Path);
 			if (m_Sounds.find(hash) != m_Sounds.end())
-				return;
+				return nullptr;
 
 			size_t size = 0;
 			uaudio::wave_reader::WaveReader::FTell(a_Path, size, a_Filter);
 
 			if (size == 0)
-				return;
+				return nullptr;
 
 			void* allocated_space = malloc(size);
 
@@ -49,6 +49,8 @@ namespace uaudio
 			}
 
 			m_Sounds.insert(std::make_pair(hash, sound));
+
+			return sound;
 		}
 
 		void SoundsSystem::UnloadSound(uaudio::player::Hash a_Hash)

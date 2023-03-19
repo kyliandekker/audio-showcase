@@ -18,8 +18,6 @@ namespace uaudio
 			ChunkFilter()
 			{ }
 
-			ChunkFilter(uint16_t a_BitsPerSample);
-
 			ChunkFilter(const char* a_Filter, size_t a_Size);
 
 			const char* operator [](size_t i) const

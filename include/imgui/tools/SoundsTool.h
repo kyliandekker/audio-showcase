@@ -12,7 +12,7 @@ namespace uaudio
 	namespace wave_reader
 	{
 		class ChunkCollection;
-		class ChunkHeader;
+		struct ChunkHeader;
 	}
 
 	namespace imgui

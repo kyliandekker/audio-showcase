@@ -2,14 +2,10 @@
 
 #include <cstdint>
 #include <vector>
-#include <sdl/SDL.h>
+#include <d3d9.h>
 
 namespace uaudio
 {
-	namespace sdl
-	{
-		class AudioSDLWindow;
-	}
 	namespace imgui
 	{
 		class BaseTool;
@@ -19,21 +15,30 @@ namespace uaudio
 		{
 		public:
 			AudioImGuiWindow();
-			void SetWindow(sdl::AudioSDLWindow* a_Window);
 			~AudioImGuiWindow();
 
-			void CreateContext() const;
+			void SetHwnd(HWND hwnd, WNDCLASSEX wc);
+			void Initialize();
+			void ProcessEvents(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+			void CreateContext();
 			void CreateImGui() const;
+			bool CreateDeviceD3D(HWND hWnd);
+			void CleanupDeviceD3D();
+			void ResetDevice();
 			void Render();
-			void DeleteWindow() const;
-			void ProcessEvent(SDL_Event* a_Event);
+			void DeleteWindow();
 			void AddTool(BaseTool& a_Tool);
 		private:
-			sdl::AudioSDLWindow* m_Window = nullptr;
+			HWND m_Hwnd;
+			WNDCLASSEX m_wc;
 			bool m_Enabled = true;
 
 			MainWindow* m_MainWindow = nullptr;
 			std::vector<BaseTool*> m_Tools;
+
+			LPDIRECT3D9 g_pD3D = NULL;
+			LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
+			D3DPRESENT_PARAMETERS g_d3dpp = {};
 		};
 	}
 }

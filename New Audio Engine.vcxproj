@@ -94,14 +94,14 @@
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)external/uaudio_wave_reader/$(PlatformShortname);$(SolutionDir)external/fftw/lib;$(SolutionDir)external/sdl/$(PlatformShortname);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>uaudio_wave_reader.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>uaudio_wave_reader.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /d /y "$(SolutionDir)external\sdl\$(PlatformShortName)" "$(OutputPath)"
-</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -116,16 +116,16 @@
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)external/uaudio_wave_reader/$(PlatformShortname);$(SolutionDir)external/fftw/lib;$(SolutionDir)external/sdl/$(PlatformShortname);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>uaudio_wave_reader.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>uaudio_wave_reader.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /d /y "$(SolutionDir)external\sdl\$(PlatformShortName)" "$(OutputPath)"
-</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -138,14 +138,14 @@
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)external/uaudio_wave_reader/$(PlatformShortname);$(SolutionDir)external/fftw/lib;$(SolutionDir)external/sdl/$(PlatformShortname);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>uaudio_wave_reader.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>uaudio_wave_reader.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /d /y "$(SolutionDir)external\sdl\$(PlatformShortName)" "$(OutputPath)"
-</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -160,22 +160,21 @@
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)external/uaudio_wave_reader/$(PlatformShortname);$(SolutionDir)external/fftw/lib;$(SolutionDir)external/sdl/$(PlatformShortname);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>uaudio_wave_reader.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>uaudio_wave_reader.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /d /y "$(SolutionDir)external\sdl\$(PlatformShortName)" "$(OutputPath)"
-</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="external\glad\glad.c" />
-    <ClCompile Include="external\imgui\backends\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="external\imgui\backends\imgui_impl_sdl.cpp" />
+    <ClCompile Include="external\imgui\backends\imgui_impl_dx9.cpp" />
+    <ClCompile Include="external\imgui\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="external\imgui\imgui.cpp" />
     <ClCompile Include="external\imgui\imgui_demo.cpp" />
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
@@ -192,12 +191,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\audio\storage\Sound.cpp" />
     <ClCompile Include="src\audio\utils\Utils.cpp" />
+    <ClCompile Include="src\dx9\DX9Window.cpp" />
     <ClCompile Include="src\imgui\AudioImGuiWindow.cpp" />
     <ClCompile Include="src\imgui\tools\BaseTool.cpp" />
     <ClCompile Include="src\imgui\tools\MainWindow.cpp" />
     <ClCompile Include="src\imgui\tools\MasterTool.cpp" />
     <ClCompile Include="src\imgui\tools\SoundsTool.cpp" />
-    <ClCompile Include="src\sdl\AudioSDLWindow.cpp" />
     <ClCompile Include="src\utils\Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -213,12 +212,12 @@
     <ClInclude Include="include\audio\utils\uint24_t.h" />
     <ClInclude Include="include\audio\utils\Utils.h" />
     <ClInclude Include="include\audio\player\backends\xaudio2\XAudio2Callback.h" />
+    <ClInclude Include="include\dx9\DX9Window.h" />
     <ClInclude Include="include\imgui\AudioImGuiWindow.h" />
     <ClInclude Include="include\imgui\ImguiDefines.h" />
     <ClInclude Include="include\imgui\tools\BaseTool.h" />
     <ClInclude Include="include\imgui\tools\MasterTool.h" />
     <ClInclude Include="include\imgui\tools\SoundsTool.h" />
-    <ClInclude Include="include\sdl\AudioSDLWindow.h" />
     <ClInclude Include="include\utils\Hash.h" />
     <ClInclude Include="include\utils\Logger.h" />
     <ClInclude Include="include\utils\Utils.h" />

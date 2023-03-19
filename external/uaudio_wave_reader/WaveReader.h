@@ -29,6 +29,7 @@ namespace uaudio
 		private:
 			static UAUDIO_WAVE_READER_RESULT OpenWave(const char* a_FilePath, FILE*& a_File, long& a_FileSize);
 			static UAUDIO_WAVE_READER_RESULT LoadChunk(const char* a_FilePath, FILE* a_File, long& a_PreviousTell, char* a_PrevChunkID, char* a_ChunkID, uint32_t& a_ChunkSize);
+			static UAUDIO_WAVE_READER_RESULT CalculateConversionSize(long& a_Size, long a_CurrentSize, uint16_t a_OriginalBitsPerSample, uint16_t a_NewBitsPerSample);
 		};
 	}
 }
