@@ -138,26 +138,26 @@ namespace uaudio
 
 					std::string chunk_header = std::string(chunk_id) + sound_hash_id + "chunk_" + std::to_string(i);
 
-					//if (uaudio::utils::chunkcmp(uaudio::wave_reader::FMT_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
-					//{
-					//	if (ImGui::CollapsingHeader(chunk_header.c_str()))
-					//	{
-					//		ImGui::Indent(IMGUI_INDENT);
-					//		ShowBaseChunk(chunk_id, chunkCollection);
+					if (uaudio::utils::chunkcmp(uaudio::wave_reader::FMT_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+					{
+						if (ImGui::CollapsingHeader(chunk_header.c_str()))
+						{
+							ImGui::Indent(IMGUI_INDENT);
+							ShowBaseChunk(chunk_id, chunkCollection);
 
-					//		uaudio::wave_reader::FMT_Chunk fmt_chunk;
-					//		chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+							uaudio::wave_reader::FMT_Chunk fmt_chunk;
+							chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
 
-					//		ShowValue("Audio Format: ", std::to_string(fmt_chunk.audioFormat).c_str());
-					//		ShowValue("Number of Channels: ", std::to_string(fmt_chunk.numChannels).c_str());
-					//		ShowValue("Sample Rate: ", std::to_string(fmt_chunk.sampleRate).c_str());
-					//		ShowValue("Byte Rate: ", std::to_string(fmt_chunk.byteRate).c_str());
-					//		ShowValue("Block Align: ", std::to_string(fmt_chunk.blockAlign).c_str());
-					//		ShowValue("Bits per Sample: ", std::to_string(fmt_chunk.bitsPerSample).c_str());
-					//		ImGui::Unindent(IMGUI_INDENT);
-					//	}
-					//}
-					if (uaudio::utils::chunkcmp(uaudio::wave_reader::DATA_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+							ShowValue("Audio Format: ", std::to_string(fmt_chunk.audioFormat).c_str());
+							ShowValue("Number of Channels: ", std::to_string(fmt_chunk.numChannels).c_str());
+							ShowValue("Sample Rate: ", std::to_string(fmt_chunk.sampleRate).c_str());
+							ShowValue("Byte Rate: ", std::to_string(fmt_chunk.byteRate).c_str());
+							ShowValue("Block Align: ", std::to_string(fmt_chunk.blockAlign).c_str());
+							ShowValue("Bits per Sample: ", std::to_string(fmt_chunk.bitsPerSample).c_str());
+							ImGui::Unindent(IMGUI_INDENT);
+						}
+					}
+					else if (uaudio::utils::chunkcmp(uaudio::wave_reader::DATA_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
 					{
 						if (ImGui::CollapsingHeader(chunk_header.c_str()))
 						{
@@ -454,28 +454,28 @@ namespace uaudio
 
 		void SoundsTool::SaveFile(uaudio::wave_reader::ChunkCollection& chunkCollection)
 		{
-			//OPENFILENAME ofn;
-			//TCHAR sz_file[260] = { 0 };
+			OPENFILENAME ofn;
+			TCHAR sz_file[260] = { 0 };
 
-			//ZeroMemory(&ofn, sizeof(ofn));
-			//ofn.lStructSize = sizeof(ofn);
-			//ofn.lpstrFile = sz_file;
-			//ofn.nMaxFile = sizeof(sz_file);
-			//ofn.lpstrFilter = L"WAV Files (*.wav;*.wave)\0*.wav;*.wave";
-			//ofn.nFilterIndex = 1;
-			//ofn.lpstrFileTitle = nullptr;
-			//ofn.nMaxFileTitle = 0;
-			//ofn.lpstrInitialDir = nullptr;
-			//ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.lpstrFile = sz_file;
+			ofn.nMaxFile = sizeof(sz_file);
+			ofn.lpstrFilter = L"WAV Files (*.wav;*.wave)\0*.wav;*.wave";
+			ofn.nFilterIndex = 1;
+			ofn.lpstrFileTitle = nullptr;
+			ofn.nMaxFileTitle = 0;
+			ofn.lpstrInitialDir = nullptr;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-			//if (GetSaveFileName(&ofn))
-			//{
-			//	const auto path = new char[wcslen(ofn.lpstrFile) + 1];
-			//	wsprintfA(path, "%S", ofn.lpstrFile);
+			if (GetSaveFileName(&ofn))
+			{
+				const auto path = new char[wcslen(ofn.lpstrFile) + 1];
+				wsprintfA(path, "%S", ofn.lpstrFile);
 
-			//	uaudio::wave_reader::WaveReader::SaveWave(path, chunkCollection);
-			//	delete[] path;
-			//}
+				uaudio::wave_reader::WaveReader::SaveWave(path, chunkCollection);
+				delete[] path;
+			}
 		}
 		
 		void reverseBytes(unsigned char* start, int size)

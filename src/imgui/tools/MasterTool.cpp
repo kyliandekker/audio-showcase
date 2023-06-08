@@ -205,36 +205,36 @@ namespace uaudio
 		/// </summary>
 		void MasterTool::OpenFile()
 		{
-			//OPENFILENAME ofn;
-			//TCHAR sz_file[260] = { 0 };
+			OPENFILENAME ofn;
+			TCHAR sz_file[260] = { 0 };
 
-			//ZeroMemory(&ofn, sizeof(ofn));
-			//ofn.lStructSize = sizeof(ofn);
-			//ofn.lpstrFile = sz_file;
-			//ofn.nMaxFile = sizeof(sz_file);
-			//ofn.lpstrFilter = L"WAV Files (*.wav;*.wave)\0*.wav;*.wave";
-			//ofn.nFilterIndex = 1;
-			//ofn.lpstrFileTitle = nullptr;
-			//ofn.nMaxFileTitle = 0;
-			//ofn.lpstrInitialDir = nullptr;
-			//ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.lpstrFile = sz_file;
+			ofn.nMaxFile = sizeof(sz_file);
+			ofn.lpstrFilter = L"WAV Files (*.wav;*.wave)\0*.wav;*.wave";
+			ofn.nFilterIndex = 1;
+			ofn.lpstrFileTitle = nullptr;
+			ofn.nMaxFileTitle = 0;
+			ofn.lpstrInitialDir = nullptr;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-			//if (GetOpenFileName(&ofn))
-			//{
-			//	const auto path = new char[wcslen(ofn.lpstrFile) + 1];
-			//	wsprintfA(path, "%S", ofn.lpstrFile);
+			if (GetOpenFileName(&ofn))
+			{
+				const auto path = new char[wcslen(ofn.lpstrFile) + 1];
+				wsprintfA(path, "%S", ofn.lpstrFile);
 
-			//	std::string chunks = "";
-			//	for (size_t i = 0; i < m_ChunkIds.size(); i++)
-			//		if (m_ChunkIds[i].selected)
-			//			chunks += m_ChunkIds[i].chunk_id;
+				std::string chunks = "";
+				for (size_t i = 0; i < m_ChunkIds.size(); i++)
+					if (m_ChunkIds[i].selected)
+						chunks += m_ChunkIds[i].chunk_id;
 
-			//	const uaudio::wave_reader::ChunkFilter filters{ chunks.c_str(), chunks.size() / uaudio::wave_reader::CHUNK_ID_SIZE};
+				const uaudio::wave_reader::ChunkFilter filters{ chunks.c_str(), chunks.size() / uaudio::wave_reader::CHUNK_ID_SIZE};
 
-			//	uaudio::storage::soundSystem.AddSound(path, filters);
+				uaudio::storage::soundSystem.AddSound(path, filters);
 
-			//	delete[] path;
-			//}
+				delete[] path;
+			}
 		}
 	}
 }
