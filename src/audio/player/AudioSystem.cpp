@@ -1,6 +1,7 @@
 #include "audio/player/AudioSystem.h"
 
 #include "audio/player/backends/AudioBackend.h"
+#include "audio/player/backends/xaudio2/XAudio2Backend.h"
 #include "audio/player/Defines.h"
 
 uaudio::player::AudioSystem uaudio::player::audioSystem;
@@ -11,7 +12,7 @@ namespace uaudio
 	{
 		AudioSystem::AudioSystem()
 		{
-			m_AudioBackend = new AudioBackend();
+			m_AudioBackend = new xaudio2::XAudio2Backend();
 		}
 
 		UAUDIO_PLAYER_RESULT AudioSystem::GetBufferSize(uint32_t& a_BufferSize) const
@@ -89,9 +90,23 @@ namespace uaudio
 
 		UAUDIO_PLAYER_RESULT AudioSystem::Update()
 		{
-			if (m_AudioBackend == nullptr)
-				return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_BACKEND;
+			m_AudioBackend->Update();
+			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+		}
 
+		UAUDIO_PLAYER_RESULT AudioSystem::GetEnabled(bool& a_Enabled)
+		{
+			m_EnabledMutex.lock();
+			a_Enabled = m_Enabled;
+			m_EnabledMutex.unlock();
+			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+		}
+
+		UAUDIO_PLAYER_RESULT AudioSystem::SetEnabled(bool a_Enabled)
+		{
+			m_EnabledMutex.lock();
+			m_Enabled = a_Enabled;
+			m_EnabledMutex.unlock();
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}
 	}

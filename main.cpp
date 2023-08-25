@@ -3,10 +3,14 @@
 #include "imgui/AudioImGuiWindow.h"
 #include "imgui/tools/MasterTool.h"
 #include "imgui/tools/SoundsTool.h"
+#include "audio/player/AudioSystem.h"
 #include <imgui/backends/imgui_impl_win32.h>
+#include <thread>
 
 const char g_szClassName[] = "Audio Showcase";
 uaudio::imgui::AudioImGuiWindow imGuiWindow;
+
+std::thread audioSystemThread;
 
 // Step 4: the Window Procedure
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -24,6 +28,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
 	return 0;
+}
+
+void audioThread()
+{
+	bool enabled = false;
+	uaudio::player::audioSystem.GetEnabled(enabled);
+	while (enabled)
+	{
+		uaudio::player::audioSystem.Update();
+		uaudio::player::audioSystem.GetEnabled(enabled);
+	}
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -82,6 +97,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	imGuiWindow.Initialize();
 
+	uaudio::player::audioSystem.SetEnabled(true);
+	audioSystemThread = std::thread(audioThread);
+
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
 		TranslateMessage(&Msg);
@@ -89,11 +107,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		imGuiWindow.Render();
 	}
 
+	uaudio::player::audioSystem.SetEnabled(false);
+	audioSystemThread.join();
+
 	imGuiWindow.DeleteWindow();
 
-	while (true)
-	{
-
-	}
 	return Msg.wParam;
 }

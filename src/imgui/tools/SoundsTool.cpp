@@ -14,6 +14,7 @@
 #include "imgui/ImguiDefines.h"
 #include "audio/utils/int24_t.h"
 #include "audio/utils/uint24_t.h"
+#include "audio/player/AudioSystem.h"
 
 namespace uaudio
 {
@@ -71,10 +72,6 @@ namespace uaudio
 				if (ImGui::Button(play_button_text.c_str()))
 				{
 					int32_t channel_index = 0;
-					//audios.CreateSoundChannel(channel_index, a_SoundHash);
-					//uaudio::Channel* channel = nullptr;
-					//m_AudioSystem.GetSoundChannel(channel, channel_index);
-					//channel->Play();
 				}
 				ImGui::SameLine();
 			}

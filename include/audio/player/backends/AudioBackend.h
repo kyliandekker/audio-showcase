@@ -22,7 +22,7 @@ namespace uaudio
 			float GetPanning() const { return m_Panning; }
 			void SetPanning(float a_Panning) { m_Panning = a_Panning; }
 
-			void Update();
+			virtual void Update();
 		private:
 			uint32_t m_BufferSize;
 			bool m_Paused = false;

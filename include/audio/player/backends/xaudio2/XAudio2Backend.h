@@ -11,13 +11,14 @@ namespace uaudio
 	{
 		namespace xaudio2
 		{
+			class XAudio2Channel;
+
 			class XAudio2Backend : public AudioBackend
 			{
+				virtual void Update() override;
 			private:
 				IXAudio2* m_Engine = nullptr;
 				IXAudio2MasteringVoice* m_MasterVoice = nullptr;
-
-				std::vector<XAudio2Channel> m_Channels;
 			};
 		}
 	}

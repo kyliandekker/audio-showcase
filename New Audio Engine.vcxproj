@@ -186,7 +186,9 @@
     <ClCompile Include="external\imgui\implot_items.cpp" />
     <ClCompile Include="external\imgui\piano.cpp" />
     <ClCompile Include="include\audio\player\backends\AudioBackend.cpp" />
+    <ClCompile Include="src\audio\player\XAudio2Backend.cpp" />
     <ClCompile Include="src\audio\player\AudioSystem.cpp" />
+    <ClCompile Include="src\audio\player\XAudio2Channel.cpp" />
     <ClCompile Include="src\audio\storage\SoundsSystem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\audio\storage\Sound.cpp" />
@@ -202,6 +204,7 @@
   <ItemGroup>
     <ClInclude Include="include\audio\AudioChannel.h" />
     <ClInclude Include="include\audio\player\backends\xaudio2\XAudio2Backend.h" />
+    <ClInclude Include="include\audio\player\backends\xaudio2\XAudio2Channel.h" />
     <ClInclude Include="include\audio\player\Defines.h" />
     <ClInclude Include="include\audio\player\AudioSystem.h" />
     <ClInclude Include="include\audio\player\backends\AudioBackend.h" />

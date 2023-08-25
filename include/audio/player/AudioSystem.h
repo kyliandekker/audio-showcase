@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <mutex>
 
 #include "audio/player/Defines.h"
 #include "UAUDIO_PLAYER_RESULT.h"
@@ -29,8 +30,13 @@ namespace uaudio
 
 			UAUDIO_PLAYER_RESULT Update();
 
+			UAUDIO_PLAYER_RESULT GetEnabled(bool& a_Enabled);
+			UAUDIO_PLAYER_RESULT SetEnabled(bool a_Enabled);
 		private:
 			AudioBackend* m_AudioBackend = nullptr;
+			bool m_Enabled = false;
+
+			std::mutex m_EnabledMutex;
 		};
 		extern AudioSystem audioSystem;
 	}

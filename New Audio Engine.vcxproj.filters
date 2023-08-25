@@ -90,6 +90,12 @@
     <ClCompile Include="src\dx9\DX9Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\audio\player\XAudio2Backend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\player\XAudio2Channel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\imgui\AudioImGuiWindow.h">
@@ -156,6 +162,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\dx9\DX9Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio\player\backends\xaudio2\XAudio2Channel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

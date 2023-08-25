@@ -38,15 +38,15 @@ namespace uaudio
 			bool hasDataChunk = false;
 			chunkCollection->HasChunk(hasDataChunk, uaudio::wave_reader::DATA_CHUNK_ID);
 
-			if (hasDataChunk)
-			{
-				uaudio::wave_reader::DATA_Chunk data_chunk;
-				chunkCollection->GetChunkFromData<uaudio::wave_reader::DATA_Chunk>(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
-				uint32_t data_chunk_size = 0;
-				chunkCollection->GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);
-				float* samples = uaudio::utils::ToSample(data_chunk.data, data_chunk_size);
-				sound->m_Samples = samples;
-			}
+			//if (hasDataChunk)
+			//{
+			//	uaudio::wave_reader::DATA_Chunk data_chunk;
+			//	chunkCollection->GetChunkFromData<uaudio::wave_reader::DATA_Chunk>(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
+			//	uint32_t data_chunk_size = 0;
+			//	chunkCollection->GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);
+			//	float* samples = uaudio::utils::ToSample(data_chunk.data, data_chunk_size);
+			//	sound->m_Samples = samples;
+			//}
 
 			m_Sounds.insert(std::make_pair(hash, sound));
 
