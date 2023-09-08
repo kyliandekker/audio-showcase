@@ -212,6 +212,7 @@
     <ClInclude Include="include\audio\player\Defines.h" />
     <ClInclude Include="include\audio\player\AudioSystem.h" />
     <ClInclude Include="include\audio\player\backends\AudioBackend.h" />
+    <ClInclude Include="include\audio\player\Effects.h" />
     <ClInclude Include="include\audio\player\utils.h" />
     <ClInclude Include="include\audio\storage\SoundsSystem.h" />
     <ClInclude Include="include\audio\storage\Sound.h" />

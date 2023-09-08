@@ -5,6 +5,8 @@
 
 #include "audio/storage/Sound.h"
 #include "audio/player/utils.h"
+#include "audio/player/Effects.h"
+#include "audio/player/AudioSystem.h"
 
 namespace uaudio
 {
@@ -168,6 +170,26 @@ namespace uaudio
 			a_BufferSize = fmt_chunk.bitsPerSample / 8;
 
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+		}
+
+		void AudioChannel::AddEffects(unsigned char* a_Data, uint32_t a_BufferSize)
+		{
+			uaudio::wave_reader::FMT_Chunk fmt_chunk;
+			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_Sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+			if (result == uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+			{
+				effects::ChangeVolume<int16_t>(a_Data, a_BufferSize, m_Volume, fmt_chunk.blockAlign, fmt_chunk.numChannels);
+
+				float masterVolume = 1.0f;
+				uaudio::player::audioSystem.GetVolume(masterVolume);
+				effects::ChangeVolume<int16_t>(a_Data, a_BufferSize, masterVolume, fmt_chunk.blockAlign, fmt_chunk.numChannels);
+
+				effects::ChangePanning<int16_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
+
+				float masterPanning = 0.0f;
+				uaudio::player::audioSystem.GetPanning(masterPanning);
+				effects::ChangePanning<int16_t>(a_Data, a_BufferSize, masterPanning, fmt_chunk.numChannels);
+			}
 		}
 	}
 }

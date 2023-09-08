@@ -150,6 +150,7 @@ namespace uaudio
 						m_Sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
 					}
 
+					AddEffects(new_data, a_Size);
 					PlayBuffer(new_data, a_Size);
 					m_DataBuffers.push(new_data);
 				}

@@ -45,10 +45,12 @@ namespace uaudio
 
 			UAUDIO_PLAYER_RESULT GetSoundBufferSize(uint32_t& a_BufferSize) const;
 		protected:
+			void AddEffects(unsigned char* a_Data, uint32_t a_BufferSize);
+
 			storage::Sound* m_Sound = nullptr;
 
-			float m_Volume = 1.0f;
-			float m_Panning = 0.0f;
+			float m_Volume = UAUDIO_DEFAULT_VOLUME;
+			float m_Panning = UAUDIO_DEFAULT_PANNING;
 
 			// Difference between Active and Playing:
 			// Playing is whether the channel gets updated and actually moves through the audio data.
