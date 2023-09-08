@@ -125,6 +125,7 @@ namespace uaudio
 						if (!m_Looping)
 						{
 							Stop();
+							m_Sound->m_Mutex.unlock();
 							m_Sound = nullptr;
 							return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 						}
@@ -143,12 +144,6 @@ namespace uaudio
 
 					// Make sure we add the size of this read buffer to the total size, so that on the next frame we will get the next part of the wave file.
 					m_CurrentPos += a_Size;
-
-					if (!m_Active)
-					{
-						uaudio::wave_reader::FMT_Chunk fmt_chunk; 
-						m_Sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
-					}
 
 					AddEffects(new_data, a_Size);
 					PlayBuffer(new_data, a_Size);
@@ -194,7 +189,8 @@ namespace uaudio
 				uint32_t buffersize = 0;
 				audioSystem.GetBufferSize(buffersize);
 				PlayRanged(m_CurrentPos, buffersize);
-				m_Sound->m_Mutex.unlock();
+				if (m_Sound)
+					m_Sound->m_Mutex.unlock();
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}

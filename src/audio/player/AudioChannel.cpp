@@ -180,11 +180,16 @@ namespace uaudio
 			{
 				float masterVolume = 1.0f;
 				uaudio::player::audioSystem.GetVolume(masterVolume);
-				effects::ChangeVolume<int16_t>(a_Data, a_BufferSize, m_Volume * masterVolume, fmt_chunk.blockAlign, fmt_chunk.numChannels);
+				float volume = m_Volume * masterVolume;
+				if (!m_Active)
+					volume = 0.0f;
+				effects::ChangeVolume<int16_t>(a_Data, a_BufferSize, volume, fmt_chunk.blockAlign, fmt_chunk.numChannels);
+
+				effects::ChangePanning<int16_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
 
 				float masterPanning = 0.0f;
 				uaudio::player::audioSystem.GetPanning(masterPanning);
-				effects::ChangePanning<int16_t>(a_Data, a_BufferSize, m_Panning * masterPanning, fmt_chunk.numChannels);
+				effects::ChangePanning<int16_t>(a_Data, a_BufferSize, masterPanning, fmt_chunk.numChannels);
 			}
 		}
 	}
