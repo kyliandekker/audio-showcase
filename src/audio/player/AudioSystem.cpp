@@ -1,7 +1,8 @@
 #include "audio/player/AudioSystem.h"
 
 #include "audio/player/backends/AudioBackend.h"
-#include "audio/player/backends/xaudio2/XAudio2Backend.h"
+//#include "audio/player/backends/xaudio2/XAudio2Backend.h"
+#include "audio/player/backends/wasapi/WasAPIBackend.h"
 #include "audio/player/ChannelHandle.h"
 #include "audio/player/Defines.h"
 
@@ -13,7 +14,13 @@ namespace uaudio
 	{
 		AudioSystem::AudioSystem()
 		{
-			m_AudioBackend = new xaudio2::XAudio2Backend();
+			//m_AudioBackend = new xaudio2::XAudio2Backend();
+			m_AudioBackend = new wasapi::WasAPIBackend();
+		}
+
+		AudioSystem::~AudioSystem()
+		{
+			delete m_AudioBackend;
 		}
 
 		UAUDIO_PLAYER_RESULT AudioSystem::GetBufferSize(uint32_t& a_BufferSize) const

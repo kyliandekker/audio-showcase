@@ -23,6 +23,8 @@ namespace uaudio
 		{
 		public:
 			AudioSystem();
+			~AudioSystem();
+
 			UAUDIO_PLAYER_RESULT GetBufferSize(uint32_t& a_BufferSize) const;
 			UAUDIO_PLAYER_RESULT SetBufferSize(uint32_t a_BufferSize);
 

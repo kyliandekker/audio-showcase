@@ -121,6 +121,7 @@ namespace uaudio
 					{
 						m_CurrentPos = 0;
 						a_StartPos = 0;
+
 						// If the sound is not set to repeat, then stop the channel.
 						if (!m_Looping)
 						{

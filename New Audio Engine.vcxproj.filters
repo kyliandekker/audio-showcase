@@ -102,6 +102,12 @@
     <ClCompile Include="src\imgui\tools\ChannelsTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\audio\player\backends\wasapi\WasAPIChannel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\player\backends\wasapi\WasAPIBackend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\imgui\AudioImGuiWindow.h">
@@ -183,6 +189,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\audio\player\Effects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio\player\backends\wasapi\WasAPIBackend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio\player\backends\wasapi\WasAPIChannel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
