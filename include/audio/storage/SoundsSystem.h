@@ -1,16 +1,15 @@
 #pragma once
 
 #include <unordered_map>
+#include <uaudio_wave_reader/ChunkFilter.h>
 
 #include "utils/Hash.h"
-#include <uaudio_wave_reader/ChunkFilter.h>
+#include "audio/storage/Sound.h"
 
 namespace uaudio
 {
 	namespace storage
 	{
-		class Sound;
-
 		class SoundsSystem
 		{
 		public:

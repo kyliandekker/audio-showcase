@@ -3,14 +3,13 @@
 #include "imgui/AudioImGuiWindow.h"
 #include "imgui/tools/MasterTool.h"
 #include "imgui/tools/SoundsTool.h"
+#include "imgui/tools/ChannelsTool.h"
 #include "audio/player/AudioSystem.h"
 #include <imgui/backends/imgui_impl_win32.h>
 #include <thread>
 
 const char g_szClassName[] = "Audio Showcase";
 uaudio::imgui::AudioImGuiWindow imGuiWindow;
-
-std::thread audioSystemThread;
 
 // Step 4: the Window Procedure
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -30,22 +29,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-void audioThread()
+int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd)
 {
-	bool enabled = false;
-	uaudio::player::audioSystem.GetEnabled(enabled);
-	while (enabled)
-	{
-		uaudio::player::audioSystem.Update();
-		uaudio::player::audioSystem.GetEnabled(enabled);
-	}
-}
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
-{
-	WNDCLASSEX wc;
+	WNDCLASSEX wc{};
 	HWND hwnd;
 	MSG Msg;
+
+	AllocConsole();
+	FILE* fConsole = nullptr;
+	freopen_s(&fConsole, "CONOUT$", "w", stdout);
 
 	//Step 1: Registering the Window Class
 	wc.cbSize = sizeof(WNDCLASSEX);
@@ -84,21 +76,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return 0;
 	}
 
-	ShowWindow(hwnd, nCmdShow);
+	ShowWindow(hwnd, nShowCmd);
 	UpdateWindow(hwnd);
 
 	imGuiWindow.SetHwnd(hwnd, wc);
 
+	// Step 3: Adding all the tools
 	uaudio::imgui::MasterTool masterTool = uaudio::imgui::MasterTool();
 	imGuiWindow.AddTool(masterTool);
 
 	uaudio::imgui::SoundsTool soundsTool = uaudio::imgui::SoundsTool();
 	imGuiWindow.AddTool(soundsTool);
 
+	uaudio::imgui::ChannelsTool channelsTool = uaudio::imgui::ChannelsTool();
+	imGuiWindow.AddTool(channelsTool);
+
 	imGuiWindow.Initialize();
 
-	uaudio::player::audioSystem.SetEnabled(true);
-	audioSystemThread = std::thread(audioThread);
+	uaudio::player::audioSystem.Start();
 
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
@@ -107,10 +102,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		imGuiWindow.Render();
 	}
 
-	uaudio::player::audioSystem.SetEnabled(false);
-	audioSystemThread.join();
+	uaudio::player::audioSystem.Stop();
 
-	imGuiWindow.DeleteWindow();
+	// imGuiWindow.DeleteWindow();
 
+	fclose(fConsole);
 	return Msg.wParam;
 }

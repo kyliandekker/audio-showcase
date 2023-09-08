@@ -5,7 +5,7 @@
 #include <uaudio_wave_reader/WaveChunks.h>
 
 #include "audio/storage/Sound.h"
-#include "audio/utils/Utils.h"
+#include "audio/player/utils.h"
 
 uaudio::storage::SoundsSystem uaudio::storage::soundSystem;
 
@@ -33,20 +33,24 @@ namespace uaudio
 			Sound* sound = new Sound();
 			sound->m_ChunkCollection = chunkCollection;
 			sound->m_Hash = hash;
-			sound->m_Name = a_Path;
+			sound->m_FullName = a_Path;
+			std::string path = a_Path;
+			sound->m_Name = path.substr(path.find_last_of("\\") + 1);
 
 			bool hasDataChunk = false;
 			chunkCollection->HasChunk(hasDataChunk, uaudio::wave_reader::DATA_CHUNK_ID);
 
-			//if (hasDataChunk)
-			//{
-			//	uaudio::wave_reader::DATA_Chunk data_chunk;
-			//	chunkCollection->GetChunkFromData<uaudio::wave_reader::DATA_Chunk>(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
-			//	uint32_t data_chunk_size = 0;
-			//	chunkCollection->GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);
-			//	float* samples = uaudio::utils::ToSample(data_chunk.data, data_chunk_size);
-			//	sound->m_Samples = samples;
-			//}
+			if (hasDataChunk)
+			{
+				uaudio::wave_reader::DATA_Chunk data_chunk;
+				uaudio::wave_reader::FMT_Chunk fmt_chunk;
+				chunkCollection->GetChunkFromData<uaudio::wave_reader::DATA_Chunk>(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
+				chunkCollection->GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+				uint32_t data_chunk_size = 0;
+				chunkCollection->GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);
+				sound->m_Samples = uaudio::player::utils::ToSample(data_chunk.data, data_chunk_size, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels);
+				sound->m_NumSamples = data_chunk_size / fmt_chunk.blockAlign;
+			}
 
 			m_Sounds.insert(std::make_pair(hash, sound));
 
@@ -55,8 +59,9 @@ namespace uaudio
 
 		void SoundsSystem::UnloadSound(uaudio::player::Hash a_Hash)
 		{
-			delete m_Sounds[a_Hash];
+			Sound* s = m_Sounds[a_Hash];
 			m_Sounds.erase(a_Hash);
+			delete s;
 		}
 
         std::vector<Sound*> SoundsSystem::GetSounds() const

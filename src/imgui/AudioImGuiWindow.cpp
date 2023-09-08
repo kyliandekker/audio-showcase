@@ -263,11 +263,13 @@ namespace uaudio
 			// Handle loss of D3D9 device
 			if (result == D3DERR_DEVICELOST && g_pd3dDevice->TestCooperativeLevel() == D3DERR_DEVICENOTRESET)
 				ResetDevice();
-
 		}
 
 		void AudioImGuiWindow::DeleteWindow()
 		{
+			ImGui_ImplWin32_Shutdown();
+			ImGui_ImplDX9_Shutdown();
+			ImPlot::DestroyContext();
 			ImGui::DestroyContext();
 			CleanupDeviceD3D();
 			::DestroyWindow(m_Hwnd);

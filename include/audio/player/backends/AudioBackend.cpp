@@ -1,5 +1,12 @@
 #include "AudioBackend.h"
 
-void uaudio::player::AudioBackend::Update()
+namespace uaudio
 {
+	namespace player
+	{
+		void AudioBackend::Update()
+		{
+
+		}
+	}
 }

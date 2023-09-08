@@ -10,11 +10,12 @@
 
 #include "audio/storage/SoundsSystem.h"
 #include "audio/storage/Sound.h"
-#include "audio/utils/Utils.h"
+#include "audio/player/utils.h"
 #include "imgui/ImguiDefines.h"
 #include "audio/utils/int24_t.h"
 #include "audio/utils/uint24_t.h"
 #include "audio/player/AudioSystem.h"
+#include "audio/player/ChannelHandle.h"
 
 namespace uaudio
 {
@@ -27,8 +28,10 @@ namespace uaudio
 		void SoundsTool::Render()
 		{
 			std::vector<uaudio::storage::Sound*> sounds = uaudio::storage::soundSystem.GetSounds();
-			for (const auto sound : sounds)
-				RenderSound(*sound);
+			for (int32_t i = static_cast<int32_t>(sounds.size() - 1); i > -1; i--)
+			{
+				RenderSound(*sounds[i]);
+			}
 		}
 
 		void SoundsTool::ShowBaseChunk(char* a_ChunkId, uaudio::wave_reader::ChunkCollection& chunkCollection)
@@ -43,7 +46,7 @@ namespace uaudio
 		{
 			std::string sound_hash_id = "##sound_" + std::to_string(a_Sound.m_Hash) + "_";
 
-			std::string sound_header = std::string(MUSIC) + " " + a_Sound.m_Name + sound_hash_id + "sound_collapse";
+			std::string sound_header = std::string(MUSIC) + " \"" + a_Sound.m_Name + "\"" + sound_hash_id + "sound_collapse";
 			if (!ImGui::CollapsingHeader(sound_header.c_str()))
 				return;
 
@@ -59,19 +62,11 @@ namespace uaudio
 			{
 				chunkCollection.GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);
 
-				//float* samples = a_Sound.m_Samples;
-
-				//if (samples != nullptr)
-				//{
-				//	ImPlot::BeginPlot("Audio Data");
-				//	ImPlot::PlotLine("Waveform", samples, 2048);
-				//	ImPlot::EndPlot();
-				//}
-
 				std::string play_button_text = std::string(PLAY) + " Play" + sound_hash_id + "play_button";
 				if (ImGui::Button(play_button_text.c_str()))
 				{
-					int32_t channel_index = 0;
+					uaudio::player::ChannelHandle handle;
+					uaudio::player::audioSystem.Play(a_Sound, handle);
 				}
 				ImGui::SameLine();
 			}
@@ -79,7 +74,10 @@ namespace uaudio
 			std::string remove_sound_text = std::string(MINUS) + " Unload" + sound_hash_id + "unload_sound_button";
 			if (ImGui::Button(remove_sound_text.c_str()))
 			{
+				uaudio::player::audioSystem.m_Update.lock();
+				uaudio::player::audioSystem.RemoveSound(a_Sound);
 				uaudio::storage::soundSystem.UnloadSound(a_Sound.m_Hash);
+				uaudio::player::audioSystem.m_Update.unlock();
 				return;
 			}
 
@@ -106,9 +104,9 @@ namespace uaudio
 				chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
 
 				ImGui::Text("%s", std::string(
-					uaudio::utils::FormatDuration(uaudio::utils::PosToSeconds(0, fmt_chunk.byteRate), true) +
+					uaudio::player::utils::FormatDuration(uaudio::player::utils::PosToSeconds(0, fmt_chunk.byteRate), true) +
 					"/" +
-					uaudio::utils::FormatDuration(uaudio::utils::PosToSeconds(data_chunk_size, fmt_chunk.byteRate), true))
+					uaudio::player::utils::FormatDuration(uaudio::player::utils::PosToSeconds(data_chunk_size, fmt_chunk.byteRate), true))
 					.c_str());
 			}
 
@@ -135,7 +133,7 @@ namespace uaudio
 
 					std::string chunk_header = std::string(chunk_id) + sound_hash_id + "chunk_" + std::to_string(i);
 
-					if (uaudio::utils::chunkcmp(uaudio::wave_reader::FMT_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+					if (uaudio::player::utils::chunkcmp(uaudio::wave_reader::FMT_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
 					{
 						if (ImGui::CollapsingHeader(chunk_header.c_str()))
 						{
@@ -154,7 +152,7 @@ namespace uaudio
 							ImGui::Unindent(IMGUI_INDENT);
 						}
 					}
-					else if (uaudio::utils::chunkcmp(uaudio::wave_reader::DATA_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+					else if (uaudio::player::utils::chunkcmp(uaudio::wave_reader::DATA_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
 					{
 						if (ImGui::CollapsingHeader(chunk_header.c_str()))
 						{
@@ -164,7 +162,7 @@ namespace uaudio
 							ImGui::Unindent(IMGUI_INDENT);
 						}
 					}
-					else if (uaudio::utils::chunkcmp(uaudio::wave_reader::ACID_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+					else if (uaudio::player::utils::chunkcmp(uaudio::wave_reader::ACID_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
 					{
 						if (ImGui::CollapsingHeader(chunk_header.c_str()))
 						{
@@ -190,7 +188,7 @@ namespace uaudio
 							ImGui::Unindent(IMGUI_INDENT);
 						}
 					}
-					else if (uaudio::utils::chunkcmp(uaudio::wave_reader::BEXT_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+					else if (uaudio::player::utils::chunkcmp(uaudio::wave_reader::BEXT_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
 					{
 						if (ImGui::CollapsingHeader(chunk_header.c_str()))
 						{
@@ -217,7 +215,7 @@ namespace uaudio
 							ImGui::Unindent(IMGUI_INDENT);
 						}
 					}
-					else if (uaudio::utils::chunkcmp(uaudio::wave_reader::FACT_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+					else if (uaudio::player::utils::chunkcmp(uaudio::wave_reader::FACT_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
 					{
 						if (ImGui::CollapsingHeader(chunk_header.c_str()))
 						{
@@ -230,7 +228,7 @@ namespace uaudio
 							ImGui::Unindent(IMGUI_INDENT);
 						}
 					}
-					else if (uaudio::utils::chunkcmp(uaudio::wave_reader::CUE_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+					else if (uaudio::player::utils::chunkcmp(uaudio::wave_reader::CUE_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
 					{
 						if (ImGui::CollapsingHeader(chunk_header.c_str()))
 						{
@@ -258,7 +256,7 @@ namespace uaudio
 							ImGui::Unindent(IMGUI_INDENT);
 						}
 					}
-					else if (uaudio::utils::chunkcmp(uaudio::wave_reader::SMPL_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+					else if (uaudio::player::utils::chunkcmp(uaudio::wave_reader::SMPL_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
 					{
 						if (ImGui::CollapsingHeader(chunk_header.c_str()))
 						{
@@ -294,7 +292,7 @@ namespace uaudio
 							ImGui::Unindent(IMGUI_INDENT);
 						}
 					}
-					else if (uaudio::utils::chunkcmp(uaudio::wave_reader::INST_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
+					else if (uaudio::player::utils::chunkcmp(uaudio::wave_reader::INST_CHUNK_ID, &reinterpret_cast<char*>(data->chunk_id)[0]))
 					{
 						if (ImGui::CollapsingHeader(chunk_header.c_str()))
 						{

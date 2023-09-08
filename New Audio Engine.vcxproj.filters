@@ -72,9 +72,6 @@
     <ClCompile Include="src\audio\storage\Sound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\audio\utils\Utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\audio\player\AudioSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -90,10 +87,19 @@
     <ClCompile Include="src\dx9\DX9Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\audio\player\XAudio2Backend.cpp">
+    <ClCompile Include="src\audio\player\backends\xaudio2\XAudio2Backend.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\audio\player\XAudio2Channel.cpp">
+    <ClCompile Include="src\audio\player\backends\xaudio2\XAudio2Channel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\player\AudioChannel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\player\utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imgui\tools\ChannelsTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -143,9 +149,6 @@
     <ClInclude Include="include\audio\storage\SoundsSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\audio\utils\Utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\audio\player\AudioSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -165,6 +168,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\audio\player\backends\xaudio2\XAudio2Channel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio\player\AudioChannel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio\player\utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio\player\ChannelHandle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui\tools\ChannelsTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,6 +2,7 @@
 
 #include "audio/player/backends/AudioBackend.h"
 #include "audio/player/backends/xaudio2/XAudio2Backend.h"
+#include "audio/player/ChannelHandle.h"
 #include "audio/player/Defines.h"
 
 uaudio::player::AudioSystem uaudio::player::audioSystem;
@@ -90,23 +91,66 @@ namespace uaudio
 
 		UAUDIO_PLAYER_RESULT AudioSystem::Update()
 		{
-			m_AudioBackend->Update();
+			while (m_Enabled)
+			{
+				m_Update.lock();
+				m_AudioBackend->Update();
+				m_Update.unlock();
+			}
+			m_AudioThread.join();
+			printf("Stopped audio thread.\n");
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}
 
 		UAUDIO_PLAYER_RESULT AudioSystem::GetEnabled(bool& a_Enabled)
 		{
-			m_EnabledMutex.lock();
 			a_Enabled = m_Enabled;
-			m_EnabledMutex.unlock();
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}
 
-		UAUDIO_PLAYER_RESULT AudioSystem::SetEnabled(bool a_Enabled)
+		UAUDIO_PLAYER_RESULT AudioSystem::Start()
 		{
-			m_EnabledMutex.lock();
-			m_Enabled = a_Enabled;
-			m_EnabledMutex.unlock();
+			m_Enabled = true;
+			printf("Started audio thread.\n");
+			m_AudioThread = std::thread(&AudioSystem::Update, this);
+			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+		}
+
+		UAUDIO_PLAYER_RESULT AudioSystem::Stop()
+		{
+			m_Enabled = false;
+			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+		}
+
+		UAUDIO_PLAYER_RESULT AudioSystem::Play(storage::Sound& a_Sound, ChannelHandle& a_Handle)
+		{
+			return m_AudioBackend->Play(a_Sound, a_Handle);
+		}
+
+		UAUDIO_PLAYER_RESULT AudioSystem::NumChannels(size_t& a_NumChannels) const
+		{
+			if (m_AudioBackend == nullptr)
+				return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_BACKEND;
+
+			a_NumChannels = m_AudioBackend->NumChannels();
+			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+		}
+
+		UAUDIO_PLAYER_RESULT AudioSystem::GetChannel(ChannelHandle& a_Handle, AudioChannel*& a_Channel)
+		{
+			if (a_Handle >= m_AudioBackend->NumChannels())
+				return UAUDIO_PLAYER_RESULT::UAUDIO_CHANNEL_DOES_NOT_EXIST;
+
+			a_Channel = m_AudioBackend->GetChannel(a_Handle);
+			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+		}
+
+		UAUDIO_PLAYER_RESULT AudioSystem::RemoveSound(storage::Sound& a_Sound)
+		{
+			if (m_AudioBackend == nullptr)
+				return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_BACKEND;
+
+			m_AudioBackend->RemoveSound(a_Sound);
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}
 	}

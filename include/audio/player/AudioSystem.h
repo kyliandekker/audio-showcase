@@ -1,16 +1,23 @@
 #pragma once
 
 #include <cstdint>
-#include <mutex>
+#include <thread>
 
 #include "audio/player/Defines.h"
 #include "UAUDIO_PLAYER_RESULT.h"
+#include <mutex>
 
 namespace uaudio
 {
+	namespace storage
+	{
+		class Sound;
+	}
 	namespace player
 	{
 		class AudioBackend;
+		class AudioChannel;
+		struct ChannelHandle;
 
 		class AudioSystem
 		{
@@ -28,15 +35,26 @@ namespace uaudio
 			UAUDIO_PLAYER_RESULT GetPanning(float& a_Panning) const;
 			UAUDIO_PLAYER_RESULT SetPanning(float a_Panning);
 
+			UAUDIO_PLAYER_RESULT GetEnabled(bool& a_Enabled);
+
+			UAUDIO_PLAYER_RESULT Start();
+			UAUDIO_PLAYER_RESULT Stop();
+
+			UAUDIO_PLAYER_RESULT Play(storage::Sound& a_Sound, ChannelHandle& a_Handle);
+
+			UAUDIO_PLAYER_RESULT NumChannels(size_t& a_NumChannels) const;
+			UAUDIO_PLAYER_RESULT GetChannel(ChannelHandle& a_Handle, AudioChannel*& a_Channel);
+
+			UAUDIO_PLAYER_RESULT RemoveSound(storage::Sound& a_Sound);
+
+			std::mutex m_Update;
+		private:
 			UAUDIO_PLAYER_RESULT Update();
 
-			UAUDIO_PLAYER_RESULT GetEnabled(bool& a_Enabled);
-			UAUDIO_PLAYER_RESULT SetEnabled(bool a_Enabled);
-		private:
 			AudioBackend* m_AudioBackend = nullptr;
 			bool m_Enabled = false;
 
-			std::mutex m_EnabledMutex;
+			std::thread m_AudioThread;
 		};
 		extern AudioSystem audioSystem;
 	}
