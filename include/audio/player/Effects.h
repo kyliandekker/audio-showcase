@@ -6,6 +6,7 @@
 #include "utils/utils.h"
 #include "audio/player/Defines.h"
 #include "audio/player/AudioSystem.h"
+#include "utils/Logger.h"
 #include <iostream>
 
 namespace uaudio
@@ -13,39 +14,34 @@ namespace uaudio
 	namespace effects
 	{
 		template <class T>
-		inline T ChangeByteVolume(T a_Value, float a_Volume)
-		{
-			float converted_value = static_cast<float>(a_Value);
-			converted_value *= a_Volume;
-
-			return static_cast<T>(converted_value);
-		}
-
 		inline void ChangeVolume(unsigned char*& a_DataBuffer, uint32_t a_Size, float a_Volume, uint16_t, uint16_t)
 		{
 			// Clamp the volume to 0.0 min and 1.0 max.
 			a_Volume = clamp(a_Volume, player::UAUDIO_MIN_VOLUME, player::UAUDIO_MAX_VOLUME);
 
-			if (!uaudio::player::audioSystem.temp)
+#pragma region NONSIMD
+			if (!uaudio::player::audioSystem.simd)
 			{
 				std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-				int16_t* result = reinterpret_cast<int16_t*>(a_DataBuffer);
+				T* result = reinterpret_cast<T*>(a_DataBuffer);
 
-				for (uint32_t i = 0; i < a_Size / sizeof(int16_t); i++)
-					result[i] = static_cast<int16_t>(static_cast<float>(result[i]) * a_Volume);
+				for (uint32_t i = 0; i < a_Size / sizeof(T); i++)
+					result[i] = static_cast<T>(static_cast<float>(result[i]) * a_Volume);
 
 				a_DataBuffer = reinterpret_cast<unsigned char*>(result);
 				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-				std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+				LOGF(logger::LOGSERVERITY_INFO, "Time difference = %llu [ns].", std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count());
 			}
+#pragma endregion NONSIMD
+#pragma region SIMD
 			else
 			{
 				std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-				int16_t* result = reinterpret_cast<int16_t*>(a_DataBuffer);
+				T* result = reinterpret_cast<T*>(a_DataBuffer);
 
 				uint32_t skip = 4;
 
-				const uint32_t size = (a_Size / sizeof(int16_t));
+				const uint32_t size = (a_Size / sizeof(T));
 				const uint32_t todo = size / skip;
 				const uint32_t leftOver = size % skip;
 
@@ -64,17 +60,17 @@ namespace uaudio
 					float fTemp[4];
 					_mm_store_ps(fTemp, fSamplesMultiplied);
 
-					result[i] = static_cast<int16_t>(fTemp[0]);
-					result[i + 1] = static_cast<int16_t>(fTemp[1]);
-					result[i + 2] = static_cast<int16_t>(fTemp[2]);
-					result[i + 3] = static_cast<int16_t>(fTemp[3]);
+					result[i] = static_cast<T>(fTemp[0]);
+					result[i + 1] = static_cast<T>(fTemp[1]);
+					result[i + 2] = static_cast<T>(fTemp[2]);
+					result[i + 3] = static_cast<T>(fTemp[3]);
 				}
 				for (; i < leftOver; i++)
 				{
-					int16_t* result = reinterpret_cast<int16_t*>(a_DataBuffer);
+					T* result = reinterpret_cast<T*>(a_DataBuffer);
 
-					for (uint32_t i = 0; i < a_Size / sizeof(int16_t); i++)
-						result[i] = static_cast<int16_t>(static_cast<float>(result[i]) * a_Volume);
+					for (uint32_t i = 0; i < a_Size / sizeof(T); i++)
+						result[i] = static_cast<T>(static_cast<float>(result[i]) * a_Volume);
 
 					a_DataBuffer = reinterpret_cast<unsigned char*>(result);
 				}
@@ -82,45 +78,46 @@ namespace uaudio
 				a_DataBuffer = reinterpret_cast<unsigned char*>(result);
 
 				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-				std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+				LOGF(logger::LOGSERVERITY_INFO, "Time difference = %llu [ns].", std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count());
 			}
+#pragma endregion SIMD
 		}
 
 		template <class T>
 		inline void ChangePanning(unsigned char*& a_DataBuffer, uint32_t a_Size, float a_Amount, uint16_t a_NumChannels)
 		{
-			if (a_NumChannels == 1)
-				return;
+			//if (a_NumChannels == 1)
+			//	return;
 
-			// Amount is a value from -1 to 1.
-			a_Amount = clamp(a_Amount, player::UAUDIO_MIN_PANNING, player::UAUDIO_MAX_PANNING);
+			//// Amount is a value from -1 to 1.
+			//a_Amount = clamp(a_Amount, player::UAUDIO_MIN_PANNING, player::UAUDIO_MAX_PANNING);
 
-			// Set the values to 1.0 as default.
-			float left = player::UAUDIO_MAX_VOLUME, right = player::UAUDIO_MAX_VOLUME;
+			//// Set the values to 1.0 as default.
+			//float left = player::UAUDIO_MAX_VOLUME, right = player::UAUDIO_MAX_VOLUME;
 
-			// If the slider is more to the left.
-			if (a_Amount < 0)
-			{
-				right += a_Amount;
-				// Clamp the volume to 0.0 min and 1.0 max.
-				right = clamp(right, player::UAUDIO_MIN_VOLUME, player::UAUDIO_MAX_VOLUME);
-			}
-			// If the slider is more to the right.
-			else if (a_Amount > 0)
-			{
-				left -= a_Amount;
-				// Clamp the volume to 0.0 min and 1.0 max.
-				left = clamp(left, player::UAUDIO_MIN_VOLUME, player::UAUDIO_MAX_VOLUME);
-			}
+			//// If the slider is more to the left.
+			//if (a_Amount < 0)
+			//{
+			//	right += a_Amount;
+			//	// Clamp the volume to 0.0 min and 1.0 max.
+			//	right = clamp(right, player::UAUDIO_MIN_VOLUME, player::UAUDIO_MAX_VOLUME);
+			//}
+			//// If the slider is more to the right.
+			//else if (a_Amount > 0)
+			//{
+			//	left -= a_Amount;
+			//	// Clamp the volume to 0.0 min and 1.0 max.
+			//	left = clamp(left, player::UAUDIO_MIN_VOLUME, player::UAUDIO_MAX_VOLUME);
+			//}
 
-			T* array_16 = reinterpret_cast<T*>(a_DataBuffer);
-			for (uint32_t i = 0; i < (a_Size / sizeof(T)); i += a_NumChannels)
-			{
-				array_16[i] = ChangeByteVolume<T>(array_16[i], left);
-				array_16[i + 1] = ChangeByteVolume<T>(array_16[i + 1], right);
-			}
+			//T* array_16 = reinterpret_cast<T*>(a_DataBuffer);
+			//for (uint32_t i = 0; i < (a_Size / sizeof(T)); i += a_NumChannels)
+			//{
+			//	//array_16[i] = ChangeByteVolume<T>(array_16[i], left);
+			//	//array_16[i + 1] = ChangeByteVolume<T>(array_16[i + 1], right);
+			//}
 
-			a_DataBuffer = reinterpret_cast<unsigned char*>(array_16);
+			//a_DataBuffer = reinterpret_cast<unsigned char*>(array_16);
 		}
 	}
 }

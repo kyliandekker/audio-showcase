@@ -5,6 +5,7 @@
 //#include "audio/player/backends/wasapi/WasAPIBackend.h"
 #include "audio/player/ChannelHandle.h"
 #include "audio/player/Defines.h"
+#include "utils/Logger.h"
 
 uaudio::player::AudioSystem uaudio::player::audioSystem;
 
@@ -105,7 +106,7 @@ namespace uaudio
 				m_Update.unlock();
 			}
 			m_AudioThread.join();
-			printf("Stopped audio thread.\n");
+			LOG(logger::LOGSERVERITY_INFO, "Stopped audio thread.");
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}
 
@@ -118,7 +119,8 @@ namespace uaudio
 		UAUDIO_PLAYER_RESULT AudioSystem::Start()
 		{
 			m_Enabled = true;
-			printf("Started audio thread.\n");
+
+			LOG(logger::LOGSERVERITY_INFO, "Started audio thread.");
 			m_AudioThread = std::thread(&AudioSystem::Update, this);
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}

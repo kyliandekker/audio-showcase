@@ -119,12 +119,10 @@ namespace uaudio
 				OpenFile();
 
 			ImGui::SameLine();
-			bool temp = uaudio::player::audioSystem.temp;
-			std::string loop_button_text = std::string(ICON_FA_FAST_FORWARD) + "##_temp";
-			if (ImGui::CheckboxButton(loop_button_text.c_str(), &temp, ImVec2(25, 25)))
-			{
-				uaudio::player::audioSystem.temp = temp;
-			}
+			bool simd = uaudio::player::audioSystem.simd;
+			std::string loop_button_text = std::string(ICON_FA_FAST_FORWARD) + " SIMD##_temp";
+			if (ImGui::CheckboxButton(loop_button_text.c_str(), &simd, ImVec2(75, 25)))
+				uaudio::player::audioSystem.simd = simd;
 
 			if (ImGui::CollapsingHeader("Extra Options"))
 			{

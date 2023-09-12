@@ -51,7 +51,7 @@ namespace uaudio
 
 			std::mutex m_Update;
 
-			bool temp = false;
+			bool simd = false;
 		private:
 			UAUDIO_PLAYER_RESULT Update();
 

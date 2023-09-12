@@ -6,6 +6,7 @@
 
 #include "audio/storage/Sound.h"
 #include "audio/player/utils.h"
+#include "utils/Logger.h"
 
 uaudio::storage::SoundsSystem uaudio::storage::soundSystem;
 
@@ -53,6 +54,8 @@ namespace uaudio
 			}
 
 			m_Sounds.insert(std::make_pair(hash, sound));
+
+			LOGF(logger::LOGSERVERITY_INFO, "Loaded sound: %s.", sound->m_Name.c_str());
 
 			return sound;
 		}
