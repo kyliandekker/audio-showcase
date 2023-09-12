@@ -6,6 +6,7 @@
 #include <thread>
 #include <string>
 #include <functional>
+#include <mutex>
 
 namespace uaudio
 {
@@ -35,8 +36,9 @@ namespace uaudio
 			void MessageQueue();
 		private:
 			bool m_Running = false;
-			std::queue<Message> m_messages;
-			std::thread m_thread;
+			std::queue<Message> m_Messages;
+			std::thread m_Thread;
+			std::mutex m_MessagesMutex;
 		};
 		extern Logger logger;
 

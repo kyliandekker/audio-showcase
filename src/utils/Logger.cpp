@@ -24,13 +24,16 @@ namespace uaudio
 		Logger::Logger()
 		{
 			m_Running = true;
-			m_thread = std::thread(&Logger::MessageQueue, this);
+			m_Thread = std::thread(&Logger::MessageQueue, this);
 		}
 
 		Logger::~Logger()
 		{
+			m_MessagesMutex.lock();
+			while (!m_Messages.empty()) m_Messages.pop();
+			m_MessagesMutex.unlock();
 			m_Running = false;
-			m_thread.join();
+			m_Thread.join();
 		}
 
 		void Logger::Log(LogSeverity a_Severity, const char* a_Message, const char* a_File, int a_Line)
@@ -65,22 +68,26 @@ namespace uaudio
 				a_File,
 				a_Line);
 
-			m_messages.push({ message, a_Severity });
+			m_MessagesMutex.lock();
+			m_Messages.push({ message, a_Severity });
+			m_MessagesMutex.unlock();
 		}
 
 		void Logger::MessageQueue()
 		{
 			while (m_Running)
 			{
-				if (m_messages.size() > 0)
+				m_MessagesMutex.lock();
+				if (m_Messages.size() > 0)
 				{
-					Message lm = m_messages.front();
-					m_messages.pop();
+					Message lm = m_Messages.front();
+					m_Messages.pop();
 
 					if (lm.severity == logger::LOGSEVERITY_ASSERT)
 						assert(0 && "Logger assert, check log file for information");
 					printf(lm.message.c_str());
 				}
+				m_MessagesMutex.unlock();
 			}
 		}
 	}

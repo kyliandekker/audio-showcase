@@ -19,6 +19,7 @@ namespace uaudio
 			class XAudio2Backend : public AudioBackend
 			{
 			public:
+				~XAudio2Backend();
 				XAudio2Backend();
 				virtual void Update() override;
 				UAUDIO_PLAYER_RESULT Play(storage::Sound& a_WaveFile, ChannelHandle& a_Handle) override;

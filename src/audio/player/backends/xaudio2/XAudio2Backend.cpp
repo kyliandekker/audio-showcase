@@ -9,6 +9,16 @@ namespace uaudio
 	{
 		namespace xaudio2
 		{
+			XAudio2Backend::~XAudio2Backend()
+			{
+				m_Channels.clear();
+
+				m_MasteringVoice->DestroyVoice();
+				m_Engine->Release();
+
+				CoUninitialize();
+			}
+
 			XAudio2Backend::XAudio2Backend()
 			{
 				HRESULT hr;

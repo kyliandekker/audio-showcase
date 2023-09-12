@@ -2,7 +2,6 @@
 
 #include "audio/player/backends/AudioBackend.h"
 #include "audio/player/backends/xaudio2/XAudio2Backend.h"
-//#include "audio/player/backends/wasapi/WasAPIBackend.h"
 #include "audio/player/ChannelHandle.h"
 #include "audio/player/Defines.h"
 #include "utils/Logger.h"
@@ -16,11 +15,12 @@ namespace uaudio
 		AudioSystem::AudioSystem()
 		{
 			m_AudioBackend = new xaudio2::XAudio2Backend();
-			//m_AudioBackend = new wasapi::WasAPIBackend();
 		}
 
 		AudioSystem::~AudioSystem()
 		{
+			m_Enabled = false;
+			m_AudioThread.join();
 			delete m_AudioBackend;
 		}
 
@@ -105,7 +105,6 @@ namespace uaudio
 				m_AudioBackend->Update();
 				m_Update.unlock();
 			}
-			m_AudioThread.join();
 			LOG(logger::LOGSEVERITY_INFO, "Stopped audio thread.");
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}
