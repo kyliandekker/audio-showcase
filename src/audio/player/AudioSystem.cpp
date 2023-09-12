@@ -147,7 +147,10 @@ namespace uaudio
 
 		UAUDIO_PLAYER_RESULT AudioSystem::GetChannel(ChannelHandle& a_Handle, AudioChannel*& a_Channel)
 		{
-			if (a_Handle >= m_AudioBackend->NumChannels())
+			if (a_Handle == CHANNEL_NULL_HANDLE)
+				return UAUDIO_PLAYER_RESULT::UAUDIO_CHANNEL_DOES_NOT_EXIST;
+
+			if (static_cast<size_t>(a_Handle) >= m_AudioBackend->NumChannels())
 				return UAUDIO_PLAYER_RESULT::UAUDIO_CHANNEL_DOES_NOT_EXIST;
 
 			a_Channel = m_AudioBackend->GetChannel(a_Handle);

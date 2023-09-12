@@ -82,7 +82,10 @@ namespace uaudio
 
 			AudioChannel* XAudio2Backend::GetChannel(ChannelHandle& a_Handle)
 			{
-				if (a_Handle > m_Channels.size())
+				if (a_Handle == CHANNEL_NULL_HANDLE)
+					return nullptr;
+
+				if (static_cast<size_t>(a_Handle) >= m_Channels.size())
 					return nullptr;
 
 				return &m_Channels[a_Handle];

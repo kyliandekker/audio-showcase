@@ -15,6 +15,10 @@ namespace ImGui
         float v_max,
         ImVec2 const &size,
         char const *tooltip, float default_value);
+    
+    ImVec2 Panning3D(
+        ImVec2 const &size, 
+        ImVec2 pos3D);
 
     bool OnOffButton(
         char const *label,

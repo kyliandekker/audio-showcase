@@ -4,31 +4,33 @@
 #include <cstdio>
 #include <string>
 #include <imgui/imgui_internal.h>
+#include <imgui/ImguiDefines.h>
+#include <algorithm>
 
 namespace ImGui
 {
-    ImVec2 operator+(ImVec2 const &a, ImVec2 const &b)
+    ImVec2 operator+(ImVec2 const& a, ImVec2 const& b)
     {
         return ImVec2(a.x + b.x, a.y + b.y);
     }
 
-    ImVec2 operator-(ImVec2 const &a, ImVec2 const &b)
+    ImVec2 operator-(ImVec2 const& a, ImVec2 const& b)
     {
         return ImVec2(a.x - b.x, a.y - b.y);
     }
 
     bool Knob(
-        char const *label,
-        float *p_value,
+        char const* label,
+        float* p_value,
         float v_min,
         float v_max,
-        ImVec2 const &size,
-        char const *tooltip, float default_value)
+        ImVec2 const& size,
+        char const* tooltip, float default_value)
     {
         bool showLabel = label[0] != '#' && label[1] != '#' && label[0] != '\0';
 
-        ImGuiIO &io = GetIO();
-        ImGuiStyle &style = GetStyle();
+        ImGuiIO& io = GetIO();
+        ImGuiStyle& style = GetStyle();
         ImVec2 s(size.x - 4, size.y - 4);
 
         float radius_outer = std::fmin(s.x, s.y) / 2.0f;
@@ -37,7 +39,7 @@ namespace ImGui
         ImVec2 center = ImVec2(pos.x + radius_outer, pos.y + radius_outer);
 
         float line_height = GetTextLineHeight();
-        ImDrawList *draw_list = GetWindowDrawList();
+        ImDrawList* draw_list = GetWindowDrawList();
 
         float ANGLE_MIN = 3.141592f * 0.70f;
         float ANGLE_MAX = 3.141592f * 2.30f;
@@ -120,15 +122,79 @@ namespace ImGui
         return value_changed;
     }
 
+    ImVec2 Panning3D(ImVec2 const& size, ImVec2 pos3D)
+    {
+        float thickness = 2;
+        ImGuiIO& io = GetIO();
+        ImGuiStyle& style = GetStyle();
+        ImDrawList* draw_list = GetWindowDrawList();
+        ImVec2 pos = GetCursorScreenPos();
+        pos = ImVec2(pos.x + 2, pos.y + 2);
+
+        ImVec2 topLeft = pos, topRight = pos + ImVec2(size.x, 0), bottomLeft = pos + ImVec2(size.x, size.y), bottomRight = pos + ImVec2(0, size.y);
+        
+        InvisibleButton("##sad", ImVec2(size.x, size.y + style.ItemInnerSpacing.y));
+
+        ImVec2 center = pos + ImVec2(size.x / 2, size.y / 2);
+        std::string lbl = std::string(ICON_FA_HEADPHONES);
+        std::size_t lbl_pos = lbl.find(ICON_FA_HEADPHONES);
+        std::string label_text = lbl.substr(0, lbl_pos);
+        auto textSize = CalcTextSize(label_text.c_str());
+        draw_list->AddText(ImGui::GetFont(), ImGui::GetFontSize(), center - ImVec2(7, textSize.y / 2), GetColorU32(ImGuiCol_Button), ICON_FA_HEADPHONES, 0, 0.0f, 0);
+
+        ImVec2 circleRestrictionPosTopLeft = topLeft + ImVec2(2, 2);
+        ImVec2 circleRestrictionPosTopRight = topRight + ImVec2(-2, 2);
+        ImVec2 circleRestrictionPosBottomLeft = bottomLeft + ImVec2(2, -2);
+        ImVec2 circleRestrictionPosBottomRight = bottomRight + ImVec2(-2, -2);
+        ImVec2 exactCirclePos = ImVec2(std::lerp(circleRestrictionPosTopLeft.x, circleRestrictionPosTopRight.x, pos3D.x), std::lerp(circleRestrictionPosTopLeft.y, circleRestrictionPosBottomRight.y, pos3D.y));
+
+        float ANGLE_MIN = 3.141592f * 0.70f;
+        float ANGLE_MAX = 3.141592f * 2.30f;
+
+        float angle = ANGLE_MIN + (ANGLE_MAX - ANGLE_MIN);
+        float angle_cos = cosf(angle);
+        float angle_sin = sinf(angle);
+
+        float radius_outer = 2.5f;
+
+        bool isHovered = ImGui::IsItemHovered();
+        bool isFocused = ImGui::IsItemFocused();
+       
+        draw_list->AddCircleFilled(exactCirclePos, radius_outer * 0.7f, ImColor(255, 255, 255, 255), 16);
+        draw_list->AddQuad(
+            topLeft,
+            topRight,
+            bottomLeft,
+            bottomRight,
+            GetColorU32(ImGuiCol_Button), 2
+        );
+
+        if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && isHovered)
+        {
+            ImVec2 mousePositionAbsolute = ImGui::GetMousePos();
+            ImVec2 screenPositionAbsolute = ImGui::GetItemRectMin();
+            ImVec2 mousePositionRelative = ImVec2(mousePositionAbsolute.x - screenPositionAbsolute.x, mousePositionAbsolute.y - screenPositionAbsolute.y);
+
+            ImVec2 lerP = ImVec2(
+                std::clamp((mousePositionAbsolute.x - circleRestrictionPosBottomRight.x) / size.x, 0.0f, 1.0f),
+                std::clamp((mousePositionAbsolute.y - circleRestrictionPosTopRight.y) / size.y, 0.0f, 1.0f)
+            );
+
+            return lerP;
+        }
+
+        return pos3D;
+    }
+
     bool OnOffButton(
-        char const *label,
-        bool *p_value,
-        ImVec2 const &size)
+        char const* label,
+        bool* p_value,
+        ImVec2 const& size)
     {
         bool showLabel = label[0] != '#' && label[1] != '#' && label[0] != '\0';
 
-        ImGuiIO &io = GetIO();
-        ImGuiStyle &style = GetStyle();
+        ImGuiIO& io = GetIO();
+        ImGuiStyle& style = GetStyle();
         ImVec2 s(size.x - 4, size.y - 4);
 
         float radius_outer = std::fmin(s.x, s.y) / 2.0f;
@@ -137,7 +203,7 @@ namespace ImGui
         ImVec2 center = ImVec2(pos.x + radius_outer, pos.y + radius_outer);
 
         float line_height = GetTextLineHeight();
-        ImDrawList *draw_list = GetWindowDrawList();
+        ImDrawList* draw_list = GetWindowDrawList();
 
         if (s.x != 0.0f && s.y != 0.0f)
         {
@@ -166,17 +232,17 @@ namespace ImGui
     }
 
     bool KnobUchar(
-        char const *label,
-        unsigned char *p_value,
+        char const* label,
+        unsigned char* p_value,
         unsigned char v_min,
         unsigned char v_max,
-        ImVec2 const &size,
-        char const *tooltip)
+        ImVec2 const& size,
+        char const* tooltip)
     {
         bool showLabel = label[0] != '#' && label[1] != '#' && label[0] != '\0';
 
-        ImGuiIO &io = GetIO();
-        ImGuiStyle &style = GetStyle();
+        ImGuiIO& io = GetIO();
+        ImGuiStyle& style = GetStyle();
         ImVec2 s(size.x - 4, size.y - 4);
 
         float radius_outer = std::fmin(s.x, s.y) / 2.0f;
@@ -185,7 +251,7 @@ namespace ImGui
         ImVec2 center = ImVec2(pos.x + radius_outer, pos.y + radius_outer);
 
         float line_height = GetFrameHeight();
-        ImDrawList *draw_list = GetWindowDrawList();
+        ImDrawList* draw_list = GetWindowDrawList();
 
         float ANGLE_MIN = 3.141592f * 0.70f;
         float ANGLE_MAX = 3.141592f * 2.30f;
@@ -262,7 +328,7 @@ namespace ImGui
     }
 
     void ShowTooltipOnHover(
-        char const *tooltip)
+        char const* tooltip)
     {
         if (IsItemHovered())
         {
@@ -273,11 +339,11 @@ namespace ImGui
     }
 
     bool DropDown(
-        char const *label,
-        unsigned char &value,
-        char const *const names[],
+        char const* label,
+        unsigned char& value,
+        char const* const names[],
         unsigned int nameCount,
-        char const *tooltip)
+        char const* tooltip)
     {
         bool value_changed = false;
 
@@ -303,9 +369,9 @@ namespace ImGui
         return value_changed;
     }
 
-    void UvMeter(char const *label, ImVec2 const &size, int *value, int v_min, int v_max)
+    void UvMeter(char const* label, ImVec2 const& size, int* value, int v_min, int v_max)
     {
-        ImDrawList *draw_list = GetWindowDrawList();
+        ImDrawList* draw_list = GetWindowDrawList();
 
         ImVec2 pos = GetCursorScreenPos();
 
@@ -324,16 +390,16 @@ namespace ImGui
         }
     }
 
-    void TextBox(char const *label, ImVec2 const &size)
+    void TextBox(char const* label, ImVec2 const& size)
     {
-        ImDrawList *draw_list = GetWindowDrawList();
+        ImDrawList* draw_list = GetWindowDrawList();
 
         ImVec2 pos = GetCursorScreenPos();
 
         draw_list->AddText(ImGui::GetFont(), ImGui::GetFontSize(), pos, ImColor(255, 255, 0, 255), "Hello World", 0, 0.0f, 0);
     }
 
-    bool CheckboxButton(const char *label, bool *p_value, const ImVec2 &size_arg)
+    bool CheckboxButton(const char* label, bool* p_value, const ImVec2& size_arg)
     {
         ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_Button);
         ImVec4 color_inactive = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
@@ -360,11 +426,11 @@ namespace ImGui
     }
 
     // ~80% common code with ImGui::SliderBehavior
-    bool RangeSliderBehavior(const ImRect &frame_bb, ImGuiID id, float *v1, float *v2, float v_min, float v_max, float power, int decimal_precision, ImGuiSliderFlags flags)
+    bool RangeSliderBehavior(const ImRect& frame_bb, ImGuiID id, float* v1, float* v2, float v_min, float v_max, float power, int decimal_precision, ImGuiSliderFlags flags)
     {
-        ImGuiContext &g = *GImGui;
-        ImGuiWindow *window = GetCurrentWindow();
-        const ImGuiStyle &style = g.Style;
+        ImGuiContext& g = *GImGui;
+        ImGuiWindow* window = GetCurrentWindow();
+        const ImGuiStyle& style = g.Style;
 
         // Draw frame
         RenderFrame(frame_bb.Min, frame_bb.Max, GetColorU32(ImGuiCol_FrameBg), true, style.FrameRounding);
@@ -502,14 +568,14 @@ namespace ImGui
     }
 
     // ~95% common code with ImGui::SliderFloat
-    bool RangeSliderFloat(const char *label, float *v1, float *v2, float v_min, float v_max, const char *display_format, float power)
+    bool RangeSliderFloat(const char* label, float* v1, float* v2, float v_min, float v_max, const char* display_format, float power)
     {
-        ImGuiWindow *window = GetCurrentWindow();
+        ImGuiWindow* window = GetCurrentWindow();
         if (window->SkipItems)
             return false;
 
-        ImGuiContext &g = *GImGui;
-        const ImGuiStyle &style = g.Style;
+        ImGuiContext& g = *GImGui;
+        const ImGuiStyle& style = g.Style;
         const ImGuiID id = window->GetID(label);
         const float w = CalcItemWidth();
 
@@ -561,7 +627,7 @@ namespace ImGui
 
         // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
         char value_buf[64];
-        const char *value_buf_end = value_buf + ImFormatString(value_buf, IM_ARRAYSIZE(value_buf), display_format, *v1, *v2);
+        const char* value_buf_end = value_buf + ImFormatString(value_buf, IM_ARRAYSIZE(value_buf), display_format, *v1, *v2);
         RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, ImVec2(0.5f, 0.5f));
 
         if (label_size.x > 0.0f)

@@ -3,10 +3,12 @@
 #include <array>
 #include <string>
 #include <vector>
+#include <imgui/imgui.h>
 
 #include <uaudio_wave_reader/Defines.h>
 
 #include "audio/player/Defines.h"
+#include "imgui/tools/BaseTool.h"
 #include "imgui/tools/BaseTool.h"
 
 namespace uaudio
@@ -84,6 +86,8 @@ namespace uaudio
 			};
 
 			uint32_t m_SelectedBitsPerSample = 0;
+
+			ImVec2 m_Pos3d = ImVec2(0.5f, 0.5f);
 		};
 	}
 }
