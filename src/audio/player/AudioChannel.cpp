@@ -183,7 +183,7 @@ namespace uaudio
 				float volume = m_Volume * masterVolume;
 				if (!m_Active)
 					volume = 0.0f;
-				effects::ChangeVolume<int16_t>(a_Data, a_BufferSize, volume, fmt_chunk.blockAlign, fmt_chunk.numChannels);
+				effects::ChangeVolume(a_Data, a_BufferSize, volume, fmt_chunk.blockAlign, fmt_chunk.numChannels);
 
 				effects::ChangePanning<int16_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
 

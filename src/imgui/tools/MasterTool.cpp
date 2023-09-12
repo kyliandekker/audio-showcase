@@ -118,6 +118,14 @@ namespace uaudio
 			if (ImGui::Button(add_sound_text.c_str()))
 				OpenFile();
 
+			ImGui::SameLine();
+			bool temp = uaudio::player::audioSystem.temp;
+			std::string loop_button_text = std::string(ICON_FA_FAST_FORWARD) + "##_temp";
+			if (ImGui::CheckboxButton(loop_button_text.c_str(), &temp, ImVec2(25, 25)))
+			{
+				uaudio::player::audioSystem.temp = temp;
+			}
+
 			if (ImGui::CollapsingHeader("Extra Options"))
 			{
 				ImGui::Indent(IMGUI_INDENT);

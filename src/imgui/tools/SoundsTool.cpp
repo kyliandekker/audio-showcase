@@ -88,14 +88,6 @@ namespace uaudio
 				SaveFile(chunkCollection);
 			}
 
-			ImGui::SameLine();
-			bool isLooping = false;
-			std::string loop_button_text = std::string(RETRY) + sound_hash_id + "loop_sound";
-			if (ImGui::CheckboxButton(loop_button_text.c_str(), &isLooping, ImVec2(25, 25)))
-			{
-
-			}
-
 #pragma region duration
 
 			if (hasFmtChunk && hasDataChunk)

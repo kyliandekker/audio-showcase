@@ -31,6 +31,7 @@ namespace uaudio
 		#define LEFT "\xef\x81\xa0"
 		#define SAVE "\xef\x83\x87"
 		#define MUSIC "\xef\x80\x81"
+		#define ICON_FA_FAST_FORWARD "\xef\x81\x90"
 
 		#define IMGUI_INDENT 16.0f
 	}

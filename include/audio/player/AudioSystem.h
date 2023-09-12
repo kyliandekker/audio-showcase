@@ -50,6 +50,8 @@ namespace uaudio
 			UAUDIO_PLAYER_RESULT RemoveSound(storage::Sound& a_Sound);
 
 			std::mutex m_Update;
+
+			bool temp = false;
 		private:
 			UAUDIO_PLAYER_RESULT Update();
 

@@ -1,9 +1,12 @@
 #pragma once
 
 #include <cstdint>
+#include <immintrin.h>
 
 #include "utils/utils.h"
 #include "audio/player/Defines.h"
+#include "audio/player/AudioSystem.h"
+#include <iostream>
 
 namespace uaudio
 {
@@ -18,17 +21,69 @@ namespace uaudio
 			return static_cast<T>(converted_value);
 		}
 
-		template <class T>
 		inline void ChangeVolume(unsigned char*& a_DataBuffer, uint32_t a_Size, float a_Volume, uint16_t, uint16_t)
 		{
 			// Clamp the volume to 0.0 min and 1.0 max.
 			a_Volume = clamp(a_Volume, player::UAUDIO_MIN_VOLUME, player::UAUDIO_MAX_VOLUME);
 
-			T* array_16 = reinterpret_cast<T*>(a_DataBuffer);
-			for (uint32_t i = 0; i < (a_Size / sizeof(T)); i++)
-				array_16[i] = ChangeByteVolume<T>(array_16[i], a_Volume);
+			if (!uaudio::player::audioSystem.temp)
+			{
+				std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+				int16_t* result = reinterpret_cast<int16_t*>(a_DataBuffer);
 
-			a_DataBuffer = reinterpret_cast<unsigned char*>(array_16);
+				for (uint32_t i = 0; i < a_Size / sizeof(int16_t); i++)
+					result[i] = static_cast<int16_t>(static_cast<float>(result[i]) * a_Volume);
+
+				a_DataBuffer = reinterpret_cast<unsigned char*>(result);
+				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+				std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+			}
+			else
+			{
+				std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+				int16_t* result = reinterpret_cast<int16_t*>(a_DataBuffer);
+
+				uint32_t skip = 4;
+
+				const uint32_t size = (a_Size / sizeof(int16_t));
+				const uint32_t todo = size / skip;
+				const uint32_t leftOver = size % skip;
+
+				uint32_t i = 0;
+
+				const __m128 mult = _mm_set_ps1(a_Volume);
+				for (; i < todo; i += skip)
+				{
+					const __m128 fSamples = _mm_set_ps(
+						static_cast<float>(result[i + 3]),
+						static_cast<float>(result[i + 2]),
+						static_cast<float>(result[i + 1]),
+						static_cast<float>(result[i])
+					);
+					const __m128 fSamplesMultiplied = _mm_mul_ps(fSamples, mult);
+					float fTemp[4];
+					_mm_store_ps(fTemp, fSamplesMultiplied);
+
+					result[i] = static_cast<int16_t>(fTemp[0]);
+					result[i + 1] = static_cast<int16_t>(fTemp[1]);
+					result[i + 2] = static_cast<int16_t>(fTemp[2]);
+					result[i + 3] = static_cast<int16_t>(fTemp[3]);
+				}
+				for (; i < leftOver; i++)
+				{
+					int16_t* result = reinterpret_cast<int16_t*>(a_DataBuffer);
+
+					for (uint32_t i = 0; i < a_Size / sizeof(int16_t); i++)
+						result[i] = static_cast<int16_t>(static_cast<float>(result[i]) * a_Volume);
+
+					a_DataBuffer = reinterpret_cast<unsigned char*>(result);
+				}
+
+				a_DataBuffer = reinterpret_cast<unsigned char*>(result);
+
+				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+				std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+			}
 		}
 
 		template <class T>
