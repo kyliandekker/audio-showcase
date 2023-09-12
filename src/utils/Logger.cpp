@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <format>
+#include <imgui/imgui.h>
 
 uaudio::logger::Logger uaudio::logger::logger;
 
@@ -15,9 +16,8 @@ namespace uaudio
 		char arr[5][10] =
 		{
 			"INFO",
-			"MINOR",
-			"MEDIUM",
-			"HIGH",
+			"WARNING",
+			"ERROR",
 			"ASSERT"
 		};
 
@@ -33,26 +33,26 @@ namespace uaudio
 			m_thread.join();
 		}
 
-		void Logger::Log(LogSeverity a_serverity, const char* a_message, const char* a_file, int a_line)
+		void Logger::Log(LogSeverity a_Severity, const char* a_Message, const char* a_File, int a_Line)
 		{
-			PrintMessage(a_serverity, a_message, a_file, a_line);
+			PrintMessage(a_Severity, a_Message, a_File, a_Line);
 		}
 
-		void Logger::LogF(LogSeverity a_serverity, const char* a_message, const char* a_file, int a_line, ...)
+		void Logger::LogF(LogSeverity a_Severity, const char* a_Message, const char* a_File, int a_Line, ...)
 		{
 			va_list va_format_list;
-			va_start(va_format_list, a_line);
+			va_start(va_format_list, a_Line);
 
-			size_t buffersize = vsnprintf(NULL, 0, a_message, va_format_list) + 1;
+			size_t buffersize = vsnprintf(NULL, 0, a_Message, va_format_list) + 1;
 			char* formatted_message = (char*)malloc(buffersize);
-			vsnprintf(formatted_message, buffersize, a_message, va_format_list);
+			vsnprintf(formatted_message, buffersize, a_Message, va_format_list);
 
-			PrintMessage(a_serverity, formatted_message, a_file, a_line);
+			PrintMessage(a_Severity, formatted_message, a_File, a_Line);
 
 			free(formatted_message);
 		}
 
-		void Logger::PrintMessage(LogSeverity a_serverity, const char* a_message, const char* a_file, int a_line)
+		void Logger::PrintMessage(LogSeverity a_Severity, const char* a_Message, const char* a_File, int a_Line)
 		{
 			struct tm lt;
 			time_t t;
@@ -60,12 +60,12 @@ namespace uaudio
 			localtime_s(&lt, &t);
 
 			std::string message = std::format("[{0}] {1} - File: {2} on line {3}.\n",
-				arr[a_serverity],
-				a_message,
-				a_file,
-				a_line);
+				arr[a_Severity],
+				a_Message,
+				a_File,
+				a_Line);
 
-			m_messages.push(message);
+			m_messages.push({ message, a_Severity });
 		}
 
 		void Logger::MessageQueue()
@@ -74,10 +74,12 @@ namespace uaudio
 			{
 				if (m_messages.size() > 0)
 				{
-					std::string lm = m_messages.front();
+					Message lm = m_messages.front();
 					m_messages.pop();
 
-					printf(lm.c_str());
+					if (lm.severity == logger::LOGSEVERITY_ASSERT)
+						assert(0 && "Logger assert, check log file for information");
+					printf(lm.message.c_str());
 				}
 			}
 		}

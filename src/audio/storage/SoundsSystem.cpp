@@ -31,6 +31,15 @@ namespace uaudio
 			uaudio::wave_reader::ChunkCollection* chunkCollection = new uaudio::wave_reader::ChunkCollection(allocated_space, size);
 			uaudio::wave_reader::WaveReader::LoadWave(a_Path, *chunkCollection, a_Filter);
 
+			uaudio::wave_reader::FMT_Chunk fmt_chunk;
+			chunkCollection->GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+			if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24)
+			{
+				LOG(logger::LOGSEVERITY_ERROR, "Cannot load 24-bit wave files yet.");
+				free(allocated_space);
+				return nullptr;
+			}
+
 			Sound* sound = new Sound();
 			sound->m_ChunkCollection = chunkCollection;
 			sound->m_Hash = hash;
@@ -44,9 +53,7 @@ namespace uaudio
 			if (hasDataChunk)
 			{
 				uaudio::wave_reader::DATA_Chunk data_chunk;
-				uaudio::wave_reader::FMT_Chunk fmt_chunk;
 				chunkCollection->GetChunkFromData<uaudio::wave_reader::DATA_Chunk>(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
-				chunkCollection->GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
 				uint32_t data_chunk_size = 0;
 				chunkCollection->GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);
 				sound->m_Samples = uaudio::player::utils::ToSample(data_chunk.data, data_chunk_size, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels);
@@ -55,7 +62,7 @@ namespace uaudio
 
 			m_Sounds.insert(std::make_pair(hash, sound));
 
-			LOGF(logger::LOGSERVERITY_INFO, "Loaded sound: %s.", sound->m_Name.c_str());
+			LOGF(logger::LOGSEVERITY_INFO, "Loaded sound: %s.", sound->m_Name.c_str());
 
 			return sound;
 		}

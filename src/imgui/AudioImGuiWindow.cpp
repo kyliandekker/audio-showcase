@@ -1,12 +1,13 @@
 #include "imgui/AudioImGuiWindow.h"
-#include "imgui/tools/MainWindow.h"
 
 #include <cstdint>
-
 #include <imgui/imgui.h>
-#include <imgui/implot.h>
 #include <imgui/backends/imgui_impl_win32.h>
 #include <imgui/backends/imgui_impl_dx9.h>
+
+#include "imgui/tools/MainWindow.h"
+#include "utils/Logger.h"
+#include <functional>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -71,7 +72,6 @@ namespace uaudio
 			// setup Dear ImGui context
 			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
-			ImPlot::CreateContext();
 
 			ImGui_ImplWin32_Init(m_Hwnd);
 			ImGui_ImplDX9_Init(g_pd3dDevice);
@@ -269,7 +269,6 @@ namespace uaudio
 		{
 			ImGui_ImplWin32_Shutdown();
 			ImGui_ImplDX9_Shutdown();
-			ImPlot::DestroyContext();
 			ImGui::DestroyContext();
 			CleanupDeviceD3D();
 			::DestroyWindow(m_Hwnd);

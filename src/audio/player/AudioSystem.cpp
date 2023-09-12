@@ -106,7 +106,7 @@ namespace uaudio
 				m_Update.unlock();
 			}
 			m_AudioThread.join();
-			LOG(logger::LOGSERVERITY_INFO, "Stopped audio thread.");
+			LOG(logger::LOGSEVERITY_INFO, "Stopped audio thread.");
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}
 
@@ -120,7 +120,7 @@ namespace uaudio
 		{
 			m_Enabled = true;
 
-			LOG(logger::LOGSERVERITY_INFO, "Started audio thread.");
+			LOG(logger::LOGSEVERITY_INFO, "Started audio thread.");
 			m_AudioThread = std::thread(&AudioSystem::Update, this);
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}

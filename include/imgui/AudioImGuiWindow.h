@@ -6,6 +6,10 @@
 
 namespace uaudio
 {
+	namespace logger
+	{
+		struct Message;
+	}
 	namespace imgui
 	{
 		class BaseTool;

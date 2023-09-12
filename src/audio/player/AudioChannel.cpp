@@ -7,6 +7,7 @@
 #include "audio/player/utils.h"
 #include "audio/player/Effects.h"
 #include "audio/player/AudioSystem.h"
+#include "audio/utils/int24_t.h"
 
 namespace uaudio
 {
@@ -182,14 +183,40 @@ namespace uaudio
 				uaudio::player::audioSystem.GetVolume(masterVolume);
 				float volume = m_Volume * masterVolume;
 				if (!m_Active)
+				{
 					volume = 0.0f;
-				effects::ChangeVolume<int16_t>(a_Data, a_BufferSize, volume, fmt_chunk.blockAlign, fmt_chunk.numChannels);
-
-				effects::ChangePanning<int16_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
-
-				float masterPanning = 0.0f;
-				uaudio::player::audioSystem.GetPanning(masterPanning);
-				effects::ChangePanning<int16_t>(a_Data, a_BufferSize, masterPanning, fmt_chunk.numChannels);
+					effects::ChangeVolume<int16_t>(a_Data, a_BufferSize, volume);
+					return;
+				}
+				else
+				{
+					float masterPanning = 0.0f;
+					uaudio::player::audioSystem.GetPanning(masterPanning);
+					if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_8)
+					{
+						effects::ChangeVolume<int8_t>(a_Data, a_BufferSize, volume);
+						effects::ChangePanning<int8_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
+						effects::ChangePanning<int8_t>(a_Data, a_BufferSize, masterPanning, fmt_chunk.numChannels);
+					}
+					else if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_16)
+					{
+						effects::ChangeVolume<int16_t>(a_Data, a_BufferSize, volume);
+						effects::ChangePanning<int16_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
+						effects::ChangePanning<int16_t>(a_Data, a_BufferSize, masterPanning, fmt_chunk.numChannels);
+					}
+					else if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24)
+					{
+						effects::ChangeVolume<int24_t>(a_Data, a_BufferSize, volume);
+						effects::ChangePanning<int24_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
+						effects::ChangePanning<int24_t>(a_Data, a_BufferSize, masterPanning, fmt_chunk.numChannels);
+					}
+					else if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_32)
+					{
+						effects::ChangeVolume<int32_t>(a_Data, a_BufferSize, volume);
+						effects::ChangePanning<int32_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
+						effects::ChangePanning<int32_t>(a_Data, a_BufferSize, masterPanning, fmt_chunk.numChannels);
+					}
+				}
 			}
 		}
 	}
