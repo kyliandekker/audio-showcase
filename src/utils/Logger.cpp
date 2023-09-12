@@ -6,6 +6,7 @@
 #include <time.h>
 #include <format>
 #include <imgui/imgui.h>
+#include <windows.h>
 
 uaudio::logger::Logger uaudio::logger::logger;
 
@@ -85,7 +86,15 @@ namespace uaudio
 
 					if (lm.severity == logger::LOGSEVERITY_ASSERT)
 						assert(0 && "Logger assert, check log file for information");
-					printf(lm.message.c_str());
+
+					DWORD written = 0;
+					WriteConsoleA(
+						GetStdHandle(STD_OUTPUT_HANDLE),
+						lm.message.c_str(),
+						lm.message.size(),
+						&written,
+						nullptr
+					);
 				}
 				m_MessagesMutex.unlock();
 			}
