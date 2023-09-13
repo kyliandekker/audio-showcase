@@ -4,10 +4,10 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_win32.h>
 #include <imgui/backends/imgui_impl_dx9.h>
+#include <d3d9.h>
 
 #include "imgui/tools/MainWindow.h"
 #include "utils/Logger.h"
-#include <functional>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -44,7 +44,7 @@ namespace uaudio
 		void AudioImGuiWindow::SetHwnd(HWND hwnd, WNDCLASSEX wc)
 		{
 			m_Hwnd = hwnd;
-			m_wc = wc;
+			m_Wc = wc;
 		}
 
 		void AudioImGuiWindow::Initialize()
@@ -61,10 +61,10 @@ namespace uaudio
 
 		void AudioImGuiWindow::CreateContext()
 		{
-			if (!CreateDeviceD3D(m_Hwnd))
+			if (!m_DX9Window.CreateDeviceD3D(m_Hwnd))
 			{
-				CleanupDeviceD3D();
-				::UnregisterClassW(m_wc.lpszClassName, m_wc.hInstance);
+				m_DX9Window.CleanupDeviceD3D();
+				return;
 			}
 
 			::ShowWindow(m_Hwnd, SW_SHOWDEFAULT);
@@ -75,7 +75,7 @@ namespace uaudio
 			ImGui::CreateContext();
 
 			ImGui_ImplWin32_Init(m_Hwnd);
-			ImGui_ImplDX9_Init(g_pd3dDevice);
+			ImGui_ImplDX9_Init(m_DX9Window.g_pd3dDevice);
 		}
 
 		ImFont* m_DefaultFont = nullptr;
@@ -187,38 +187,10 @@ namespace uaudio
 			style = m_DarkStyle;
 		}
 
-		bool AudioImGuiWindow::CreateDeviceD3D(HWND hWnd)
-		{
-			if ((g_pD3D = Direct3DCreate9(D3D_SDK_VERSION)) == NULL)
-				return false;
-
-			// Create the D3DDevice
-			ZeroMemory(&g_d3dpp, sizeof(g_d3dpp));
-			g_d3dpp.Windowed = TRUE;
-			g_d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-			g_d3dpp.BackBufferFormat = D3DFMT_UNKNOWN; // Need to use an explicit format with alpha if needing per-pixel alpha composition.
-			g_d3dpp.EnableAutoDepthStencil = TRUE;
-			g_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
-			g_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;           // Present with vsync
-			//g_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;   // Present without vsync, maximum unthrottled framerate
-			if (g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &g_d3dpp, &g_pd3dDevice) < 0)
-				return false;
-
-			return true;
-		}
-
-		void AudioImGuiWindow::CleanupDeviceD3D()
-		{
-			if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
-			if (g_pD3D) { g_pD3D->Release(); g_pD3D = NULL; }
-		}
-
 		void AudioImGuiWindow::ResetDevice()
 		{
 			ImGui_ImplDX9_InvalidateDeviceObjects();
-			HRESULT hr = g_pd3dDevice->Reset(&g_d3dpp);
-			if (hr == D3DERR_INVALIDCALL)
-				IM_ASSERT(0);
+			m_DX9Window.ResetDevice();
 			ImGui_ImplDX9_CreateDeviceObjects();
 		}
 
@@ -266,22 +238,19 @@ namespace uaudio
 			ImGui::PopFont();
 
 			ImGui::EndFrame();
-			g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
-			g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-			g_pd3dDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
-			D3DCOLOR clear_col_dx = D3DCOLOR_RGBA((int)(clear_color.x * clear_color.w * 255.0f), (int)(clear_color.y * clear_color.w * 255.0f), (int)(clear_color.z * clear_color.w * 255.0f), (int)(clear_color.w * 255.0f));
-			g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, clear_col_dx, 1.0f, 0);
-			if (g_pd3dDevice->BeginScene() >= 0)
+			m_DX9Window.SetRenderState();
+			m_DX9Window.Clear();
+			if (m_DX9Window.BeginScene())
 			{
 				ImGui::Render();
 				ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-				g_pd3dDevice->EndScene();
+				m_DX9Window.EndScene();
 			}
 
-			HRESULT result = g_pd3dDevice->Present(NULL, NULL, NULL, NULL);
+			HRESULT result = m_DX9Window.g_pd3dDevice->Present(NULL, NULL, NULL, NULL);
 
 			// Handle loss of D3D9 device
-			if (result == D3DERR_DEVICELOST && g_pd3dDevice->TestCooperativeLevel() == D3DERR_DEVICENOTRESET)
+			if (result == D3DERR_DEVICELOST && m_DX9Window.g_pd3dDevice->TestCooperativeLevel() == D3DERR_DEVICENOTRESET)
 				ResetDevice();
 		}
 
@@ -290,9 +259,7 @@ namespace uaudio
 			ImGui_ImplDX9_Shutdown();
 			ImGui_ImplWin32_Shutdown();
 			ImGui::DestroyContext();
-			CleanupDeviceD3D();
-			::DestroyWindow(m_Hwnd);
-			::UnregisterClassW(m_wc.lpszClassName, m_wc.hInstance);
+			m_DX9Window.CleanupDeviceD3D();
 		}
 
 		void AudioImGuiWindow::AddTool(BaseTool& a_Tool)

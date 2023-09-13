@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <d3d9.h>
+#include <dx9/DX9Window.h>
 
 namespace uaudio
 {
@@ -27,12 +27,10 @@ namespace uaudio
 			void ProcessEvents(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 			void CreateContext();
 			void CreateImGui() const;
-			bool CreateDeviceD3D(HWND hWnd);
-			void CleanupDeviceD3D();
-			void ResetDevice();
 			void Render();
 			void DeleteWindow();
 			void AddTool(BaseTool& a_Tool);
+			void ResetDevice();
 
 			static void LoggerCallback(logger::Message& message);
 
@@ -41,15 +39,13 @@ namespace uaudio
 			std::string m_PopUpTitle;
 		private:
 			HWND m_Hwnd;
-			WNDCLASSEX m_wc;
+			WNDCLASSEX m_Wc;
 			bool m_Enabled = true;
+
+			dx9::DX9Window m_DX9Window;
 
 			MainWindow* m_MainWindow = nullptr;
 			std::vector<BaseTool*> m_Tools;
-
-			LPDIRECT3D9 g_pD3D = NULL;
-			LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
-			D3DPRESENT_PARAMETERS g_d3dpp = {};
 		};
 		extern AudioImGuiWindow window;
 	}
