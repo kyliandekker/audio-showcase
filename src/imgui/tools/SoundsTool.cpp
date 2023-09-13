@@ -367,7 +367,7 @@ namespace uaudio
 							{
 								ImGui::Indent(IMGUI_INDENT);
 								static uint32_t view_option = 0;
-								std::string view_options[13] =
+								std::string view_options[14] =
 								{
 									"CHOOSE OPTION",
 									"int8",
@@ -382,11 +382,13 @@ namespace uaudio
 									"uint64",
 									"char",
 									"readable char",
+									"string"
 								};
 
 								const std::string view_as_text = "View as";
+								const std::string view_as_text_id = "##View_As_" + std::to_string(i);
 								ImGui::Text("%s", view_as_text.c_str());
-								if (ImGui::BeginCombo("##View_As", view_options[view_option].c_str(), ImGuiComboFlags_PopupAlignLeft))
+								if (ImGui::BeginCombo(view_as_text_id.c_str(), view_options[view_option].c_str(), ImGuiComboFlags_PopupAlignLeft))
 								{
 									for (uint32_t n = 0; n < static_cast<uint32_t>(ARRAYSIZE(view_options)); n++)
 									{
@@ -398,6 +400,7 @@ namespace uaudio
 								}
 
 								const std::string endianness_text = "Endianness";
+								const std::string endianness_text_id = "##Endianness" + std::to_string(i);
 								static uint32_t endianness_option = 0;
 								std::string endianness_options[2] =
 								{
@@ -406,7 +409,7 @@ namespace uaudio
 								};
 
 								ImGui::Text("%s", endianness_text.c_str());
-								if (ImGui::BeginCombo("##Endianness", endianness_options[endianness_option].c_str(), ImGuiComboFlags_PopupAlignLeft))
+								if (ImGui::BeginCombo(endianness_text_id.c_str(), endianness_options[endianness_option].c_str(), ImGuiComboFlags_PopupAlignLeft))
 								{
 									for (uint32_t n = 0; n < static_cast<uint32_t>(ARRAYSIZE(endianness_options)); n++)
 									{
@@ -477,6 +480,11 @@ namespace uaudio
 									case 12:
 									{
 										ViewAsChar(data, endianness_option);
+										break;
+									}
+									case 13:
+									{
+										ViewAsString(data, endianness_option);
 										break;
 									}
 									default:
@@ -567,6 +575,14 @@ namespace uaudio
 
 				ShowValue(std::to_string(i).c_str(), std::string(reinterpret_cast<char*>(complete)).c_str());
 			}
+		}
+
+		void SoundsTool::ViewAsString(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness)
+		{
+			unsigned char* complete = reinterpret_cast<unsigned char*>(malloc(a_ChunkHeader->chunkSize - sizeof(uaudio::wave_reader::ChunkHeader)));
+			memcpy(complete, utils::add(a_ChunkHeader, sizeof(uaudio::wave_reader::ChunkHeader)), a_ChunkHeader->chunkSize - sizeof(uaudio::wave_reader::ChunkHeader));
+			ShowValue("Text", std::string(reinterpret_cast<char*>(complete)).c_str());
+			free(complete);
 		}
 	}
 }

@@ -30,6 +30,7 @@ namespace uaudio
             template<class T>
             void ViewAs(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness);
 			void ViewAsChar(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness);
+			void ViewAsString(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness);
         };
 	}
 }
