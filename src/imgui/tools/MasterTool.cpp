@@ -40,6 +40,7 @@ namespace uaudio
 			m_ChunkIds.push_back({ uaudio::wave_reader::CUE_CHUNK_ID, false, false });
 			m_ChunkIds.push_back({ uaudio::wave_reader::SMPL_CHUNK_ID, false, false });
 			m_ChunkIds.push_back({ uaudio::wave_reader::INST_CHUNK_ID, false, false });
+			m_ChunkIds.push_back({ uaudio::wave_reader::LIST_CHUNK_ID, false, false });
 		}
 
 		void MasterTool::Render()

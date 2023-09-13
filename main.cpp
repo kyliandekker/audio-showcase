@@ -13,7 +13,7 @@ const char g_szClassName[] = "Audio Showcase";
 // Step 4: the Window Procedure
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	uaudio::imgui::window.ProcessEvents(hwnd, msg, wParam, lParam);
+	//uaudio::imgui::window.ProcessEvents(hwnd, msg, wParam, lParam);
 	switch (msg)
 	{
 	case WM_CLOSE:
@@ -75,10 +75,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 		return 0;
 	}
 
+	uaudio::imgui::window.SetHwnd(hwnd, wc);
+
 	ShowWindow(hwnd, nShowCmd);
 	UpdateWindow(hwnd);
 
-	uaudio::imgui::window.SetHwnd(hwnd, wc);
+	uaudio::imgui::window.Initialize();
 
 	// Step 3: Adding all the tools
 	uaudio::imgui::MasterTool masterTool = uaudio::imgui::MasterTool();
@@ -90,9 +92,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	uaudio::imgui::ChannelsTool channelsTool = uaudio::imgui::ChannelsTool();
 	uaudio::imgui::window.AddTool(channelsTool);
 
-	uaudio::imgui::window.Initialize();
-
-	uaudio::player::audioSystem.Start();
+	uaudio::player::UAUDIO_PLAYER_RESULT result = uaudio::player::audioSystem.Start();
+	if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+	{
+		fclose(fConsole);
+		return -1;
+	}
 
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
@@ -103,7 +108,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
 	uaudio::player::audioSystem.Stop();
 
-	// uaudio::imgui::window.DeleteWindow();
+	uaudio::imgui::window.DeleteWindow();
+
+	DestroyWindow(hwnd);
+	UnregisterClassW(wc.lpszClassName, wc.hInstance);
 
 	fclose(fConsole);
 	return Msg.wParam;

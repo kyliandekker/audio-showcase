@@ -785,6 +785,8 @@ namespace uaudio
 			uint8_t lowVelocity = 0;
 			uint8_t highVelocity = 0;
 		};
+
+		constexpr auto LIST_CHUNK_ID = "LIST";
 #pragma pack(pop)
 	}
 }

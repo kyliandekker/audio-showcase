@@ -29,8 +29,6 @@ namespace uaudio
 			delete m_MainWindow;
 
 			m_Tools.clear();
-
-			DeleteWindow();
 		}
 
 		float GetRGBColor(int color)
@@ -289,8 +287,8 @@ namespace uaudio
 
 		void AudioImGuiWindow::DeleteWindow()
 		{
-			ImGui_ImplWin32_Shutdown();
 			ImGui_ImplDX9_Shutdown();
+			ImGui_ImplWin32_Shutdown();
 			ImGui::DestroyContext();
 			CleanupDeviceD3D();
 			::DestroyWindow(m_Hwnd);

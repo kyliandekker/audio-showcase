@@ -92,7 +92,8 @@ namespace uaudio
 						&written,
 						nullptr
 					);
-					m_LoggerCallback(lm);
+					if (m_LoggerCallback)
+						m_LoggerCallback(lm);
 					if (lm.severity == logger::LOGSEVERITY_ASSERT)
 						assert(0 && "Logger assert, check log file for information");
 				}

@@ -580,9 +580,12 @@ namespace uaudio
 		void SoundsTool::ViewAsString(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness)
 		{
 			unsigned char* complete = reinterpret_cast<unsigned char*>(malloc(a_ChunkHeader->chunkSize - sizeof(uaudio::wave_reader::ChunkHeader)));
-			memcpy(complete, utils::add(a_ChunkHeader, sizeof(uaudio::wave_reader::ChunkHeader)), a_ChunkHeader->chunkSize - sizeof(uaudio::wave_reader::ChunkHeader));
-			ShowValue("Text", std::string(reinterpret_cast<char*>(complete)).c_str());
-			free(complete);
+			if (complete != nullptr)
+			{
+				memcpy(complete, utils::add(a_ChunkHeader, sizeof(uaudio::wave_reader::ChunkHeader)), a_ChunkHeader->chunkSize - sizeof(uaudio::wave_reader::ChunkHeader));
+				ShowValue("Text", std::string(reinterpret_cast<char*>(complete)).c_str());
+				free(complete);
+			}
 		}
 	}
 }
