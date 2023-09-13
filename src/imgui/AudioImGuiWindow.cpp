@@ -11,6 +11,8 @@
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+uaudio::imgui::AudioImGuiWindow uaudio::imgui::window;
+
 namespace uaudio
 {
 	namespace imgui
@@ -49,6 +51,7 @@ namespace uaudio
 
 		void AudioImGuiWindow::Initialize()
 		{
+			logger::logger.m_LoggerCallback = &window.LoggerCallback;
 			CreateContext();
 			CreateImGui();
 		}
@@ -236,6 +239,25 @@ namespace uaudio
 
 			m_MainWindow->SetSize(size);
 			m_MainWindow->Update();
+			
+			if (m_ShowPopUp)
+			{
+				ImGui::SetNextWindowSize(ImVec2(size.x / 2, size.y / 3));
+				ImGui::OpenPopup(m_PopUpTitle.c_str());
+
+				if (ImGui::BeginPopupModal(m_PopUpTitle.c_str(), &m_ShowPopUp))
+				{
+					ImGui::PushTextWrapPos(size.x / 2);
+					ImGui::Text(m_PopUpText.c_str());
+					if (ImGui::Button("Close"))
+					{
+						m_ShowPopUp = false;
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::EndPopup();
+				}
+			}
+
 			for (auto* tool : m_Tools)
 			{
 				if (tool->IsFullScreen())
@@ -278,6 +300,16 @@ namespace uaudio
 		void AudioImGuiWindow::AddTool(BaseTool& a_Tool)
 		{
 			m_Tools.push_back(&a_Tool);
+		}
+
+		void AudioImGuiWindow::LoggerCallback(logger::Message& message)
+		{
+			if (message.severity != logger::LOGSEVERITY_ERROR && message.severity != logger::LOGSEVERITY_ASSERT)
+				return;
+
+			window.m_PopUpText = message.message;
+			window.m_PopUpTitle = (message.severity == logger::LOGSEVERITY_ERROR) ? "Error" : "Critical Error";
+			window.m_ShowPopUp = true;
 		}
 	}
 }

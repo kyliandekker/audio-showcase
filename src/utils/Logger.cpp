@@ -84,9 +84,6 @@ namespace uaudio
 					Message lm = m_Messages.front();
 					m_Messages.pop();
 
-					if (lm.severity == logger::LOGSEVERITY_ASSERT)
-						assert(0 && "Logger assert, check log file for information");
-
 					DWORD written = 0;
 					WriteConsoleA(
 						GetStdHandle(STD_OUTPUT_HANDLE),
@@ -95,6 +92,9 @@ namespace uaudio
 						&written,
 						nullptr
 					);
+					m_LoggerCallback(lm);
+					if (lm.severity == logger::LOGSEVERITY_ASSERT)
+						assert(0 && "Logger assert, check log file for information");
 				}
 				m_MessagesMutex.unlock();
 			}

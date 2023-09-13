@@ -34,6 +34,8 @@ namespace uaudio
 			void LogF(LogSeverity a_Severity, const char* a_Message, const char* a_File, int a_Line, ...);
 			void PrintMessage(LogSeverity a_Severity, const char* a_Message, const char* a_File, int a_Line);
 			void MessageQueue();
+
+			void (*m_LoggerCallback)(Message&);
 		private:
 			bool m_Running = false;
 			std::queue<Message> m_Messages;

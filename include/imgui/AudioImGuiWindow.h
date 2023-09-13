@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <vector>
 #include <d3d9.h>
 
@@ -32,6 +33,12 @@ namespace uaudio
 			void Render();
 			void DeleteWindow();
 			void AddTool(BaseTool& a_Tool);
+
+			static void LoggerCallback(logger::Message& message);
+
+			bool m_ShowPopUp = false;
+			std::string m_PopUpText;
+			std::string m_PopUpTitle;
 		private:
 			HWND m_Hwnd;
 			WNDCLASSEX m_wc;
@@ -44,5 +51,6 @@ namespace uaudio
 			LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
 			D3DPRESENT_PARAMETERS g_d3dpp = {};
 		};
+		extern AudioImGuiWindow window;
 	}
 }
