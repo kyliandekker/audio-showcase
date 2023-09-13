@@ -11,6 +11,7 @@
 #include "audio/storage/Sound.h"
 #include "audio/player/utils.h"
 #include "utils/Utils.h"
+#include "utils/Logger.h"
 
 namespace uaudio
 {
@@ -32,29 +33,62 @@ namespace uaudio
 		void ChannelsTool::RenderChannel(player::ChannelHandle a_Index)
 		{
 			uaudio::player::AudioChannel* channel = nullptr;
-			uaudio::player::audioSystem.GetChannel(a_Index, channel);
+			uaudio::player::UAUDIO_PLAYER_RESULT presult = uaudio::player::audioSystem.GetChannel(a_Index, channel);
+			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK || !channel)
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel: %i", presult);
+				return;
+			}
 
 			bool isInUse = false;
-			channel->IsInUse(isInUse);
+			presult = channel->IsInUse(isInUse);
+			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel is in use: %i", presult);
+				return;
+			}
 			if (!isInUse)
 				return;
 
 			uaudio::storage::Sound* sound;
-			channel->GetSound(sound);
+			presult = channel->GetSound(sound);
+			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel has sound: %i", presult);
+				return;
+			}
 			sound->m_Mutex.lock();
 
 			uaudio::wave_reader::FMT_Chunk fmt_chunk;
-			sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
-
+			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+			if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+			{
+				LOGF(logger::LOGSEVERITY_WARNING, "Sound %s has no fmt chunk.", sound->m_Name.c_str());
+				sound->m_Mutex.unlock();
+				return;
+			}
+			
 			bool active = false;
-			channel->IsActive(active);
+			presult = channel->IsActive(active);
+			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel is active: %i", presult);
+				sound->m_Mutex.unlock();
+				return;
+			}
 			std::string on_off_button_text = "##OnOff_Channel_" + std::to_string(a_Index);
 			if (ImGui::OnOffButton(on_off_button_text.c_str(), &active, ImVec2(25, 25)))
 				channel->SetActive(active);
 
 			ImGui::SameLine();
 			float panning = 0.0f;
-			channel->GetPanning(panning);
+			presult = channel->GetPanning(panning);
+			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel panning: %i", presult);
+				sound->m_Mutex.unlock();
+				return;
+			}
 			std::string panning_tooltip_text = std::string(PANNING) + " Panning (affects channel " + std::to_string(a_Index) + ")";
 			std::string panning_text = "##Panning_Channel_" + std::to_string(a_Index);
 			if (ImGui::Knob(panning_text.c_str(), &panning, -1, 1, ImVec2(25, 25), panning_tooltip_text.c_str(), 0.0f))
@@ -62,21 +96,45 @@ namespace uaudio
 
 			ImGui::SameLine();
 			float volume = 1.0f;
-			channel->GetVolume(volume);
+			presult = channel->GetVolume(volume);
+			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel volume: %i", presult);
+				sound->m_Mutex.unlock();
+				return;
+			}
 			std::string volume_tooltip_text = std::string(VOLUME_UP) + " Volume (affects channel " + std::to_string(a_Index) + ")";
 			std::string volume_text = "##Volume_Channel_" + std::to_string(a_Index);
 			if (ImGui::Knob(volume_text.c_str(), &volume, 0, 1, ImVec2(25, 25), volume_tooltip_text.c_str(), 1.0f))
 				channel->SetVolume(volume);
 
 			uaudio::wave_reader::DATA_Chunk data_chunk;
-			sound->m_ChunkCollection->GetChunkFromData(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
+			result = sound->m_ChunkCollection->GetChunkFromData(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
+			if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+			{
+				LOGF(logger::LOGSEVERITY_WARNING, "Sound %s has no data chunk.", sound->m_Name.c_str());
+				sound->m_Mutex.unlock();
+				return;
+			}
 
 			float fPos = 0;
-			channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_POS, fPos);
+			presult = channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_POS, fPos);
+			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel pos: %i", presult);
+				sound->m_Mutex.unlock();
+				return;
+			}
 			int pos = static_cast<uint32_t>(fPos);
 			float final_pos = uaudio::player::utils::PosToSeconds(data_chunk.chunkSize, fmt_chunk.byteRate);
 			float seconds = 0;
-			channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_S, seconds);
+			presult = channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_S, seconds);
+			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel pos: %i", presult);
+				sound->m_Mutex.unlock();
+				return;
+			}
 			ImGui::Text("%s", std::string(
 				uaudio::player::utils::FormatDuration(seconds, false) +
 				"/" +
@@ -86,10 +144,22 @@ namespace uaudio
 			std::string player_text = std::string("###Player_" + std::to_string(a_Index));
 
 			bool isPlaying = false;
-			channel->IsPlaying(isPlaying);
+			presult = channel->IsPlaying(isPlaying);
+			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel is playing: %i", presult);
+				sound->m_Mutex.unlock();
+				return;
+			}
 
 			uint32_t buffersize = 0;
-			uaudio::player::audioSystem.GetBufferSize(buffersize);
+			presult = uaudio::player::audioSystem.GetBufferSize(buffersize);
+			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve audio system buffer size: %i", presult);
+				sound->m_Mutex.unlock();
+				return;
+			}
 
 			if (ImGui::SliderInt(player_text.c_str(), &pos, 0, static_cast<int>(final_pos_slider), ""))
 			{
@@ -147,7 +217,13 @@ namespace uaudio
 
 			ImGui::SameLine();
 			bool isLooping = false;
-			channel->IsLooping(isLooping);
+			presult = channel->IsLooping(isLooping);
+			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel loops: %i", presult);
+				sound->m_Mutex.unlock();
+				return;
+			}
 			std::string loop_button_text = std::string(RETRY) + "##Loop_Channel_" + std::to_string(a_Index);
 			if (ImGui::CheckboxButton(loop_button_text.c_str(), &isLooping, ImVec2(25, 25)))
 				channel->SetLooping(isLooping);

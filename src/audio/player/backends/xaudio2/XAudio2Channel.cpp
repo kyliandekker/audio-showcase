@@ -8,6 +8,7 @@
 #include "audio/storage/Sound.h"
 #include "audio/player/backends/xaudio2/XAudio2Backend.h"
 #include "audio/player/AudioSystem.h"
+#include "utils/Logger.h"
 
 namespace uaudio
 {
@@ -188,7 +189,13 @@ namespace uaudio
 
 				m_Sound->m_Mutex.lock();
 				uint32_t buffersize = 0;
-				audioSystem.GetBufferSize(buffersize);
+				uaudio::player::UAUDIO_PLAYER_RESULT result = audioSystem.GetBufferSize(buffersize);
+				if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+				{
+					LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve audio system buffer size: %i", result);
+					m_Sound->m_Mutex.unlock();
+					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_CHANNEL_CANNOT_RETRIEVE_BUFFERSIZE;
+				}
 				PlayRanged(m_CurrentPos, buffersize);
 				if (m_Sound)
 					m_Sound->m_Mutex.unlock();

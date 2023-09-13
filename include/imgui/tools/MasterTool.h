@@ -86,6 +86,7 @@ namespace uaudio
 			};
 
 			uint32_t m_SelectedBitsPerSample = 0;
+			uint32_t m_SelectedNumChannels = 0;
 
 			ImVec2 m_Pos3d = ImVec2(0.5f, 0.5f);
 		};

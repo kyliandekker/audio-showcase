@@ -26,8 +26,10 @@ namespace uaudio
 			void RenderSound(uaudio::storage::Sound& a_Sound);
 			void SaveFile(uaudio::wave_reader::ChunkCollection& chunkCollection);
 
+		private:
             template<class T>
             void ViewAs(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness);
+			void ViewAsChar(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness);
         };
 	}
 }

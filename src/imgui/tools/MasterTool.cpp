@@ -5,11 +5,14 @@
 #include <imgui/imgui_stdlib.h>
 #include <imgui/imgui_helpers.h>
 #include <uaudio_wave_reader/WaveChunks.h>
+#include <uaudio_wave_reader/WaveReader.h>
 
 #include "imgui/ImguiDefines.h"
 #include "audio/storage/SoundsSystem.h"
 #include "audio/player/AudioSystem.h"
-#include <uaudio_wave_reader/WaveReader.h>
+#include "utils/Logger.h"
+#include "audio/player/ChannelHandle.h"
+#include "audio/player/AudioChannel.h"
 
 namespace uaudio
 {
@@ -21,18 +24,13 @@ namespace uaudio
 			uaudio::player::UAUDIO_PLAYER_RESULT result = player::audioSystem.GetBufferSize(buffer_size);
 			if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
 			{
-				printf("Cannot retrieve buffer size: %i.\n", result);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve buffer size: %i", result);
 				return;
 			}
 
 			for (size_t i = 0; i < m_BufferSizeOptions.size(); i++)
 				if (m_BufferSizeOptions[i] == buffer_size)
 					m_BufferSizeSelection = i;
-
-			//m_WaveConfig.bitsPerSample = uaudio::UAUDIO_DEFAULT_BITS_PER_SAMPLE;
-			//for (uint32_t i = 0; i < m_BitsPerSampleOptions.size(); i++)
-			//	if (m_WaveConfig.bitsPerSample == m_BitsPerSampleOptions[i])
-			//		m_SelectedBitsPerSample = i;
 
 			m_ChunkIds.push_back({ uaudio::wave_reader::FMT_CHUNK_ID, false, false });
 			m_ChunkIds.push_back({ uaudio::wave_reader::DATA_CHUNK_ID, false, false });
@@ -50,7 +48,7 @@ namespace uaudio
 			uaudio::player::UAUDIO_PLAYER_RESULT result = player::audioSystem.IsPaused(paused);
 			if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
 			{
-				printf("Cannot retrieve pause state: %i.\n", result);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve pause state: %i", result);
 				return;
 			}
 			if (paused)
@@ -67,15 +65,32 @@ namespace uaudio
 			if (ImGui::Button(STOP, ImVec2(50, 50)))
 			{
 				player::audioSystem.SetPaused(true);
-			    //for (int32_t i = 0; i < static_cast<int32_t>(m_AudioSystem.ChannelSize()); i++)
-			    //    m_AudioSystem.GetChannel(i)->SetPos(0);
+
+				size_t size = 0;
+				if (uaudio::player::audioSystem.NumChannels(size) != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+					return;
+
+				for (uint32_t i = 0; i < size; i++)
+				{
+					uaudio::player::ChannelHandle handle = i;
+					uaudio::player::AudioChannel* channel = nullptr;
+					uaudio::player::UAUDIO_PLAYER_RESULT result = uaudio::player::audioSystem.GetChannel(handle, channel);
+					if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK || !channel)
+					{
+						LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel: %i", result);
+						return;
+					}
+
+					channel->SetPos(0);
+					channel->Pause();
+				}
 			}
 
 			float panning = 0;
 			result = player::audioSystem.GetPanning(panning);
 			if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
 			{
-				printf("Cannot retrieve panning: %i.\n", result);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve panning: %i", result);
 				return;
 			}
 			const std::string master_panning_text = std::string(PANNING) + " Master Panning (affects all channels)";
@@ -87,7 +102,7 @@ namespace uaudio
 			result = player::audioSystem.GetVolume(volume);
 			if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
 			{
-				printf("Cannot retrieve volume: %i.\n", result);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume: %i", result);
 				return;
 			}
 			const std::string master_volume_text = std::string(VOLUME_UP) + " Master Volume (affects all channels)";
@@ -131,18 +146,18 @@ namespace uaudio
 			{
 				ImGui::Indent(IMGUI_INDENT);
 
-				//const std::string channels_text = "Channels (stereo or mono)";
-				//ImGui::Text("%s", channels_text.c_str());
-				//if (ImGui::BeginCombo("##Stereo_Or_Mono", m_ChannelsTextOptions[m_WaveConfig.numChannels], ImGuiComboFlags_PopupAlignLeft))
-				//{
-				//	for (uint32_t n = 0; n < static_cast<uint32_t>(m_ChannelsTextOptions.size()); n++)
-				//	{
-				//		const bool is_selected = n == m_WaveConfig.numChannels;
-				//		if (ImGui::Selectable(m_ChannelsTextOptions[n], is_selected))
-				//			m_WaveConfig.numChannels = static_cast<uint16_t>(n);
-				//	}
-				//	ImGui::EndCombo();
-				//}
+				const std::string channels_text = "Channels (stereo or mono)";
+				ImGui::Text("%s", channels_text.c_str());
+				if (ImGui::BeginCombo("##Stereo_Or_Mono", m_ChannelsTextOptions[m_SelectedNumChannels], ImGuiComboFlags_PopupAlignLeft))
+				{
+					for (uint32_t n = 0; n < static_cast<uint32_t>(m_ChannelsTextOptions.size()); n++)
+					{
+						const bool is_selected = n == m_SelectedNumChannels;
+						if (ImGui::Selectable(m_ChannelsTextOptions[n], is_selected))
+							m_SelectedNumChannels = static_cast<uint16_t>(n);
+					}
+					ImGui::EndCombo();
+				}
 
 				const std::string bits_per_sample_text = "Bits per sample";
 				ImGui::Text("%s", bits_per_sample_text.c_str());

@@ -1,6 +1,9 @@
 #include "audio/storage/Sound.h"
+
 #include <uaudio_wave_reader/ChunkCollection.h>
 #include <uaudio_wave_reader/WaveChunks.h>
+
+#include "utils/Logger.h"
 
 namespace uaudio
 {
@@ -19,7 +22,13 @@ namespace uaudio
 		void Sound::Read(uint32_t a_StartingPoint, uint32_t& a_ElementCount, unsigned char*& a_DataBuffer) const
 		{
 			uaudio::wave_reader::DATA_Chunk data_chunk;
-			m_ChunkCollection->GetChunkFromData(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
+			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_ChunkCollection->GetChunkFromData(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
+			if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+			{
+				LOGF(logger::LOGSEVERITY_WARNING, "Tried to read from sound %s, but it has no data chunk.", m_Name.c_str());
+				a_DataBuffer = nullptr;
+				return;
+			}
 			// NOTE: This part will reduce the size of the buffer array. It is necessary when reaching the end of the file if we want to loop it.
 			if (a_StartingPoint + a_ElementCount >= data_chunk.chunkSize)
 			{

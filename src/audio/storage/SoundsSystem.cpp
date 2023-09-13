@@ -24,7 +24,10 @@ namespace uaudio
 			uaudio::wave_reader::WaveReader::FTell(a_Path, size, a_Filter);
 
 			if (size == 0)
+			{
+				LOG(logger::LOGSEVERITY_ERROR, "No chunks were found in the sound you tried to load.");
 				return nullptr;
+			}
 
 			void* allocated_space = malloc(size);
 
@@ -32,13 +35,7 @@ namespace uaudio
 			uaudio::wave_reader::WaveReader::LoadWave(a_Path, *chunkCollection, a_Filter);
 
 			uaudio::wave_reader::FMT_Chunk fmt_chunk;
-			chunkCollection->GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
-			if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24)
-			{
-				LOG(logger::LOGSEVERITY_ERROR, "Cannot load 24-bit wave files yet.");
-				free(allocated_space);
-				return nullptr;
-			}
+			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = chunkCollection->GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
 
 			Sound* sound = new Sound();
 			sound->m_ChunkCollection = chunkCollection;
@@ -46,14 +43,21 @@ namespace uaudio
 			sound->m_FullName = a_Path;
 			std::string path = a_Path;
 			sound->m_Name = path.substr(path.find_last_of("\\") + 1);
-
-			bool hasDataChunk = false;
-			chunkCollection->HasChunk(hasDataChunk, uaudio::wave_reader::DATA_CHUNK_ID);
-
-			if (hasDataChunk)
+			
+			if (result == uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
 			{
-				uaudio::wave_reader::DATA_Chunk data_chunk;
-				chunkCollection->GetChunkFromData<uaudio::wave_reader::DATA_Chunk>(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
+				if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24)
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "Cannot load 24-bit wave files yet.");
+					free(allocated_space);
+					return nullptr;
+				}
+			}
+
+			uaudio::wave_reader::DATA_Chunk data_chunk;
+			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result2 = chunkCollection->GetChunkFromData<uaudio::wave_reader::DATA_Chunk>(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
+			if (result == uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK && result2 == uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+			{
 				uint32_t data_chunk_size = 0;
 				chunkCollection->GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);
 				sound->m_Samples = uaudio::player::utils::ToSample(data_chunk.data, data_chunk_size, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels);

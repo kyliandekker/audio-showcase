@@ -16,6 +16,7 @@
 #include "audio/utils/uint24_t.h"
 #include "audio/player/AudioSystem.h"
 #include "audio/player/ChannelHandle.h"
+#include "utils/Logger.h"
 
 namespace uaudio
 {
@@ -93,7 +94,12 @@ namespace uaudio
 			if (hasFmtChunk && hasDataChunk)
 			{
 				uaudio::wave_reader::FMT_Chunk fmt_chunk;
-				chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+				uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+				if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+				{
+					LOGF(logger::LOGSEVERITY_WARNING, "Tried to read from sound %s, but it has no fmt chunk.", m_Name.c_str());
+					return;
+				}
 
 				ImGui::Text("%s", std::string(
 					uaudio::player::utils::FormatDuration(uaudio::player::utils::PosToSeconds(0, fmt_chunk.byteRate), true) +
@@ -117,7 +123,12 @@ namespace uaudio
 				for (size_t i = 0; i < num_chunks; i++)
 				{
 					uaudio::wave_reader::ChunkHeader* data = nullptr;
-					chunkCollection.GetChunkFromData(data, static_cast<uint32_t>(i));
+					uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = chunkCollection.GetChunkFromData(data, static_cast<uint32_t>(i));
+					if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+					{
+						LOGF(logger::LOGSEVERITY_WARNING, "Tried to read from sound %s, but something went wrong.", m_Name.c_str());
+						continue;
+					}
 
 					char chunk_id[uaudio::wave_reader::CHUNK_ID_SIZE + 1];
 					memcpy(&chunk_id, data->chunk_id, uaudio::wave_reader::CHUNK_ID_SIZE);
@@ -133,7 +144,12 @@ namespace uaudio
 							ShowBaseChunk(chunk_id, chunkCollection);
 
 							uaudio::wave_reader::FMT_Chunk fmt_chunk;
-							chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							{
+								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read fmt chunk from sound %s but something went wrong.", m_Name.c_str());
+								return;
+							}
 
 							ShowValue("Audio Format: ", std::to_string(fmt_chunk.audioFormat).c_str());
 							ShowValue("Number of Channels: ", std::to_string(fmt_chunk.numChannels).c_str());
@@ -162,7 +178,13 @@ namespace uaudio
 							ShowBaseChunk(chunk_id, chunkCollection);
 
 							uaudio::wave_reader::ACID_Chunk acid_chunk;
-							chunkCollection.GetChunkFromData<uaudio::wave_reader::ACID_Chunk>(acid_chunk, uaudio::wave_reader::ACID_CHUNK_ID);
+							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::ACID_Chunk>(acid_chunk, uaudio::wave_reader::ACID_CHUNK_ID);
+							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							{
+								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read acid chunk from sound %s but something went wrong.", m_Name.c_str());
+								return;
+							}
+
 							char type_of_file[256] = {};
 							snprintf(type_of_file, 256, "0x%x", acid_chunk.type_of_file);
 							ShowValue("Type of File: ", std::string(type_of_file).c_str());
@@ -188,7 +210,13 @@ namespace uaudio
 							ShowBaseChunk(chunk_id, chunkCollection);
 
 							uaudio::wave_reader::BEXT_Chunk bext_chunk;
-							chunkCollection.GetChunkFromData<uaudio::wave_reader::BEXT_Chunk>(bext_chunk, uaudio::wave_reader::BEXT_CHUNK_ID);
+							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::BEXT_Chunk>(bext_chunk, uaudio::wave_reader::BEXT_CHUNK_ID);
+							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							{
+								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read bext chunk from sound %s but something went wrong.", m_Name.c_str());
+								return;
+							}
+
 							ShowValue("Description: ", std::string(bext_chunk.description).c_str());
 							ShowValue("Originator: ", std::string(bext_chunk.originator).c_str());
 							ShowValue("Originator Reference: ", std::string(bext_chunk.originator_reference).c_str());
@@ -215,7 +243,13 @@ namespace uaudio
 							ShowBaseChunk(chunk_id, chunkCollection);
 
 							uaudio::wave_reader::FACT_Chunk fact_chunk;
-							chunkCollection.GetChunkFromData<uaudio::wave_reader::FACT_Chunk>(fact_chunk, uaudio::wave_reader::FACT_CHUNK_ID);
+							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::FACT_Chunk>(fact_chunk, uaudio::wave_reader::FACT_CHUNK_ID);
+							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							{
+								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read fact chunk from sound %s but something went wrong.", m_Name.c_str());
+								return;
+							}
+
 							ShowValue("Sample Length: ", std::to_string(fact_chunk.sample_length).c_str());
 							ImGui::Unindent(IMGUI_INDENT);
 						}
@@ -228,7 +262,13 @@ namespace uaudio
 							ShowBaseChunk(chunk_id, chunkCollection);
 
 							uaudio::wave_reader::CUE_Chunk cue_chunk;
-							chunkCollection.GetChunkFromData<uaudio::wave_reader::CUE_Chunk>(cue_chunk, uaudio::wave_reader::CUE_CHUNK_ID);
+							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::CUE_Chunk>(cue_chunk, uaudio::wave_reader::CUE_CHUNK_ID);
+							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							{
+								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read cue chunk from sound %s but something went wrong.", m_Name.c_str());
+								return;
+							}
+
 							ShowValue("Number of cue points: ", std::to_string(cue_chunk.num_cue_points).c_str());
 							for (uint32_t i = 0; i < cue_chunk.num_cue_points; i++)
 							{
@@ -256,7 +296,13 @@ namespace uaudio
 							ShowBaseChunk(chunk_id, chunkCollection);
 
 							uaudio::wave_reader::SMPL_Chunk smpl_chunk;
-							chunkCollection.GetChunkFromData<uaudio::wave_reader::SMPL_Chunk>(smpl_chunk, uaudio::wave_reader::SMPL_CHUNK_ID);
+							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::SMPL_Chunk>(smpl_chunk, uaudio::wave_reader::SMPL_CHUNK_ID);
+							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							{
+								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read smpl chunk from sound %s but something went wrong.", m_Name.c_str());
+								return;
+							}
+
 							ShowValue("Manufacturer: ", std::to_string(smpl_chunk.manufacturer).c_str());
 							ShowValue("Product: ", std::to_string(smpl_chunk.product).c_str());
 							ShowValue("Sample Period: ", std::to_string(smpl_chunk.sample_period).c_str());
@@ -292,7 +338,13 @@ namespace uaudio
 							ShowBaseChunk(chunk_id, chunkCollection);
 
 							uaudio::wave_reader::INST_Chunk smpl_chunk;
-							chunkCollection.GetChunkFromData<uaudio::wave_reader::INST_Chunk>(smpl_chunk, uaudio::wave_reader::INST_CHUNK_ID);
+							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::INST_Chunk>(smpl_chunk, uaudio::wave_reader::INST_CHUNK_ID);
+							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							{
+								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read inst chunk from sound %s but something went wrong.", m_Name.c_str());
+								return;
+							}
+
 							ShowValue("Unshifted Note: ", std::to_string(smpl_chunk.unshiftedNote).c_str());
 							ShowValue("Fine Tune: ", std::to_string(smpl_chunk.fineTune).c_str());
 							ShowValue("Gain: ", std::to_string(smpl_chunk.gain).c_str());
@@ -315,7 +367,7 @@ namespace uaudio
 							{
 								ImGui::Indent(IMGUI_INDENT);
 								static uint32_t view_option = 0;
-								std::string view_options[12] =
+								std::string view_options[13] =
 								{
 									"CHOOSE OPTION",
 									"int8",
@@ -329,6 +381,7 @@ namespace uaudio
 									"int64",
 									"uint64",
 									"char",
+									"readable char",
 								};
 
 								const std::string view_as_text = "View as";
@@ -421,6 +474,11 @@ namespace uaudio
 										ViewAs<char>(data, endianness_option);
 										break;
 									}
+									case 12:
+									{
+										ViewAsChar(data, endianness_option);
+										break;
+									}
 									default:
 									{
 										break;
@@ -494,6 +552,20 @@ namespace uaudio
 				T cast;
 				std::memcpy(&cast, complete, sizeof(T));
 				ShowValue(std::to_string(i).c_str(), std::to_string(cast).c_str());
+			}
+		}
+
+		void SoundsTool::ViewAsChar(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness)
+		{
+			for (size_t i = 0; i < a_ChunkHeader->chunkSize; i++)
+			{
+				unsigned char* ptr = reinterpret_cast<unsigned char*>(utils::add(a_ChunkHeader, sizeof(uaudio::wave_reader::ChunkHeader)));
+				ptr = reinterpret_cast<unsigned char*>(utils::add(ptr, i));
+				unsigned char complete[2];
+				complete[0] = ptr[0];
+				complete[1] = '\0';
+
+				ShowValue(std::to_string(i).c_str(), std::string(reinterpret_cast<char*>(complete)).c_str());
 			}
 		}
 	}

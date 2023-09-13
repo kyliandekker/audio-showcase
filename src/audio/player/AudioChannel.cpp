@@ -180,7 +180,13 @@ namespace uaudio
 			if (result == uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
 			{
 				float masterVolume = 1.0f;
-				uaudio::player::audioSystem.GetVolume(masterVolume);
+				uaudio::player::UAUDIO_PLAYER_RESULT result = uaudio::player::audioSystem.GetVolume(masterVolume);
+				if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+				{
+					LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve master volume: %i", result);
+					return;
+				}
+
 				float volume = m_Volume * masterVolume;
 				if (!m_Active)
 				{
@@ -191,7 +197,12 @@ namespace uaudio
 				else
 				{
 					float masterPanning = 0.0f;
-					uaudio::player::audioSystem.GetPanning(masterPanning);
+					result = uaudio::player::audioSystem.GetPanning(masterPanning);
+					if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+					{
+						LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve master panning: %i", result);
+						return;
+					}
 					if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_8)
 					{
 						effects::ChangeVolume<int8_t>(a_Data, a_BufferSize, volume);
