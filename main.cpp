@@ -13,7 +13,7 @@ const char g_szClassName[] = "Audio Showcase";
 // Step 4: the Window Procedure
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	//uaudio::imgui::window.ProcessEvents(hwnd, msg, wParam, lParam);
+	uaudio::imgui::window.ProcessEvents(hwnd, msg, wParam, lParam);
 	switch (msg)
 	{
 	case WM_CLOSE:
