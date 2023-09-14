@@ -7,6 +7,7 @@
 #include <uaudio_wave_reader/WaveChunks.h>
 
 #include "audio/storage/Sound.h"
+#include "audio/player/ChannelHandle.h"
 
 namespace uaudio
 {
@@ -16,63 +17,78 @@ namespace uaudio
 		{
 			WasAPIBackend::WasAPIBackend()
 			{
-				CoInitializeEx(NULL, 0);
+				HRESULT hr = CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
+				assert(hr == S_OK);
 
-				IMMDeviceEnumerator* enu;
-				const GUID _CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
-				const GUID _IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
-				CoCreateInstance(_CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, _IID_IMMDeviceEnumerator, (void**)&enu);
-				enu->Release();
+				IMMDeviceEnumerator* deviceEnumerator;
+				hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (LPVOID*)(&deviceEnumerator));
+				assert(hr == S_OK);
 
-				wchar_t* device_id = NULL;
-				if (device_id == NULL)
-				{
-					int mode = eRender;
-					enu->GetDefaultAudioEndpoint(EDataFlow::eRender, ERole::eConsole, &m_Device);
-				}
+				hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &m_Device);
+				assert(hr == S_OK);
 
-				const GUID _IID_IAudioClient = __uuidof(IAudioClient);
-				m_Device->Activate(_IID_IAudioClient, CLSCTX_ALL, NULL, (void**)&m_AudioClient);
+				deviceEnumerator->Release();
 
-				const GUID IID_IAudioRenderClient = __uuidof(IAudioRenderClient);
-				HRESULT hr = m_AudioClient->GetService(
-					IID_IAudioRenderClient,
-					(void**)&m_AudioRenderClient);
-				m_AudioClient->Start();
+				for (size_t i = 0; i < 20; i++)
+					m_Channels.push_back(WasAPIChannel(*this));
 			}
 
 			WasAPIBackend::~WasAPIBackend()
 			{
+				m_Channels.clear();
+
 				m_Device->Release();
-				m_AudioClient->Release();
-				m_AudioRenderClient->Release();
 			}
 
 			void WasAPIBackend::Update()
 			{
-
+				for (int32_t i = static_cast<int32_t>(m_Channels.size() - 1); i > -1; i--)
+					m_Channels[i].Update();
 			}
 
 			UAUDIO_PLAYER_RESULT WasAPIBackend::Play(storage::Sound& a_WaveFile, ChannelHandle& a_Handle)
 			{
-				uaudio::wave_reader::DATA_Chunk data_chunk;
-				a_WaveFile.m_ChunkCollection->GetChunkFromData(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
-				m_AudioRenderClient->GetBuffer(2048, &data_chunk.data);
-				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+				// First look for inactive channels.
+				for (uint32_t i = 0; i < m_Channels.size(); i++)
+				{
+					bool isInUse = false;
+					m_Channels[i].IsInUse(isInUse);
+					if (!isInUse)
+					{
+						m_Channels[i].SetSound(a_WaveFile);
+						m_Channels[i].Play();
+						a_Handle = static_cast<int32_t>(i);
+						return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+					}
+				}
+
+				a_Handle = CHANNEL_NULL_HANDLE;
+				return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FREE_CHANNEL;
 			}
 
 			size_t WasAPIBackend::NumChannels() const
 			{
-				return size_t();
+				return m_Channels.size();
 			}
 
 			AudioChannel* WasAPIBackend::GetChannel(ChannelHandle& a_Handle)
 			{
-				return nullptr;
+				if (a_Handle == CHANNEL_NULL_HANDLE)
+					return nullptr;
+
+				if (static_cast<size_t>(a_Handle) >= m_Channels.size())
+					return nullptr;
+
+				return &m_Channels[a_Handle];
 			}
 
 			void WasAPIBackend::RemoveSound(storage::Sound& a_Sound)
 			{
+			}
+
+			IMMDevice& WasAPIBackend::GetDevice() const
+			{
+				return *m_Device;
 			}
 		}
 	}

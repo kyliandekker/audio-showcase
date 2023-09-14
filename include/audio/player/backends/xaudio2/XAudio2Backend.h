@@ -14,8 +14,6 @@ namespace uaudio
 	{
 		namespace xaudio2
 		{
-			class XAudio2Channel;
-
 			class XAudio2Backend : public AudioBackend
 			{
 			public:

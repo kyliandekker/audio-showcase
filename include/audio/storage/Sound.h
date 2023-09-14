@@ -27,6 +27,7 @@ namespace uaudio
 			std::mutex m_Mutex;
 
 			void Read(uint32_t a_StartingPoint, uint32_t& a_ElementCount, unsigned char*& a_DataBuffer) const;
+			void PreRead(uint32_t a_StartingPoint, uint32_t& a_ElementCount) const;
 		};
 	}
 }

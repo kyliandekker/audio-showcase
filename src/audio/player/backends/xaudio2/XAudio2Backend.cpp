@@ -43,9 +43,7 @@ namespace uaudio
 				}
 
 				for (size_t i = 0; i < 20; i++)
-				{
 					m_Channels.push_back(XAudio2Channel(*this));
-				}
 
 			}
 

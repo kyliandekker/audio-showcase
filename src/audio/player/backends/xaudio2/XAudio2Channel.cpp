@@ -46,7 +46,7 @@ namespace uaudio
 					if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
 						return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FMT_CHUNK;
 
-					WAVEFORMATEX wave;
+					WAVEFORMATEX wave = {};
 					wave.wFormatTag = fmt_chunk.audioFormat;
 					wave.nChannels = fmt_chunk.numChannels;
 					wave.nSamplesPerSec = fmt_chunk.sampleRate; // 44100 hz (should be standard).
@@ -88,9 +88,7 @@ namespace uaudio
 					m_SourceVoice->DestroyVoice();
 					m_SourceVoice = nullptr;
 				}
-				m_IsPlaying = false;
-
-				m_CurrentPos = 0;
+				AudioChannel::Stop();
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}
 

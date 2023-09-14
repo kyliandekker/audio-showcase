@@ -187,6 +187,8 @@
     <ClCompile Include="external\imgui\piano.cpp" />
     <ClCompile Include="include\audio\player\backends\AudioBackend.cpp" />
     <ClCompile Include="src\audio\player\AudioChannel.cpp" />
+    <ClCompile Include="src\audio\player\backends\wasapi\WasAPIBackend.cpp" />
+    <ClCompile Include="src\audio\player\backends\wasapi\WasAPIChannel.cpp" />
     <ClCompile Include="src\audio\player\backends\xaudio2\XAudio2Backend.cpp" />
     <ClCompile Include="src\audio\player\AudioSystem.cpp" />
     <ClCompile Include="src\audio\player\backends\xaudio2\XAudio2Channel.cpp" />
@@ -206,6 +208,8 @@
   <ItemGroup>
     <ClInclude Include="include\audio\AudioChannel.h" />
     <ClInclude Include="include\audio\player\AudioChannel.h" />
+    <ClInclude Include="include\audio\player\backends\wasapi\WasAPIBackend.h" />
+    <ClInclude Include="include\audio\player\backends\wasapi\WasAPIChannel.h" />
     <ClInclude Include="include\audio\player\backends\xaudio2\XAudio2Backend.h" />
     <ClInclude Include="include\audio\player\backends\xaudio2\XAudio2Channel.h" />
     <ClInclude Include="include\audio\player\ChannelHandle.h" />
