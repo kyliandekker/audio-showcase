@@ -10,6 +10,7 @@
 
 #include "audio/player/backends/wasapi/WasAPIBackend.h"
 #include "audio/storage/Sound.h"
+#include "utils/Logger.h"
 
 namespace uaudio
 {
@@ -20,7 +21,8 @@ namespace uaudio
 			WasAPIChannel::WasAPIChannel()
 			{
 				HRESULT hr = m_Backend->GetDevice().Activate(__uuidof(IAudioClient2), CLSCTX_ALL, nullptr, (LPVOID*)(&m_AudioClient));
-				assert(hr == S_OK);
+				if (FAILED(hr))
+					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Audio client activation failed.");
 			}
 
 			WasAPIChannel::WasAPIChannel(WasAPIBackend& a_Backend) : m_Backend(&a_Backend)
@@ -40,14 +42,17 @@ namespace uaudio
 			UAUDIO_PLAYER_RESULT WasAPIChannel::SetSound(storage::Sound& a_Sound)
 			{
 				HRESULT hr = m_Backend->GetDevice().Activate(__uuidof(IAudioClient2), CLSCTX_ALL, nullptr, (LPVOID*)(&m_AudioClient));
-				if (hr != S_OK)
+				if (FAILED(hr))
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Audio client activation failed.");
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_WASAPI_FAILED_ACTIVATION_OF_AUDIO_CLIENT;
+				}
 
 				m_CurrentPos = 0;
 
 				uaudio::wave_reader::FMT_Chunk fmt_chunk;
 				uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = a_Sound.m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
-				if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+				if (UAUDIOWAVEREADERFAILED(result))
 					return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FMT_CHUNK;
 
 				WAVEFORMATEX wave = {};
@@ -74,21 +79,33 @@ namespace uaudio
 					initStreamFlags,
 					requestedSoundBufferDuration,
 					0, &wave, nullptr);
-				if (hr != S_OK)
+				if (FAILED(hr))
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Audio client initialization failed.");
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_WASAPI_FAILED_INITIALIZING_AUDIO_CLIENT;
+				}
 
 				hr = m_AudioClient->GetService(__uuidof(IAudioRenderClient), (LPVOID*)(&m_RenderClient));
-				if (hr != S_OK)
+				if (FAILED(hr))
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Retrieving audio render client failed.");
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_WASAPI_FAILED_RETRIEVING_RENDER_CLIENT;
+				}
 
 				UINT32 bufferSizeInFrames;
 				hr = m_AudioClient->GetBufferSize(&bufferSizeInFrames);
-				if (hr != S_OK)
-					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_WASAPI_FAILED_RETRIEVING_BUFFER_SIZE;
+				if (FAILED(hr))
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Retrieving buffer size from audio client failed.");
+					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_WASAPI_FAILED_RETRIEVING_BUFFER;
+				}
 
 				hr = m_AudioClient->Start();
-				if (hr != S_OK)
+				if (FAILED(hr))
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Starting audio client failed.");
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_WASAPI_FAILED_STARTING_AUDIO_CLIENT;
+				}
 
 				return AudioChannel::SetSound(a_Sound);
 			}
@@ -118,8 +135,9 @@ namespace uaudio
 				m_Sound->m_Mutex.lock();
 				UINT32 bufferPadding;
 				HRESULT hr = m_AudioClient->GetCurrentPadding(&bufferPadding);
-				if (hr != S_OK)
+				if (FAILED(hr))
 				{
+					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Retrieving padding from audio client failed.");
 					m_Sound->m_Mutex.unlock();
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_WASAPI_FAILED_RETRIEVING_PADDING;
 				}
@@ -169,15 +187,19 @@ namespace uaudio
 				m_Sound->PreRead(a_StartPos, a_Size);
 				unsigned char* data = nullptr, *actual_data = nullptr;
 				HRESULT hr = m_RenderClient->GetBuffer(a_Size, &data);
-				if (hr != S_OK)
+				if (FAILED(hr))
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Retrieving padding from audio client failed.");
+					m_Sound->m_Mutex.unlock();
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_WASAPI_FAILED_RETRIEVING_BUFFER;
+				}
 
 				if (a_Size == 0)
 					return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 
 				uaudio::wave_reader::FMT_Chunk fmt_chunk;
 				uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_Sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
-				if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+				if (UAUDIOWAVEREADERFAILED(result))
 					return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FMT_CHUNK;
 
 				uint32_t actual_size = a_Size * fmt_chunk.blockAlign;
@@ -197,8 +219,11 @@ namespace uaudio
 			UAUDIO_PLAYER_RESULT WasAPIChannel::PlayBuffer(const unsigned char* a_DataBuffer, uint32_t a_Size) const
 			{
 				HRESULT hr = m_RenderClient->ReleaseBuffer(a_Size, 0);
-				if (hr != S_OK)
+				if (FAILED(hr))
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Retrieving padding from audio client failed.");
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_WASAPI_FAILED_RELEASING_BUFFER;
+				}
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}

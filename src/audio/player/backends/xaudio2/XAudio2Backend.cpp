@@ -2,6 +2,7 @@
 #include <xaudio2.h>
 
 #include "audio/player/ChannelHandle.h"
+#include "utils/Logger.h"
 
 namespace uaudio
 {
@@ -24,21 +25,21 @@ namespace uaudio
 				HRESULT hr;
 				if (FAILED(hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED)))
 				{
-					printf("<XAudio2> Initializing COM library failed.\n");
+					LOGF(logger::LOGSEVERITY_ERROR, "<XAudio2> Initializing COM library failed.");
 					return;
 				}
 
 				m_Engine = nullptr;
 				if (FAILED(hr = XAudio2Create(&m_Engine, 0, XAUDIO2_DEFAULT_PROCESSOR)))
 				{
-					printf("<XAudio2> Creating XAudio2 failed.\n");
+					LOG(logger::LOGSEVERITY_ERROR, "<XAudio2> XAudio2 Engine creation failed.");
 					return;
 				}
 
 				m_MasteringVoice = nullptr;
 				if (FAILED(hr = m_Engine->CreateMasteringVoice(&m_MasteringVoice)))
 				{
-					printf("<XAudio2> Creating XAudio2 Mastering Voice failed.\n");
+					LOG(logger::LOGSEVERITY_ERROR, "<XAudio2> XAudio2 Mastering Voice creation failed.");
 					return;
 				}
 

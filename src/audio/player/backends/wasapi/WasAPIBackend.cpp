@@ -8,6 +8,7 @@
 
 #include "audio/storage/Sound.h"
 #include "audio/player/ChannelHandle.h"
+#include "utils/Logger.h"
 
 namespace uaudio
 {
@@ -18,14 +19,26 @@ namespace uaudio
 			WasAPIBackend::WasAPIBackend()
 			{
 				HRESULT hr = CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
-				assert(hr == S_OK);
+				if (FAILED(hr))
+				{
+					LOGF(logger::LOGSEVERITY_ERROR, "<WasAPI> Initializing COM library failed.");
+					return;
+				}
 
 				IMMDeviceEnumerator* deviceEnumerator;
 				hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (LPVOID*)(&deviceEnumerator));
-				assert(hr == S_OK);
+				if (FAILED(hr))
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Device Enumerator creation failed.");
+					return;
+				}
 
 				hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &m_Device);
-				assert(hr == S_OK);
+				if (FAILED(hr))
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Getting default audio endpoint failed.");
+					return;
+				}
 
 				deviceEnumerator->Release();
 

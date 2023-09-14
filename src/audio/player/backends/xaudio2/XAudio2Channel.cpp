@@ -56,14 +56,14 @@ namespace uaudio
 					wave.nAvgBytesPerSec = fmt_chunk.byteRate;
 					if (FAILED(hr = m_Backend->GetEngine().CreateSourceVoice(&m_SourceVoice, &wave, 0, 2.0f)))
 					{
-						printf("<XAudio2> Creating XAudio2 Source Voice failed.\n");
+						LOGF(logger::LOGSEVERITY_ERROR, "<XAudio2> Creating XAudio2 Source Voice failed.");
 						m_IsPlaying = false;
 						return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_XAUDIO2_SOURCEVOICE_CREATION_FAILED;
 					}
 				}
 				if (FAILED(hr = m_SourceVoice->Start(0, 0)))
 				{
-					printf("<XAudio2> Starting XAudio2 Source Voice failed.\n");
+					LOGF(logger::LOGSEVERITY_ERROR, "<XAudio2> Starting XAudio2 Source Voice failed.");
 					m_IsPlaying = false;
 					return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_XAUDIO2_SOURCEVOICE_STARTING_FAILED;
 				}
@@ -168,7 +168,7 @@ namespace uaudio
 				{
 					const _com_error err(hr);
 					const LPCTSTR errMsg = err.ErrorMessage();
-					printf("<XAudio2> Submitting data to XAudio2 Source Voice failed: 0x%08x: %ls.\n", hr, errMsg);
+					LOGF(logger::LOGSEVERITY_ERROR, "<XAudio2> Submitting data to XAudio2 Source Voice failed: 0x%08x: %ls.", hr, errMsg);
 				}
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}
