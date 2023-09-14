@@ -63,11 +63,11 @@ namespace uaudio
 			t = time(NULL);
 			localtime_s(&lt, &t);
 
-			std::string message = std::format("[{0}] {1} - File: {2} on line {3}.\n",
+			std::string message = std::format("[{0}] \"{1}\" on line {2}: \"{3}\"\n",
 				arr[a_Severity],
-				a_Message,
 				a_File,
-				a_Line);
+				a_Line,
+				a_Message);
 
 			m_MessagesMutex.lock();
 			m_Messages.push({ message, a_Severity });
