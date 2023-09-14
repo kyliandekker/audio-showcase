@@ -190,7 +190,7 @@ namespace uaudio
 				uaudio::player::UAUDIO_PLAYER_RESULT result = audioSystem.GetBufferSize(buffersize);
 				if (UAUDIOPLAYERFAILED(result))
 				{
-					LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve audio system buffer size: %i", result);
+					LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve buffer size from audio system.");
 					m_Sound->m_Mutex.unlock();
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_CHANNEL_CANNOT_RETRIEVE_BUFFERSIZE;
 				}

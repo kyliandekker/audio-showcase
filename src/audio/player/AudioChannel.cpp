@@ -183,7 +183,7 @@ namespace uaudio
 				uaudio::player::UAUDIO_PLAYER_RESULT result = uaudio::player::audioSystem.GetVolume(masterVolume);
 				if (UAUDIOPLAYERFAILED(result))
 				{
-					LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve master volume: %i", result);
+					LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve master volume.");
 					return;
 				}
 
@@ -200,7 +200,7 @@ namespace uaudio
 					result = uaudio::player::audioSystem.GetPanning(masterPanning);
 					if (UAUDIOPLAYERFAILED(result))
 					{
-						LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve master panning: %i", result);
+						LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve master panning.");
 						return;
 					}
 					if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_8)

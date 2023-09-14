@@ -24,7 +24,7 @@ namespace uaudio
 			uaudio::player::UAUDIO_PLAYER_RESULT result = player::audioSystem.GetBufferSize(buffer_size);
 			if (UAUDIOPLAYERFAILED(result))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve buffer size: %i", result);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve buffer size from audio system.");
 				return;
 			}
 
@@ -46,7 +46,7 @@ namespace uaudio
 			result = player::audioSystem.GetBackend(backend);
 			if (UAUDIOPLAYERFAILED(result))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve audio backend.", result);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve audio backend.");
 				return;
 			}
 			m_Backend = static_cast<uint32_t>(backend);
@@ -58,7 +58,7 @@ namespace uaudio
 			uaudio::player::UAUDIO_PLAYER_RESULT result = player::audioSystem.IsPaused(paused);
 			if (UAUDIOPLAYERFAILED(result))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve pause state: %i", result);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve pause state from audio system.");
 				return;
 			}
 			if (paused)
@@ -88,7 +88,7 @@ namespace uaudio
 					uaudio::player::UAUDIO_PLAYER_RESULT result = uaudio::player::audioSystem.GetChannel(handle, channel);
 					if (UAUDIOPLAYERFAILED(result) || !channel)
 					{
-						LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel: %i", result);
+						LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot get channel %i.", i);
 						return;
 					}
 
@@ -101,7 +101,7 @@ namespace uaudio
 			result = player::audioSystem.GetPanning(panning);
 			if (UAUDIOPLAYERFAILED(result))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve panning: %i", result);
+				LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve master panning.");
 				return;
 			}
 			const std::string master_panning_text = std::string(PANNING) + " Master Panning (affects all channels)";
@@ -113,7 +113,7 @@ namespace uaudio
 			result = player::audioSystem.GetVolume(volume);
 			if (UAUDIOPLAYERFAILED(result))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume: %i", result);
+				LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve master volume.");
 				return;
 			}
 			const std::string master_volume_text = std::string(VOLUME_UP) + " Master Volume (affects all channels)";

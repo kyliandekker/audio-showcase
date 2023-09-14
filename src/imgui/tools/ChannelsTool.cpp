@@ -37,7 +37,7 @@ namespace uaudio
 			uaudio::player::UAUDIO_PLAYER_RESULT presult = uaudio::player::audioSystem.GetChannel(a_Index, channel);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel: %i", presult);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot get channel %i.", a_Index);
 				return;
 			}
 
@@ -45,7 +45,7 @@ namespace uaudio
 			presult = channel->IsInUse(isInUse);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel is in use: %i", presult);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel %i is in use.", a_Index);
 				return;
 			}
 			if (!isInUse)
@@ -55,7 +55,7 @@ namespace uaudio
 			presult = channel->GetSound(sound);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel has sound: %i", presult);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve sound from channel %i.", a_Index);
 				return;
 			}
 			sound->m_Mutex.lock();
@@ -73,7 +73,7 @@ namespace uaudio
 			presult = channel->IsActive(active);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel is active: %i", presult);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel %i is active.", a_Index);
 				sound->m_Mutex.unlock();
 				return;
 			}
@@ -86,7 +86,7 @@ namespace uaudio
 			presult = channel->GetPanning(panning);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel panning: %i", presult);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume from panning %i.", a_Index);
 				sound->m_Mutex.unlock();
 				return;
 			}
@@ -100,7 +100,7 @@ namespace uaudio
 			presult = channel->GetVolume(volume);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel volume: %i", presult);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume from channel %i.", a_Index);
 				sound->m_Mutex.unlock();
 				return;
 			}
@@ -122,7 +122,7 @@ namespace uaudio
 			presult = channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_POS, fPos);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel pos: %i", presult);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve playback position from channel %i.", a_Index);
 				sound->m_Mutex.unlock();
 				return;
 			}
@@ -132,7 +132,7 @@ namespace uaudio
 			presult = channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_S, seconds);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel pos: %i", presult);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve playback position from channel %i.", a_Index);
 				sound->m_Mutex.unlock();
 				return;
 			}
@@ -148,7 +148,7 @@ namespace uaudio
 			presult = channel->IsPlaying(isPlaying);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel is playing: %i", presult);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel %i is currently playing.", a_Index);
 				sound->m_Mutex.unlock();
 				return;
 			}
@@ -157,7 +157,7 @@ namespace uaudio
 			presult = uaudio::player::audioSystem.GetBufferSize(buffersize);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve audio system buffer size: %i", presult);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve audio system buffer size.");
 				sound->m_Mutex.unlock();
 				return;
 			}
@@ -221,7 +221,7 @@ namespace uaudio
 			presult = channel->IsLooping(isLooping);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel loops: %i", presult);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel %i has looping turned on.", a_Index);
 				sound->m_Mutex.unlock();
 				return;
 			}
