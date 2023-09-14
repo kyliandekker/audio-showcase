@@ -80,6 +80,11 @@ namespace uaudio
 				"Load Start & End Point"
 			};
 
+			std::array<const char*, 2> m_Backends = {
+				"XAudio2",
+				"WasAPI",
+			};
+
 			std::vector<chunk_select> m_ChunkIds;
 			char m_SelectedChunkName[uaudio::wave_reader::CHUNK_ID_SIZE] = 
 			{
@@ -87,6 +92,7 @@ namespace uaudio
 
 			uint32_t m_SelectedBitsPerSample = 0;
 			uint32_t m_SelectedNumChannels = 0;
+			uint32_t m_Backend = 0;
 
 			ImVec2 m_Pos3d = ImVec2(0.5f, 0.5f);
 		};

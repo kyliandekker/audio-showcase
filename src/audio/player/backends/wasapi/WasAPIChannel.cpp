@@ -32,6 +32,7 @@ namespace uaudio
 
 			WasAPIChannel::~WasAPIChannel()
 			{
+				Stop();
 				if (m_AudioClient)
 					m_AudioClient->Release();
 				if (m_RenderClient)
@@ -113,7 +114,8 @@ namespace uaudio
 			UAUDIO_PLAYER_RESULT WasAPIChannel::Stop()
 			{
 				AudioChannel::Stop();
-				m_AudioClient->Stop();
+				if (m_AudioClient)
+					m_AudioClient->Stop();
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}

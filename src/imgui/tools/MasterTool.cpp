@@ -41,6 +41,15 @@ namespace uaudio
 			m_ChunkIds.push_back({ uaudio::wave_reader::SMPL_CHUNK_ID, false, false });
 			m_ChunkIds.push_back({ uaudio::wave_reader::INST_CHUNK_ID, false, false });
 			m_ChunkIds.push_back({ uaudio::wave_reader::LIST_CHUNK_ID, false, false });
+
+			player::Backend backend;
+			result = player::audioSystem.GetBackend(backend);
+			if (UAUDIOPLAYERFAILED(result))
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve audio backend.", result);
+				return;
+			}
+			m_Backend = static_cast<uint32_t>(backend);
 		}
 
 		void MasterTool::Render()
@@ -167,6 +176,22 @@ namespace uaudio
 						const bool is_selected = n == m_SelectedBitsPerSample;
 						if (ImGui::Selectable(m_BitsPerSampleTextOptions[n], is_selected))
 							m_SelectedBitsPerSample = n;
+					}
+					ImGui::EndCombo();
+				}
+
+				const std::string backend_text = "Audio Backend";
+				ImGui::Text("%s", backend_text.c_str());
+				if (ImGui::BeginCombo("##backend", m_Backends[m_Backend], ImGuiComboFlags_PopupAlignLeft))
+				{
+					for (uint16_t n = 0; n < static_cast<uint16_t>(m_Backends.size()); n++)
+					{
+						const bool is_selected = n == m_Backend;
+						if (ImGui::Selectable(m_Backends[n], is_selected))
+						{
+							m_Backend = n;
+							uaudio::player::audioSystem.SetBackend(static_cast<player::Backend>(m_Backend));
+						}
 					}
 					ImGui::EndCombo();
 				}

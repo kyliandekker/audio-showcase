@@ -15,8 +15,7 @@ namespace uaudio
 	{
 		AudioSystem::AudioSystem()
 		{
-			//m_AudioBackend = new xaudio2::XAudio2Backend();
-			m_AudioBackend = new wasapi::WasAPIBackend();
+			SetBackend(m_Backend);
 		}
 
 		AudioSystem::~AudioSystem()
@@ -164,6 +163,37 @@ namespace uaudio
 				return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_BACKEND;
 
 			m_AudioBackend->RemoveSound(a_Sound);
+			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+		}
+
+		UAUDIO_PLAYER_RESULT AudioSystem::SetBackend(Backend a_Backend)
+		{
+			m_Update.lock();
+			m_Backend = a_Backend;
+
+			if (m_AudioBackend)
+				delete m_AudioBackend;
+
+			switch (a_Backend)
+			{
+				case Backend::XAUDIO2:
+				{
+					m_AudioBackend = new xaudio2::XAudio2Backend();
+					break;
+				}
+				case Backend::WASAPI:
+				{
+					m_AudioBackend = new wasapi::WasAPIBackend();
+					break;
+				}
+			}
+			m_Update.unlock();
+			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+		}
+
+		UAUDIO_PLAYER_RESULT AudioSystem::GetBackend(Backend& a_Backend)
+		{
+			a_Backend = m_Backend;
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}
 	}

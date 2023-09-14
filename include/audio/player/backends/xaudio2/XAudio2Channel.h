@@ -16,10 +16,10 @@ namespace uaudio
 			class XAudio2Channel : public AudioChannel
 			{
 			private:
+				std::queue<unsigned char*> m_DataBuffers;
+
 				IXAudio2SourceVoice* m_SourceVoice = nullptr;
 				XAudio2Backend* m_Backend = nullptr;
-
-				std::queue<unsigned char*> m_DataBuffers;
 
 				UAUDIO_PLAYER_RESULT PlayRanged(uint32_t a_StartPos, uint32_t a_Size) override;
 				UAUDIO_PLAYER_RESULT PlayBuffer(const unsigned char* a_DataBuffer, uint32_t a_Size) const;

@@ -15,6 +15,12 @@ namespace uaudio
 	}
 	namespace player
 	{
+		enum class Backend
+		{
+			XAUDIO2,
+			WASAPI
+		};
+
 		class AudioBackend;
 		class AudioChannel;
 		struct ChannelHandle;
@@ -49,10 +55,15 @@ namespace uaudio
 
 			UAUDIO_PLAYER_RESULT RemoveSound(storage::Sound& a_Sound);
 
+			UAUDIO_PLAYER_RESULT SetBackend(Backend a_Backend);
+			UAUDIO_PLAYER_RESULT GetBackend(Backend& a_Backend);
+
 			std::mutex m_Update;
 
 			bool simd = false;
 		private:
+			Backend m_Backend = Backend::XAUDIO2;
+
 			UAUDIO_PLAYER_RESULT Update();
 
 			AudioBackend* m_AudioBackend = nullptr;

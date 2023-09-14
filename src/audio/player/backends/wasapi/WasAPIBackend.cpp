@@ -49,8 +49,8 @@ namespace uaudio
 			WasAPIBackend::~WasAPIBackend()
 			{
 				m_Channels.clear();
-
 				m_Device->Release();
+				CoUninitialize();
 			}
 
 			void WasAPIBackend::Update()
