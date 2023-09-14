@@ -140,9 +140,6 @@ namespace uaudio
 			if (ImGui::CheckboxButton(loop_button_text.c_str(), &simd, ImVec2(75, 25)))
 				uaudio::player::audioSystem.simd = simd;
 
-
-			m_Pos3d = ImGui::Panning3D(ImVec2(100, 100), m_Pos3d);
-
 			if (ImGui::CollapsingHeader("Extra Options"))
 			{
 				ImGui::Indent(IMGUI_INDENT);

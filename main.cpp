@@ -17,6 +17,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_CLOSE:
+		uaudio::imgui::window.Stop();
+		uaudio::player::audioSystem.Stop();
+		uaudio::imgui::window.DeleteWindow();
 		DestroyWindow(hwnd);
 		break;
 	case WM_DESTROY:
@@ -26,6 +29,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
 	return 0;
+}
+
+void UpdateRenderWindow()
+{
+	while (uaudio::imgui::window.IsEnabled())
+		uaudio::imgui::window.Render();
 }
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd)
@@ -99,16 +108,14 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 		return -1;
 	}
 
+	std::thread renderThread = std::thread(&UpdateRenderWindow);
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
 		TranslateMessage(&Msg);
 		DispatchMessage(&Msg);
-		uaudio::imgui::window.Render();
 	}
 
-	uaudio::player::audioSystem.Stop();
-
-	uaudio::imgui::window.DeleteWindow();
+	renderThread.join();
 
 	DestroyWindow(hwnd);
 	UnregisterClassW(wc.lpszClassName, wc.hInstance);

@@ -63,12 +63,18 @@ namespace uaudio
 
 		bool DX9Window::BeginScene()
 		{
+			if (!g_pd3dDevice)
+				return false;
+
 			return g_pd3dDevice->BeginScene() >= 0;
 		}
 
 		bool DX9Window::EndScene()
 		{
-			return g_pd3dDevice->EndScene();
+			if (!g_pd3dDevice)
+				return false;
+
+			return g_pd3dDevice->EndScene() >= 0;
 		}
 
 		bool DX9Window::CreateDeviceD3D(HWND hWnd)

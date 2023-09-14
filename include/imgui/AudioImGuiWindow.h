@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <mutex>
 #include <dx9/DX9Window.h>
 
 namespace uaudio
@@ -31,12 +32,15 @@ namespace uaudio
 			void DeleteWindow();
 			void AddTool(BaseTool& a_Tool);
 			void ResetDevice();
+			bool IsEnabled() const;
+			void Stop();
 
 			static void LoggerCallback(logger::Message& message);
 
 			bool m_ShowPopUp = false;
 			std::string m_PopUpText;
 			std::string m_PopUpTitle;
+			std::mutex m_RenderMutex;
 		private:
 			HWND m_Hwnd;
 			WNDCLASSEX m_Wc;

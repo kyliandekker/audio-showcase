@@ -194,8 +194,25 @@ namespace uaudio
 			ImGui_ImplDX9_CreateDeviceObjects();
 		}
 
+		bool AudioImGuiWindow::IsEnabled() const
+		{
+			return m_Enabled;
+		}
+
+		void AudioImGuiWindow::Stop()
+		{
+			uaudio::imgui::window.m_RenderMutex.lock();
+			m_Enabled = false;
+			uaudio::imgui::window.m_RenderMutex.unlock();
+		}
+
 		void AudioImGuiWindow::Render()
 		{
+			if (!m_Enabled)
+				return;
+
+			m_RenderMutex.lock();
+
 			ImGui_ImplDX9_NewFrame();
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
@@ -252,6 +269,8 @@ namespace uaudio
 			// Handle loss of D3D9 device
 			if (result == D3DERR_DEVICELOST && m_DX9Window.g_pd3dDevice->TestCooperativeLevel() == D3DERR_DEVICENOTRESET)
 				ResetDevice();
+
+			m_RenderMutex.unlock();
 		}
 
 		void AudioImGuiWindow::DeleteWindow()
