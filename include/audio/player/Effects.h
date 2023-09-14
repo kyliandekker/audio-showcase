@@ -72,7 +72,7 @@ namespace uaudio
 			a_DataBuffer = reinterpret_cast<unsigned char*>(result);
 
 			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-			//LOGF(logger::LOGSEVERITY_INFO, "(Volume) Time difference = %llu [ns].", std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count());
+			LOGF(logger::LOGSEVERITY_INFO, "(Volume) Time difference = %llu [ns].", std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count());
 		}
 
 		template <class T>
@@ -161,7 +161,7 @@ namespace uaudio
 			a_DataBuffer = reinterpret_cast<unsigned char*>(result);
 
 			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-			//LOGF(logger::LOGSEVERITY_INFO, "(Panning) Time difference = %llu [ns].", std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count());
+			LOGF(logger::LOGSEVERITY_INFO, "(Panning) Time difference = %llu [ns].", std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count());
 		}
 	}
 }
