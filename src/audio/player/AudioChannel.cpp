@@ -181,7 +181,7 @@ namespace uaudio
 			{
 				float masterVolume = 1.0f;
 				uaudio::player::UAUDIO_PLAYER_RESULT result = uaudio::player::audioSystem.GetVolume(masterVolume);
-				if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+				if (UAUDIOPLAYERFAILED(result))
 				{
 					LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve master volume: %i", result);
 					return;
@@ -198,7 +198,7 @@ namespace uaudio
 				{
 					float masterPanning = 0.0f;
 					result = uaudio::player::audioSystem.GetPanning(masterPanning);
-					if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+					if (UAUDIOPLAYERFAILED(result))
 					{
 						LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve master panning: %i", result);
 						return;

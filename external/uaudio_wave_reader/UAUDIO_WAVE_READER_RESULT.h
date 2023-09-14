@@ -14,5 +14,7 @@ namespace uaudio
 			UAUDIO_ERR_BITS_PER_SAMPLE_UNSUPPORTED,
 			UAUDIO_ERR_UNSUPPORTED,
 		};
+
+#define UAUDIOWAVEREADERFAILED(result) result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK
 	}
 }

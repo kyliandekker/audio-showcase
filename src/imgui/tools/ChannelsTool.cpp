@@ -23,7 +23,8 @@ namespace uaudio
 		void ChannelsTool::Render()
 		{
 			size_t size = 0;
-			if (uaudio::player::audioSystem.NumChannels(size) != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			uaudio::player::UAUDIO_PLAYER_RESULT result = uaudio::player::audioSystem.NumChannels(size);
+			if (UAUDIOPLAYERFAILED(result))
 				return;
 
 			for (uint32_t i = 0; i < size; i++)
@@ -34,7 +35,7 @@ namespace uaudio
 		{
 			uaudio::player::AudioChannel* channel = nullptr;
 			uaudio::player::UAUDIO_PLAYER_RESULT presult = uaudio::player::audioSystem.GetChannel(a_Index, channel);
-			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK || !channel)
+			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel: %i", presult);
 				return;
@@ -42,7 +43,7 @@ namespace uaudio
 
 			bool isInUse = false;
 			presult = channel->IsInUse(isInUse);
-			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel is in use: %i", presult);
 				return;
@@ -52,7 +53,7 @@ namespace uaudio
 
 			uaudio::storage::Sound* sound;
 			presult = channel->GetSound(sound);
-			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel has sound: %i", presult);
 				return;
@@ -61,7 +62,7 @@ namespace uaudio
 
 			uaudio::wave_reader::FMT_Chunk fmt_chunk;
 			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
-			if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+			if (UAUDIOWAVEREADERFAILED(result))
 			{
 				LOGF(logger::LOGSEVERITY_WARNING, "Sound %s has no fmt chunk.", sound->m_Name.c_str());
 				sound->m_Mutex.unlock();
@@ -70,7 +71,7 @@ namespace uaudio
 			
 			bool active = false;
 			presult = channel->IsActive(active);
-			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel is active: %i", presult);
 				sound->m_Mutex.unlock();
@@ -83,7 +84,7 @@ namespace uaudio
 			ImGui::SameLine();
 			float panning = 0.0f;
 			presult = channel->GetPanning(panning);
-			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel panning: %i", presult);
 				sound->m_Mutex.unlock();
@@ -97,7 +98,7 @@ namespace uaudio
 			ImGui::SameLine();
 			float volume = 1.0f;
 			presult = channel->GetVolume(volume);
-			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel volume: %i", presult);
 				sound->m_Mutex.unlock();
@@ -110,7 +111,7 @@ namespace uaudio
 
 			uaudio::wave_reader::DATA_Chunk data_chunk;
 			result = sound->m_ChunkCollection->GetChunkFromData(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
-			if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+			if (UAUDIOWAVEREADERFAILED(result))
 			{
 				LOGF(logger::LOGSEVERITY_WARNING, "Sound %s has no data chunk.", sound->m_Name.c_str());
 				sound->m_Mutex.unlock();
@@ -119,7 +120,7 @@ namespace uaudio
 
 			float fPos = 0;
 			presult = channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_POS, fPos);
-			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel pos: %i", presult);
 				sound->m_Mutex.unlock();
@@ -129,7 +130,7 @@ namespace uaudio
 			float final_pos = uaudio::player::utils::PosToSeconds(data_chunk.chunkSize, fmt_chunk.byteRate);
 			float seconds = 0;
 			presult = channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_S, seconds);
-			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel pos: %i", presult);
 				sound->m_Mutex.unlock();
@@ -145,7 +146,7 @@ namespace uaudio
 
 			bool isPlaying = false;
 			presult = channel->IsPlaying(isPlaying);
-			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel is playing: %i", presult);
 				sound->m_Mutex.unlock();
@@ -154,7 +155,7 @@ namespace uaudio
 
 			uint32_t buffersize = 0;
 			presult = uaudio::player::audioSystem.GetBufferSize(buffersize);
-			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve audio system buffer size: %i", presult);
 				sound->m_Mutex.unlock();
@@ -218,7 +219,7 @@ namespace uaudio
 			ImGui::SameLine();
 			bool isLooping = false;
 			presult = channel->IsLooping(isLooping);
-			if (presult != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel loops: %i", presult);
 				sound->m_Mutex.unlock();

@@ -23,7 +23,7 @@ namespace uaudio
 		{
 			uaudio::wave_reader::DATA_Chunk data_chunk;
 			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_ChunkCollection->GetChunkFromData(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
-			if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+			if (UAUDIOWAVEREADERFAILED(result))
 			{
 				LOGF(logger::LOGSEVERITY_WARNING, "Tried to read from sound %s, but it has no data chunk.", m_Name.c_str());
 				a_DataBuffer = nullptr;
@@ -42,7 +42,7 @@ namespace uaudio
 		{
 			uaudio::wave_reader::DATA_Chunk data_chunk;
 			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_ChunkCollection->GetChunkFromData(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
-			if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+			if (UAUDIOWAVEREADERFAILED(result))
 			{
 				LOGF(logger::LOGSEVERITY_WARNING, "Tried to read from sound %s, but it has no data chunk.", m_Name.c_str());
 				return;

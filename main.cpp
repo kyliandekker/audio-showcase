@@ -16,17 +16,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	uaudio::imgui::window.ProcessEvents(hwnd, msg, wParam, lParam);
 	switch (msg)
 	{
-	case WM_CLOSE:
-		uaudio::imgui::window.Stop();
-		uaudio::player::audioSystem.Stop();
-		uaudio::imgui::window.DeleteWindow();
-		DestroyWindow(hwnd);
-		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hwnd, msg, wParam, lParam);
+		case WM_CLOSE:
+		{
+			uaudio::imgui::window.Stop();
+			uaudio::player::audioSystem.Stop();
+			uaudio::imgui::window.DeleteWindow();
+			DestroyWindow(hwnd);
+			break;
+		}
+		case WM_DESTROY:
+		{
+			PostQuitMessage(0);
+			break;
+		}
+		default:
+			return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
 	return 0;
 }
@@ -102,7 +106,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	uaudio::imgui::window.AddTool(channelsTool);
 
 	uaudio::player::UAUDIO_PLAYER_RESULT result = uaudio::player::audioSystem.Start();
-	if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+	if (UAUDIOPLAYERFAILED(result))
 	{
 		fclose(fConsole);
 		return -1;

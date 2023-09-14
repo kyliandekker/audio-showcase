@@ -1,5 +1,7 @@
 #pragma once
 
+#include "audio/player/UAUDIO_PLAYER_RESULT.h"
+
 namespace uaudio
 {
 	namespace player

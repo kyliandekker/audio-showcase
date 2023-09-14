@@ -114,7 +114,7 @@ namespace uaudio
 					}
 
 					uint32_t size = 0;
-					m_Sound->m_ChunkCollection->GetChunkSize(size, uaudio::wave_reader::DATA_CHUNK_ID);
+					uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_Sound->m_ChunkCollection->GetChunkSize(size, uaudio::wave_reader::DATA_CHUNK_ID);
 					// If the sound is done playing, check whether it needs to be repeated or whether it needs to be stopped entirely.
 					if (a_StartPos >= size)
 					{
@@ -188,7 +188,7 @@ namespace uaudio
 				m_Sound->m_Mutex.lock();
 				uint32_t buffersize = 0;
 				uaudio::player::UAUDIO_PLAYER_RESULT result = audioSystem.GetBufferSize(buffersize);
-				if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+				if (UAUDIOPLAYERFAILED(result))
 				{
 					LOGF(logger::LOGSEVERITY_WARNING, "Cannot retrieve audio system buffer size: %i", result);
 					m_Sound->m_Mutex.unlock();

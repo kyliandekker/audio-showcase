@@ -22,7 +22,7 @@ namespace uaudio
 		{
 			uint32_t buffer_size = 0;
 			uaudio::player::UAUDIO_PLAYER_RESULT result = player::audioSystem.GetBufferSize(buffer_size);
-			if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(result))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve buffer size: %i", result);
 				return;
@@ -47,7 +47,7 @@ namespace uaudio
 		{
 			bool paused = false;
 			uaudio::player::UAUDIO_PLAYER_RESULT result = player::audioSystem.IsPaused(paused);
-			if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(result))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve pause state: %i", result);
 				return;
@@ -68,7 +68,8 @@ namespace uaudio
 				player::audioSystem.SetPaused(true);
 
 				size_t size = 0;
-				if (uaudio::player::audioSystem.NumChannels(size) != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+				result = uaudio::player::audioSystem.NumChannels(size);
+				if (UAUDIOPLAYERFAILED(result))
 					return;
 
 				for (uint32_t i = 0; i < size; i++)
@@ -76,7 +77,7 @@ namespace uaudio
 					uaudio::player::ChannelHandle handle = i;
 					uaudio::player::AudioChannel* channel = nullptr;
 					uaudio::player::UAUDIO_PLAYER_RESULT result = uaudio::player::audioSystem.GetChannel(handle, channel);
-					if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK || !channel)
+					if (UAUDIOPLAYERFAILED(result) || !channel)
 					{
 						LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve channel: %i", result);
 						return;
@@ -89,7 +90,7 @@ namespace uaudio
 
 			float panning = 0;
 			result = player::audioSystem.GetPanning(panning);
-			if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(result))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve panning: %i", result);
 				return;
@@ -101,7 +102,7 @@ namespace uaudio
 			ImGui::SameLine();
 			float volume = 0;
 			result = player::audioSystem.GetVolume(volume);
-			if (result != uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_OK)
+			if (UAUDIOPLAYERFAILED(result))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume: %i", result);
 				return;

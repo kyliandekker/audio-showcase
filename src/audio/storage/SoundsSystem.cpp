@@ -44,7 +44,7 @@ namespace uaudio
 			std::string path = a_Path;
 			sound->m_Name = path.substr(path.find_last_of("\\") + 1);
 			
-			if (result == uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+			if (UAUDIOWAVEREADERFAILED(result))
 			{
 				if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24)
 				{
@@ -56,7 +56,7 @@ namespace uaudio
 
 			uaudio::wave_reader::DATA_Chunk data_chunk;
 			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result2 = chunkCollection->GetChunkFromData<uaudio::wave_reader::DATA_Chunk>(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
-			if (result == uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK && result2 == uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+			if (UAUDIOWAVEREADERFAILED(result) && UAUDIOWAVEREADERFAILED(result2))
 			{
 				uint32_t data_chunk_size = 0;
 				chunkCollection->GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);

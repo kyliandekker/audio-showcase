@@ -95,7 +95,7 @@ namespace uaudio
 			{
 				uaudio::wave_reader::FMT_Chunk fmt_chunk;
 				uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
-				if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+				if (UAUDIOWAVEREADERFAILED(result))
 				{
 					LOGF(logger::LOGSEVERITY_WARNING, "Tried to read from sound %s, but it has no fmt chunk.", m_Name.c_str());
 					return;
@@ -124,7 +124,7 @@ namespace uaudio
 				{
 					uaudio::wave_reader::ChunkHeader* data = nullptr;
 					uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = chunkCollection.GetChunkFromData(data, static_cast<uint32_t>(i));
-					if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+					if (UAUDIOWAVEREADERFAILED(result))
 					{
 						LOGF(logger::LOGSEVERITY_WARNING, "Tried to read from sound %s, but something went wrong.", m_Name.c_str());
 						continue;
@@ -145,7 +145,7 @@ namespace uaudio
 
 							uaudio::wave_reader::FMT_Chunk fmt_chunk;
 							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
-							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read fmt chunk from sound %s but something went wrong.", m_Name.c_str());
 								return;
@@ -179,7 +179,7 @@ namespace uaudio
 
 							uaudio::wave_reader::ACID_Chunk acid_chunk;
 							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::ACID_Chunk>(acid_chunk, uaudio::wave_reader::ACID_CHUNK_ID);
-							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read acid chunk from sound %s but something went wrong.", m_Name.c_str());
 								return;
@@ -211,7 +211,7 @@ namespace uaudio
 
 							uaudio::wave_reader::BEXT_Chunk bext_chunk;
 							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::BEXT_Chunk>(bext_chunk, uaudio::wave_reader::BEXT_CHUNK_ID);
-							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read bext chunk from sound %s but something went wrong.", m_Name.c_str());
 								return;
@@ -244,7 +244,7 @@ namespace uaudio
 
 							uaudio::wave_reader::FACT_Chunk fact_chunk;
 							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::FACT_Chunk>(fact_chunk, uaudio::wave_reader::FACT_CHUNK_ID);
-							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read fact chunk from sound %s but something went wrong.", m_Name.c_str());
 								return;
@@ -263,7 +263,7 @@ namespace uaudio
 
 							uaudio::wave_reader::CUE_Chunk cue_chunk;
 							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::CUE_Chunk>(cue_chunk, uaudio::wave_reader::CUE_CHUNK_ID);
-							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read cue chunk from sound %s but something went wrong.", m_Name.c_str());
 								return;
@@ -297,7 +297,7 @@ namespace uaudio
 
 							uaudio::wave_reader::SMPL_Chunk smpl_chunk;
 							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::SMPL_Chunk>(smpl_chunk, uaudio::wave_reader::SMPL_CHUNK_ID);
-							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read smpl chunk from sound %s but something went wrong.", m_Name.c_str());
 								return;
@@ -339,7 +339,7 @@ namespace uaudio
 
 							uaudio::wave_reader::INST_Chunk smpl_chunk;
 							result = chunkCollection.GetChunkFromData<uaudio::wave_reader::INST_Chunk>(smpl_chunk, uaudio::wave_reader::INST_CHUNK_ID);
-							if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read inst chunk from sound %s but something went wrong.", m_Name.c_str());
 								return;
