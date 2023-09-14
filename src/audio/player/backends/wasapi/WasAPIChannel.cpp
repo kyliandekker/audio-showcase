@@ -34,12 +34,14 @@ namespace uaudio
 			{
 				Stop();
 				if (m_AudioClient)
+				{
+					m_AudioClient->Stop();
 					m_AudioClient->Release();
+				}
 				if (m_RenderClient)
 					m_RenderClient->Release();
 			}
 
-			uint32_t numWavSamples = 0;
 			UAUDIO_PLAYER_RESULT WasAPIChannel::SetSound(storage::Sound& a_Sound)
 			{
 				HRESULT hr = m_Backend->GetDevice().Activate(__uuidof(IAudioClient2), CLSCTX_ALL, nullptr, (LPVOID*)(&m_AudioClient));
@@ -69,7 +71,6 @@ namespace uaudio
 				result = a_Sound.m_ChunkCollection->GetChunkFromData(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
 				if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
 					return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FMT_CHUNK;
-				numWavSamples = data_chunk.chunkSize / (fmt_chunk.numChannels * sizeof(uint16_t));
 
 				const int64_t REFTIMES_PER_SEC = 10000000; // hundred nanoseconds
 				REFERENCE_TIME requestedSoundBufferDuration = REFTIMES_PER_SEC * 2;
