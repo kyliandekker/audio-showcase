@@ -88,7 +88,7 @@ namespace uaudio
 					WriteConsoleA(
 						GetStdHandle(STD_OUTPUT_HANDLE),
 						lm.message.c_str(),
-						lm.message.size(),
+						static_cast<DWORD>(lm.message.size()),
 						&written,
 						nullptr
 					);

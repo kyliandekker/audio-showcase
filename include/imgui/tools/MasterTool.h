@@ -41,7 +41,7 @@ namespace uaudio
 				"8192",
 			};
 
-			uint32_t m_BufferSizeSelection = 0;
+			size_t m_BufferSizeSelection = 0;
 
 			std::array<uint32_t, 7> m_BufferSizeOptions = {
 				256,
@@ -90,9 +90,9 @@ namespace uaudio
 			{
 			};
 
-			uint32_t m_SelectedBitsPerSample = 0;
-			uint32_t m_SelectedNumChannels = 0;
-			uint32_t m_Backend = 0;
+			size_t m_SelectedBitsPerSample = 0;
+			size_t m_SelectedNumChannels = 0;
+			size_t m_Backend = 0;
 
 			ImVec2 m_Pos3d = ImVec2(0.5f, 0.5f);
 		};

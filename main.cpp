@@ -125,5 +125,5 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	UnregisterClassW(wc.lpszClassName, wc.hInstance);
 
 	fclose(fConsole);
-	return Msg.wParam;
+	return static_cast<int>(Msg.wParam);
 }
