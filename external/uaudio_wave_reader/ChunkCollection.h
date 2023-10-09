@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cassert>
-
 #include "./Utils.h"
 #include "./ChunkHeader.h"
 #include "./UAUDIO_WAVE_READER_RESULT.h"

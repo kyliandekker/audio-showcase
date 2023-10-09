@@ -206,6 +206,11 @@ namespace uaudio
 			uaudio::imgui::window.m_RenderMutex.unlock();
 		}
 
+		void AudioImGuiWindow::SetSize(ImVec2 a_Size)
+		{
+			m_Size = a_Size;
+		}
+
 		void AudioImGuiWindow::Render()
 		{
 			if (!m_Enabled)
@@ -218,7 +223,7 @@ namespace uaudio
 			ImGui::NewFrame();
 
 			ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-			ImVec2 size = ImVec2(1080, 720);
+			ImVec2 size = m_Size;
 			ImGui::SetNextWindowPos(ImVec2(0, 0));
 			ImGui::SetNextWindowSize(size);
 

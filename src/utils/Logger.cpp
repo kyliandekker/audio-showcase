@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <format>
-#include <imgui/imgui.h>
 #include <windows.h>
 
 uaudio::logger::Logger uaudio::logger::logger;

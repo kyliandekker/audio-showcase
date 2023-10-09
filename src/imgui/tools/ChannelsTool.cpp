@@ -53,12 +53,13 @@ namespace uaudio
 
 			uaudio::storage::Sound* sound;
 			presult = channel->GetSound(sound);
+			if (sound)
+				sound->m_Mutex.lock();
 			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve sound from channel %i.", a_Index);
 				return;
 			}
-			sound->m_Mutex.lock();
 
 			uaudio::wave_reader::FMT_Chunk fmt_chunk;
 			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);

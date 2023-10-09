@@ -134,19 +134,18 @@ namespace uaudio
 
 				if (!m_IsPlaying)
 					return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
-
-				m_Sound->m_Mutex.lock();
+;
 				UINT32 bufferPadding;
 				HRESULT hr = m_AudioClient->GetCurrentPadding(&bufferPadding);
 				if (FAILED(hr))
 				{
 					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Retrieving padding from audio client failed.");
-					m_Sound->m_Mutex.unlock();
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_WASAPI_FAILED_RETRIEVING_PADDING;
 				}
 
 				UINT32 soundBufferLatency = 2048;
 				UINT32 numFramesToWrite = soundBufferLatency - bufferPadding;
+				m_Sound->m_Mutex.lock();
 				PlayRanged(m_CurrentPos, numFramesToWrite);
 				if (m_Sound)
 					m_Sound->m_Mutex.unlock();
@@ -193,7 +192,6 @@ namespace uaudio
 				if (FAILED(hr))
 				{
 					LOG(logger::LOGSEVERITY_ERROR, "<WasAPI> Retrieving padding from audio client failed.");
-					m_Sound->m_Mutex.unlock();
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_WASAPI_FAILED_RETRIEVING_BUFFER;
 				}
 

@@ -97,6 +97,13 @@ namespace uaudio
 
 			void WasAPIBackend::RemoveSound(storage::Sound& a_Sound)
 			{
+				for (size_t i = 0; i < m_Channels.size(); i++)
+				{
+					storage::Sound* sound = nullptr;
+					m_Channels[i].GetSound(sound);
+					if (&a_Sound == sound)
+						m_Channels[i].RemoveSound();
+				}
 			}
 
 			IMMDevice& WasAPIBackend::GetDevice() const

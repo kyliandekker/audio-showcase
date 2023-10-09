@@ -4,6 +4,7 @@
 #include "audio/player/backends/xaudio2/XAudio2Backend.h"
 #include "audio/player/backends/wasapi/WasAPIBackend.h"
 #include "audio/player/ChannelHandle.h"
+#include "audio/storage/Sound.h"
 #include "audio/player/Defines.h"
 #include "utils/Logger.h"
 

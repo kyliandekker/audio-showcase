@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <imgui/imgui.h>
 #include <dx9/DX9Window.h>
 
 namespace uaudio
@@ -34,6 +35,7 @@ namespace uaudio
 			void ResetDevice();
 			bool IsEnabled() const;
 			void Stop();
+			void SetSize(ImVec2 a_Size);
 
 			static void LoggerCallback(logger::Message& message);
 
@@ -45,6 +47,8 @@ namespace uaudio
 			HWND m_Hwnd;
 			WNDCLASSEX m_Wc;
 			bool m_Enabled = true;
+
+			ImVec2 m_Size;
 
 			dx9::DX9Window m_DX9Window;
 

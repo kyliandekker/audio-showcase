@@ -29,6 +29,8 @@ namespace uaudio
 		constexpr uint16_t WAVE_BITS_PER_SAMPLE_32 = 32;
 
 		// SAMPLE RATE SETTINGS
+		constexpr uint32_t WAVE_SAMPLE_RATE_11025 = 11025;
+		constexpr uint32_t WAVE_SAMPLE_RATE_22050 = 22050;
 		constexpr uint32_t WAVE_SAMPLE_RATE_44100 = 44100;
 		constexpr uint32_t WAVE_SAMPLE_RATE_48000 = 48000;
 		constexpr uint32_t WAVE_SAMPLE_RATE_88200 = 88200;

@@ -17,7 +17,8 @@
  *
  * class Type
  * {
- *		Type(Type* type);
+ *		Type(Type* data) : ChunkHeader(data)
+ *		{ // set vars }
  * }
  *
  * From there, the data can be read and processed accordingly.

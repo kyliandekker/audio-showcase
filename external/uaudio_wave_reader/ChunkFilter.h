@@ -20,10 +20,7 @@ namespace uaudio
 
 			ChunkFilter(const char* a_Filter, size_t a_Size);
 
-			const char* operator [](size_t i) const
-			{
-				return m_Data + (i * CHUNK_ID_SIZE);
-			}
+			const char* operator [](size_t i) const;
 		private:
 			size_t m_Size = 0;
 			const char* m_Data = nullptr;

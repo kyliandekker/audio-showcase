@@ -29,6 +29,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			PostQuitMessage(0);
 			break;
 		}
+		case WM_SIZE:
+		{
+			uint32_t width = LOWORD(lParam);
+			uint32_t height = HIWORD(lParam);
+			uaudio::imgui::window.SetSize(ImVec2(width, height));
+			break;
+		}
 		default:
 			return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
