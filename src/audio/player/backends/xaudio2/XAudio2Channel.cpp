@@ -21,8 +21,7 @@ namespace uaudio
 			}
 
 			XAudio2Channel::XAudio2Channel(XAudio2Backend& a_Backend) : m_Backend(&a_Backend)
-			{
-			}
+			{ }
 
 			XAudio2Channel::~XAudio2Channel()
 			{

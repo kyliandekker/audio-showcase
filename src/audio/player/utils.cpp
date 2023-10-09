@@ -100,12 +100,12 @@ namespace uaudio
 				{
 					for (size_t i = 0; i < numSamples; i++)
 					{
-						uint16_t left = *(uint16_t*)pData;
+						int16_t left = *(int16_t*)pData;
 						pData += 2;
-						uint16_t right = *(uint16_t*)pData;
+						int16_t right = *(int16_t*)pData;
 						pData += 2;
 						float together = static_cast<float>(left + right);
-						samples[i] = together;
+						samples[i] = together / INT16_MAX;
 					}
 				}
 

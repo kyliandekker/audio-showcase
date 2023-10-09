@@ -26,9 +26,7 @@ namespace uaudio
 			}
 
 			WasAPIChannel::WasAPIChannel(WasAPIBackend& a_Backend) : m_Backend(&a_Backend)
-			{
-
-			}
+			{ }
 
 			WasAPIChannel::~WasAPIChannel()
 			{
@@ -117,6 +115,9 @@ namespace uaudio
 				AudioChannel::Stop();
 				if (m_AudioClient)
 					m_AudioClient->Stop();
+
+				if (m_RenderClient)
+					m_RenderClient->Release();
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}
