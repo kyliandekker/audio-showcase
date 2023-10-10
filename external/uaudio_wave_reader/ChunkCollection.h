@@ -16,8 +16,6 @@ namespace uaudio
 		 * This class does not hold information such as volume, panning, looping and pitch. It only stored the actual wave file information.
 		*/
 
-		class WaveReader;
-
 		class ChunkCollection
 		{
 		private:

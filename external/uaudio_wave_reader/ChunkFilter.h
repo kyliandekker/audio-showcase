@@ -13,12 +13,14 @@ namespace uaudio
 		class ChunkFilter
 		{
 		public:
-			size_t size() const { return m_Size; }
 
 			ChunkFilter()
 			{ }
 
 			ChunkFilter(const char* a_Filter, size_t a_Size);
+
+			const char* data() const;
+			size_t size() const;
 
 			const char* operator [](size_t i) const;
 		private:

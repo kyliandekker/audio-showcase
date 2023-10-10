@@ -6,6 +6,8 @@
 #include <imgui/imgui_helpers.h>
 #include <uaudio_wave_reader/WaveChunks.h>
 #include <uaudio_wave_reader/WaveReader.h>
+#include <uaudio_wave_reader/ChunkFilter.h>
+#include <uaudio_wave_reader/WaveReadSettings.h>
 
 #include "imgui/ImguiDefines.h"
 #include "audio/storage/SoundsSystem.h"
@@ -277,9 +279,15 @@ namespace uaudio
 					if (m_ChunkIds[i].selected)
 						chunks += m_ChunkIds[i].chunk_id;
 
-				const uaudio::wave_reader::ChunkFilter filters{ chunks.c_str(), chunks.size() / uaudio::wave_reader::CHUNK_ID_SIZE};
+				uaudio::wave_reader::WaveReadSettings settings;
+				settings.SetChannels(static_cast<uaudio::wave_reader::ChannelsConversionSettings>(m_SelectedNumChannels));
+				if (chunks.size() > 0)
+				{
+					uaudio::wave_reader::ChunkFilter filters{ chunks.c_str(), chunks.size() / uaudio::wave_reader::CHUNK_ID_SIZE };
+					settings.SetChunkFilter(filters);
+				}
 
-				uaudio::storage::soundSystem.AddSound(path, filters);
+				uaudio::storage::soundSystem.AddSound(path, settings);
 
 				delete[] path;
 			}

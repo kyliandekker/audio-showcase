@@ -14,14 +14,14 @@ namespace uaudio
 {
 	namespace storage
 	{
-		Sound* SoundsSystem::AddSound(const char* a_Path, uaudio::wave_reader::ChunkFilter a_Filter)
+		Sound* SoundsSystem::AddSound(const char* a_Path, const uaudio::wave_reader::WaveReadSettings& a_Settings)
 		{
 			uaudio::player::Hash hash = uaudio::player::GetHash(a_Path);
 			if (m_Sounds.find(hash) != m_Sounds.end())
 				return nullptr;
 
 			size_t size = 0;
-			uaudio::wave_reader::WaveReader::FTell(a_Path, size, a_Filter);
+			uaudio::wave_reader::WaveReader::FTell(a_Path, size, a_Settings);
 
 			if (size == 0)
 			{
@@ -32,7 +32,7 @@ namespace uaudio
 			void* allocated_space = malloc(size);
 
 			uaudio::wave_reader::ChunkCollection* chunkCollection = new uaudio::wave_reader::ChunkCollection(allocated_space, size);
-			uaudio::wave_reader::WaveReader::LoadWave(a_Path, *chunkCollection, a_Filter);
+			uaudio::wave_reader::WaveReader::LoadWave(a_Path, *chunkCollection, a_Settings);
 
 			uaudio::wave_reader::FMT_Chunk fmt_chunk;
 			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = chunkCollection->GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
