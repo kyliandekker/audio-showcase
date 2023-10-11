@@ -92,24 +92,7 @@ namespace uaudio
 #pragma region duration
 
 			if (hasFmtChunk && hasDataChunk)
-			{	
-				const float* samples = a_Sound.m_Samples;
-
-				if (samples != nullptr)
-				{
-					std::string graph_name = "Graph" + sound_hash_id + "_waveform_graph";
-					if (ImPlot::BeginPlot(graph_name.c_str(), ImVec2(-1, 100), ImPlotFlags_CanvasOnly))
-					{
-						ImPlot::SetupAxes("", "", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
-						ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
-						ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax);
-						ImPlot::SetupAxisLimits(ImAxis_Y1, -2, 2, ImPlotCond_Always);
-						ImPlot::SetupAxisLimits(ImAxis_X1, 0, a_Sound.m_NumSamples);
-						ImPlot::PlotLine("Waveform", samples, a_Sound.m_NumSamples);
-						ImPlot::EndPlot();
-					}
-				}
-
+			{
 				uaudio::wave_reader::FMT_Chunk fmt_chunk;
 				uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
 				if (UAUDIOWAVEREADERFAILED(result))

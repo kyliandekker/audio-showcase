@@ -2,6 +2,7 @@
 #define IMGUI_HELPERS_H
 
 #include <imgui/imgui.h>
+#include <imgui/implot.h>
 
 namespace ImGui
 {
@@ -52,6 +53,8 @@ namespace ImGui
     bool CheckboxButton(const char *label, bool *p_value, const ImVec2 &size_arg = ImVec2(0, 0));
 
 	bool RangeSliderFloat(const char *label, float *v1, float *v2, float v_min, float v_max, const char *display_format = "(%.3f, %.3f)", float power = 1.0f);
+
+    size_t BeginPlayPlot(int pos, int max_pos, size_t numSamples, const float* samples, const char* title_id, const ImVec2& size, ImPlotFlags flags);
 
 #endif // IMGUI_HELPERS_H
 }

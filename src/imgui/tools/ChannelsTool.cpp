@@ -4,6 +4,7 @@
 #include <uaudio_wave_reader/ChunkCollection.h>
 #include <imgui/imgui_helpers.h>
 #include <imgui/ImguiDefines.h>
+#include <imgui/implot.h>
 
 #include "audio/player/AudioSystem.h"
 #include "audio/player/ChannelHandle.h"
@@ -163,16 +164,23 @@ namespace uaudio
 				return;
 			}
 
-			if (ImGui::SliderInt(player_text.c_str(), &pos, 0, static_cast<int>(final_pos_slider), ""))
+			std::string sound_hash_id = "##Player_sound_" + std::to_string(sound->m_Hash) + "_";
+			std::string graph_name = "Graph" + sound_hash_id + "_waveform_graph";
+
+			sound->m_Mutex.unlock();
+			ImGui::Unindent(IMGUI_INDENT);
+			size_t new_pos = ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_Samples, graph_name.c_str(), ImVec2(-1, 100), 0);
+			ImGui::Indent(IMGUI_INDENT);
+			if (new_pos != pos)
 			{
-				uint32_t new_pos = pos % static_cast<int>(buffersize);
-				uint32_t final_new_pos = pos - new_pos;
-				final_new_pos = clamp<uint32_t>(final_new_pos, 0, data_chunk.chunkSize);
+				uint32_t left_over = new_pos % static_cast<int>(buffersize);
+				uint32_t final_new_pos = new_pos - left_over;
 				channel->SetPos(final_new_pos);
-				
+
 				if (!isPlaying)
 					channel->PlayRanged(final_new_pos, static_cast<int>(buffersize));
 			}
+			sound->m_Mutex.lock();
 
 			if (isPlaying)
 			{

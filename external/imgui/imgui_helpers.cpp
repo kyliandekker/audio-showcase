@@ -635,4 +635,52 @@ namespace ImGui
 
         return value_changed;
     }
+
+    size_t BeginPlayPlot(int pos, int max_pos, size_t numSamples, const float* samples, const char* title_id, const ImVec2& size, ImPlotFlags flags)
+    {
+        if (ImPlot::BeginPlot(title_id, ImVec2(-1, 100), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
+        {
+            ImDrawList* drw = ImPlot::GetPlotDrawList();
+            if (samples != nullptr)
+            {
+                ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels | ImPlotAxisFlags_NoDecorations);
+                ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax);
+                ImPlot::SetupAxisLimits(ImAxis_Y1, -2, 2, ImPlotCond_Always);
+                ImPlot::SetupAxisLimits(ImAxis_X1, 0, numSamples);
+                ImPlot::PlotLine("Waveform", samples, numSamples);
+            }
+
+            bool isHovered = ImGui::IsItemHovered();
+
+            if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && isHovered)
+            {
+                ImVec2 mousePositionAbsolute = ImGui::GetMousePos();
+                ImVec2 screenPositionAbsolute = ImGui::GetItemRectMin();
+                ImVec2 screenPositionAbsolutem = ImGui::GetItemRectMax();
+                ImVec2 mousePositionRelative = ImVec2(mousePositionAbsolute.x - screenPositionAbsolute.x, mousePositionAbsolute.y - screenPositionAbsolute.y);
+
+                ImVec2 plotPos = ImPlot::GetPlotPos();
+                ImVec2 plotSize = ImPlot::GetPlotSize();
+
+                mousePositionRelative.x = std::clamp(mousePositionRelative.x, 0.0f, plotSize.x + 40);
+
+                pos = max_pos / plotSize.x * (mousePositionRelative.x - 40);
+            }
+
+            ImVec2 plotSize = ImPlot::GetPlotSize();
+            ImVec2 plotPos = ImPlot::GetPlotPos();
+
+            float maxX = plotSize.x;
+
+            float linePosX = maxX / max_pos * pos;
+
+            drw->AddLine(
+                ImVec2(plotPos.x + linePosX, plotPos.y),
+                ImVec2(plotPos.x + linePosX, plotPos.y + plotSize.y),
+                ImColor(255, 255, 255, 255), 1
+            );
+            ImPlot::EndPlot();
+        }
+        return pos;
+    }
 }

@@ -24,6 +24,7 @@ namespace uaudio
 			uaudio::wave_reader::ChunkCollection* m_ChunkCollection = nullptr;
 			float* m_Samples = nullptr;
 			size_t m_NumSamples = 0;
+			size_t m_RNumSamples = 0;
 			std::mutex m_Mutex;
 
 			void Read(uint32_t a_StartingPoint, uint32_t& a_ElementCount, unsigned char*& a_DataBuffer) const;

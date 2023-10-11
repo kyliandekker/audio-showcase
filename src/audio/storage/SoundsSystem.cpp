@@ -62,7 +62,8 @@ namespace uaudio
 			{
 				uint32_t data_chunk_size = 0;
 				chunkCollection->GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);
-				sound->m_NumSamples = data_chunk_size / fmt_chunk.blockAlign;
+				sound->m_RNumSamples = data_chunk_size / fmt_chunk.blockAlign;
+				sound->m_NumSamples = sound->m_RNumSamples;
 				if (sound->m_NumSamples > MAX_SAMPLES)
 					sound->m_NumSamples = MAX_SAMPLES;
 				sound->m_Samples = uaudio::player::utils::ToSample(data_chunk.data, data_chunk_size, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, sound->m_NumSamples);
