@@ -231,7 +231,7 @@ namespace uaudio
 
 			ImGui::SameLine();
 
-			std::string left_button_text = std::string(LEFT) + "##Left_Sound_" + std::to_string(a_Index);
+			std::string left_button_text = std::string(BACKWARD) + "##Left_Sound_" + std::to_string(a_Index);
 			if (ImGui::InvisButton(left_button_text.c_str(), ImVec2(25, 25)))
 			{
 				int32_t prev_pos = pos - static_cast<int>(buffersize);
@@ -260,7 +260,7 @@ namespace uaudio
 
 			ImGui::SameLine();
 
-			std::string right_button_text = std::string(RIGHT) + "##Right_Sound_" + std::to_string(a_Index);
+			std::string right_button_text = std::string(FORWARD) + "##Right_Sound_" + std::to_string(a_Index);
 			if (ImGui::InvisButton(right_button_text.c_str(), ImVec2(25, 25)))
 			{
 				int32_t next_pos = pos + static_cast<int>(buffersize);

@@ -27,12 +27,13 @@ namespace uaudio
 		#define SETTINGS "\xef\x80\x93"
 		#define MOON "\xef\x86\x86"
 		#define SUN "\xef\x86\x85"
-		#define RIGHT "\xef\x81\x8e"
-		#define LEFT "\xef\x81\x8a"
+		#define FORWARD "\xef\x81\x8e"
+		#define BACKWARD "\xef\x81\x8a"
 		#define SAVE "\xef\x83\x87"
 		#define MUSIC "\xef\x80\x81"
-		#define ICON_FA_FAST_FORWARD "\xef\x81\x90"
-		#define ICON_FA_HEADPHONES "\xef\x80\xa5"
+		#define SIMD "\xef\x81\x90"
+		#define HEADPHONES "\xef\x80\xa5"
+		#define EJECT "\xef\x81\x92"
 
 		#define IMGUI_INDENT 16.0f
 	}

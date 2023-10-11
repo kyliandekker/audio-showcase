@@ -39,7 +39,7 @@ namespace uaudio
 
 			virtual AudioChannel* GetChannel(ChannelHandle& a_Handle) = 0;
 			virtual void RemoveSound(storage::Sound& a_Sound) = 0;
-		private:
+		protected:
 			uint32_t m_BufferSize = 4096;
 			bool m_Paused = false;
 			float m_Volume = UAUDIO_DEFAULT_VOLUME;

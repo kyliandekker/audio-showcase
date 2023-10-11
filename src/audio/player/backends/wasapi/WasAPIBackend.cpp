@@ -55,6 +55,9 @@ namespace uaudio
 
 			void WasAPIBackend::Update()
 			{
+				if (m_Paused)
+					return;
+
 				for (int32_t i = static_cast<int32_t>(m_Channels.size() - 1); i > -1; i--)
 					m_Channels[i].Update();
 			}

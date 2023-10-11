@@ -148,7 +148,7 @@ namespace uaudio
 
 			ImGui::SameLine();
 			bool simd = uaudio::player::audioSystem.simd;
-			std::string loop_button_text = std::string(ICON_FA_FAST_FORWARD) + " SIMD##_temp";
+			std::string loop_button_text = std::string(SIMD) + " SIMD##_temp";
 			if (ImGui::CheckboxButton(loop_button_text.c_str(), &simd, ImVec2(75, 25)))
 				uaudio::player::audioSystem.simd = simd;
 

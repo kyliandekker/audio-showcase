@@ -72,8 +72,8 @@ namespace uaudio
 				ImGui::SameLine();
 			}
 
-			std::string remove_sound_text = std::string(MINUS) + " Unload" + sound_hash_id + "unload_sound_button";
-			if (ImGui::Button(remove_sound_text.c_str()))
+			std::string eject_sound_text = std::string(EJECT) + " Eject" + sound_hash_id + "eject_sound_button";
+			if (ImGui::Button(eject_sound_text.c_str()))
 			{
 				uaudio::player::audioSystem.m_Update.lock();
 				uaudio::player::audioSystem.RemoveSound(a_Sound);

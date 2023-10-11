@@ -136,11 +136,11 @@ namespace ImGui
         InvisibleButton("##sad", ImVec2(size.x, size.y + style.ItemInnerSpacing.y));
 
         ImVec2 center = pos + ImVec2(size.x / 2, size.y / 2);
-        std::string lbl = std::string(ICON_FA_HEADPHONES);
-        std::size_t lbl_pos = lbl.find(ICON_FA_HEADPHONES);
+        std::string lbl = std::string(HEADPHONES);
+        std::size_t lbl_pos = lbl.find(HEADPHONES);
         std::string label_text = lbl.substr(0, lbl_pos);
         auto textSize = CalcTextSize(label_text.c_str());
-        draw_list->AddText(ImGui::GetFont(), ImGui::GetFontSize(), center - ImVec2(7, textSize.y / 2), GetColorU32(ImGuiCol_Button), ICON_FA_HEADPHONES, 0, 0.0f, 0);
+        draw_list->AddText(ImGui::GetFont(), ImGui::GetFontSize(), center - ImVec2(7, textSize.y / 2), GetColorU32(ImGuiCol_Button), HEADPHONES, 0, 0.0f, 0);
 
         ImVec2 circleRestrictionPosTopLeft = topLeft + ImVec2(2, 2);
         ImVec2 circleRestrictionPosTopRight = topRight + ImVec2(-2, 2);
