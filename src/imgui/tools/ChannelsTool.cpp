@@ -13,6 +13,7 @@
 #include "audio/player/utils.h"
 #include "utils/Utils.h"
 #include "utils/Logger.h"
+#include <imgui/imgui_internal.h>
 
 namespace uaudio
 {
@@ -34,6 +35,13 @@ namespace uaudio
 
 		void ChannelsTool::RenderChannel(player::ChannelHandle a_Index)
 		{
+			ImGuiStyle& style = ImGui::GetStyle();
+
+			ImVec2 CursorPos = ImGui::GetCursorPos();
+			ImVec4 c = style.Colors[ImGuiCol_Header];
+			ImDrawList* draw_list = ImGui::GetWindowDrawList();
+			draw_list->AddRectFilled(CursorPos, ImVec2(CursorPos.x + CursorPos.x, CursorPos.y + 50), ImGui::GetColorU32(c));
+
 			uaudio::player::AudioChannel* channel = nullptr;
 			uaudio::player::UAUDIO_PLAYER_RESULT presult = uaudio::player::audioSystem.GetChannel(a_Index, channel);
 			if (UAUDIOPLAYERFAILED(presult))
@@ -54,6 +62,10 @@ namespace uaudio
 
 			uaudio::storage::Sound* sound;
 			presult = channel->GetSound(sound);
+
+			if (sound == nullptr)
+				return;
+
 			if (sound)
 				sound->m_Mutex.lock();
 			if (UAUDIOPLAYERFAILED(presult))
@@ -138,11 +150,7 @@ namespace uaudio
 				sound->m_Mutex.unlock();
 				return;
 			}
-			ImGui::Text("%s", std::string(
-				uaudio::player::utils::FormatDuration(seconds, false) +
-				"/" +
-				uaudio::player::utils::FormatDuration(final_pos, false))
-				.c_str());
+
 			uint32_t final_pos_slider = isInUse ? data_chunk.chunkSize : 5000;
 			std::string player_text = std::string("###Player_" + std::to_string(a_Index));
 
@@ -165,78 +173,9 @@ namespace uaudio
 			}
 
 			std::string sound_hash_id = "##Player_sound_" + std::to_string(sound->m_Hash) + "_";
-			std::string graph_name = "Graph" + sound_hash_id + "_waveform_graph";
+			std::string graph_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph";
 
 			sound->m_Mutex.unlock();
-			ImGui::Unindent(IMGUI_INDENT);
-			size_t new_pos = ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_Samples, graph_name.c_str(), ImVec2(-1, 100), 0);
-			ImGui::Indent(IMGUI_INDENT);
-			if (new_pos != pos)
-			{
-				uint32_t left_over = new_pos % static_cast<int>(buffersize);
-				uint32_t final_new_pos = new_pos - left_over;
-				channel->SetPos(final_new_pos);
-
-				if (!isPlaying)
-					channel->PlayRanged(final_new_pos, static_cast<int>(buffersize));
-			}
-			sound->m_Mutex.lock();
-
-			if (isPlaying)
-			{
-				std::string pause_button_text = std::string(PAUSE) + "##Pause_Sound_" + std::to_string(a_Index);
-				if (ImGui::Button(pause_button_text.c_str(), ImVec2(25, 25)))
-					channel->Pause();
-			}
-			else
-			{
-				std::string play_button_text = std::string(PLAY) + "##Play_Sound_" + std::to_string(a_Index);
-				if (ImGui::Button(play_button_text.c_str(), ImVec2(25, 25)))
-					channel->Play();
-			}
-
-			ImGui::SameLine();
-			std::string left_button_text = std::string(LEFT) + "##Left_Sound_" + std::to_string(a_Index);
-			if (ImGui::Button(left_button_text.c_str(), ImVec2(25, 25)))
-			{
-				int32_t prev_pos = pos - static_cast<int>(buffersize);
-				prev_pos = clamp<int32_t>(prev_pos, 0, data_chunk.chunkSize);
-				channel->SetPos(prev_pos);
-				channel->Pause();
-				channel->PlayRanged(prev_pos, static_cast<int>(buffersize));
-			}
-
-			ImGui::SameLine();
-			std::string stop_button_text = std::string(STOP) + "##Stop_Sound_" + std::to_string(a_Index);
-			if (ImGui::Button(stop_button_text.c_str(), ImVec2(25, 25)))
-			{
-				channel->SetPos(0);
-				channel->Pause();
-			}
-
-			ImGui::SameLine();
-			std::string right_button_text = std::string(RIGHT) + "##Right_Sound_" + std::to_string(a_Index);
-			if (ImGui::Button(right_button_text.c_str(), ImVec2(25, 25)))
-			{
-				int32_t next_pos = pos + static_cast<int>(buffersize);
-				next_pos = clamp<int32_t>(next_pos, 0, data_chunk.chunkSize);
-				channel->SetPos(next_pos);
-				channel->Pause();
-				channel->PlayRanged(next_pos, static_cast<int>(buffersize));
-			}
-
-			ImGui::SameLine();
-			bool isLooping = false;
-			presult = channel->IsLooping(isLooping);
-			if (UAUDIOPLAYERFAILED(presult))
-			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel %i has looping turned on.", a_Index);
-				sound->m_Mutex.unlock();
-				return;
-			}
-			std::string loop_button_text = std::string(RETRY) + "##Loop_Channel_" + std::to_string(a_Index);
-			if (ImGui::CheckboxButton(loop_button_text.c_str(), &isLooping, ImVec2(25, 25)))
-				channel->SetLooping(isLooping);
 
 			if (isInUse)
 			{
@@ -257,11 +196,94 @@ namespace uaudio
 					ShowValue("Progress (position): ", std::string(std::to_string(static_cast<int>(fPos)) +
 						"/" +
 						std::to_string(data_chunk.chunkSize)
-						).c_str());
+					).c_str());
 
 					ImGui::Unindent(IMGUI_INDENT);
 				}
 			}
+			ImGui::Unindent(IMGUI_INDENT);
+
+			ImVec2 plotSize;
+
+			size_t new_pos = ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_Samples, graph_name.c_str(), plotSize, std::string(
+				uaudio::player::utils::FormatDuration(seconds, false) +
+				"/" +
+				uaudio::player::utils::FormatDuration(final_pos, false))
+				.c_str());
+			ImGui::Indent(IMGUI_INDENT);
+			if (new_pos != pos)
+			{
+				uint32_t left_over = new_pos % static_cast<int>(buffersize);
+				uint32_t final_new_pos = new_pos - left_over;
+				channel->SetPos(final_new_pos);
+
+				if (!isPlaying)
+					channel->PlayRanged(final_new_pos, static_cast<int>(buffersize));
+			}
+			sound->m_Mutex.lock();
+
+			std::string stop_button_text = std::string(STOP) + "##Stop_Sound_" + std::to_string(a_Index);
+			if (ImGui::InvisButton(stop_button_text.c_str(), ImVec2(25, 25)))
+			{
+				channel->SetPos(0);
+				channel->Pause();
+			}
+
+			ImGui::SameLine();
+
+			std::string left_button_text = std::string(LEFT) + "##Left_Sound_" + std::to_string(a_Index);
+			if (ImGui::InvisButton(left_button_text.c_str(), ImVec2(25, 25)))
+			{
+				int32_t prev_pos = pos - static_cast<int>(buffersize);
+				prev_pos = clamp<int32_t>(prev_pos, 0, data_chunk.chunkSize);
+				channel->SetPos(prev_pos);
+				channel->Pause();
+				channel->PlayRanged(prev_pos, static_cast<int>(buffersize));
+			}
+
+			ImGui::SameLine();
+
+			ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 25.0f);
+			if (isPlaying)
+			{
+				std::string pause_button_text = std::string(PAUSE) + "##Pause_Sound_" + std::to_string(a_Index);
+				if (ImGui::Button(pause_button_text.c_str(), ImVec2(35, 35)))
+					channel->Pause();
+			}
+			else
+			{
+				std::string play_button_text = std::string(PLAY) + "##Play_Sound_" + std::to_string(a_Index);
+				if (ImGui::Button(play_button_text.c_str(), ImVec2(35, 35)))
+					channel->Play();
+			}
+			ImGui::PopStyleVar();
+
+			ImGui::SameLine();
+
+			std::string right_button_text = std::string(RIGHT) + "##Right_Sound_" + std::to_string(a_Index);
+			if (ImGui::InvisButton(right_button_text.c_str(), ImVec2(25, 25)))
+			{
+				int32_t next_pos = pos + static_cast<int>(buffersize);
+				next_pos = clamp<int32_t>(next_pos, 0, data_chunk.chunkSize);
+				channel->SetPos(next_pos);
+				channel->Pause();
+				channel->PlayRanged(next_pos, static_cast<int>(buffersize));
+			}
+
+			ImGui::SameLine();
+
+			bool isLooping = false;
+			presult = channel->IsLooping(isLooping);
+			if (UAUDIOPLAYERFAILED(presult))
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel %i has looping turned on.", a_Index);
+				sound->m_Mutex.unlock();
+				return;
+			}
+			std::string loop_button_text = std::string(RETRY) + "##Loop_Channel_" + std::to_string(a_Index);
+			if (ImGui::CheckboxButton(loop_button_text.c_str(), &isLooping, ImVec2(25, 25)))
+				channel->SetLooping(isLooping);
+
 			ImGui::Separator();
 			sound->m_Mutex.unlock();
 		}

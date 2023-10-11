@@ -415,6 +415,16 @@ namespace ImGui
         return b;
     }
 
+    bool InvisButton(const char* label, const ImVec2& size_arg)
+    {
+        ImVec4 color = ImVec4(0, 0, 0, 0);
+        ImGui::PushStyleColor(ImGuiCol_Button, color);
+        bool b = ImGui::Button(label, size_arg);
+        ImGui::PopStyleColor();
+
+        return b;
+    }
+
     float RoundScalarWithFormatFloat(const char* format, ImGuiDataType data_type, float v)
     {
         return RoundScalarWithFormatT<float, float>(format, data_type, v);
@@ -636,21 +646,22 @@ namespace ImGui
         return value_changed;
     }
 
-    size_t BeginPlayPlot(int pos, int max_pos, size_t numSamples, const float* samples, const char* title_id, const ImVec2& size, ImPlotFlags flags)
+    size_t BeginPlayPlot(int pos, int max_pos, size_t numSamples, const float* samples, const char* title_id, ImVec2& plotSize, std::string text)
     {
         if (ImPlot::BeginPlot(title_id, ImVec2(-1, 100), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
         {
             ImDrawList* drw = ImPlot::GetPlotDrawList();
             if (samples != nullptr)
             {
-                ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels | ImPlotAxisFlags_NoDecorations);
-                ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax);
-                ImPlot::SetupAxisLimits(ImAxis_Y1, -2, 2, ImPlotCond_Always);
+                ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
+                ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
+                ImPlot::SetupAxisLimits(ImAxis_Y1, -1, 1, ImPlotCond_Always);
                 ImPlot::SetupAxisLimits(ImAxis_X1, 0, numSamples);
                 ImPlot::PlotLine("Waveform", samples, numSamples);
             }
 
             bool isHovered = ImGui::IsItemHovered();
+            ImPlotStyle& imPlotStyle = ImPlot::GetStyle();
 
             if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && isHovered)
             {
@@ -660,14 +671,14 @@ namespace ImGui
                 ImVec2 mousePositionRelative = ImVec2(mousePositionAbsolute.x - screenPositionAbsolute.x, mousePositionAbsolute.y - screenPositionAbsolute.y);
 
                 ImVec2 plotPos = ImPlot::GetPlotPos();
-                ImVec2 plotSize = ImPlot::GetPlotSize();
+                plotSize = ImPlot::GetPlotSize();
 
-                mousePositionRelative.x = std::clamp(mousePositionRelative.x, 0.0f, plotSize.x + 40);
+                mousePositionRelative.x = std::clamp(mousePositionRelative.x, 0.0f, plotSize.x);
 
-                pos = max_pos / plotSize.x * (mousePositionRelative.x - 40);
+                pos = max_pos / plotSize.x * (mousePositionRelative.x - imPlotStyle.PlotPadding.x);
             }
 
-            ImVec2 plotSize = ImPlot::GetPlotSize();
+            plotSize = ImPlot::GetPlotSize();
             ImVec2 plotPos = ImPlot::GetPlotPos();
 
             float maxX = plotSize.x;
@@ -679,7 +690,12 @@ namespace ImGui
                 ImVec2(plotPos.x + linePosX, plotPos.y + plotSize.y),
                 ImColor(255, 255, 255, 255), 1
             );
+
             ImPlot::EndPlot();
+            
+            //ImGuiStyle& style = ImGui::GetStyle();
+
+            //InvisibleButton("##sad", ImVec2(plotSize.x, 60 + style.ItemInnerSpacing.y));
         }
         return pos;
     }
