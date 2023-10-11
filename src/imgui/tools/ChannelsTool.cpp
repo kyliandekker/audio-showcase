@@ -62,17 +62,16 @@ namespace uaudio
 
 			uaudio::storage::Sound* sound;
 			presult = channel->GetSound(sound);
-
-			if (sound == nullptr)
-				return;
-
-			if (sound)
-				sound->m_Mutex.lock();
 			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve sound from channel %i.", a_Index);
 				return;
 			}
+
+			if (sound == nullptr)
+				return;
+
+			sound->m_Mutex.lock();
 
 			uaudio::wave_reader::FMT_Chunk fmt_chunk;
 			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
@@ -172,10 +171,21 @@ namespace uaudio
 				return;
 			}
 
+			ImGui::SameLine();
+			std::string eject_button_text = std::string(EJECT) + "##Eject_Channel" + std::to_string(a_Index);
+			if (ImGui::InvisButton(eject_button_text.c_str(), ImVec2(25, 25)))
+			{
+				sound->m_Mutex.unlock();
+
+				uaudio::player::audioSystem.m_Update.lock();
+				channel->Stop();
+				channel->RemoveSound();
+				uaudio::player::audioSystem.m_Update.unlock();
+				return;
+			}
+
 			std::string sound_hash_id = "##Player_sound_" + std::to_string(sound->m_Hash) + "_";
 			std::string graph_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph";
-
-			sound->m_Mutex.unlock();
 
 			if (isInUse)
 			{
@@ -205,6 +215,7 @@ namespace uaudio
 
 			ImVec2 plotSize;
 
+			sound->m_Mutex.unlock();
 			size_t new_pos = ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_Samples, graph_name.c_str(), plotSize, std::string(
 				uaudio::player::utils::FormatDuration(seconds, false) +
 				"/" +

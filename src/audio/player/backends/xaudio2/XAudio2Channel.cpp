@@ -123,9 +123,8 @@ namespace uaudio
 						// If the sound is not set to repeat, then stop the channel.
 						if (!m_Looping)
 						{
-							Stop();
-							m_Sound->m_Mutex.unlock();
-							m_Sound = nullptr;
+							Pause();
+							SetPos(0);
 							return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 						}
 					}
@@ -194,8 +193,7 @@ namespace uaudio
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_CHANNEL_CANNOT_RETRIEVE_BUFFERSIZE;
 				}
 				PlayRanged(m_CurrentPos, buffersize);
-				if (m_Sound)
-					m_Sound->m_Mutex.unlock();
+				m_Sound->m_Mutex.unlock();
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}

@@ -85,9 +85,7 @@ namespace uaudio
 			ImGui::SameLine();
 			std::string save_sound_text = std::string(SAVE) + " Save" + sound_hash_id + "save_sound_button";
 			if (ImGui::Button(save_sound_text.c_str()))
-			{
 				SaveFile(chunkCollection);
-			}
 
 #pragma region duration
 
