@@ -48,7 +48,7 @@ namespace uaudio
 					WAVEFORMATEX wave = {};
 					wave.wFormatTag = fmt_chunk.audioFormat;
 					wave.nChannels = fmt_chunk.numChannels;
-					wave.nSamplesPerSec = fmt_chunk.sampleRate; // 44100 hz (should be standard).
+					wave.nSamplesPerSec = fmt_chunk.sampleRate;
 					wave.cbSize = 0;
 					wave.wBitsPerSample = fmt_chunk.bitsPerSample;
 					wave.nBlockAlign = fmt_chunk.blockAlign;

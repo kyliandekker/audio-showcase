@@ -8,6 +8,7 @@
 
 #include "imgui/tools/MainWindow.h"
 #include "utils/Logger.h"
+#include <imgui/implot.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -73,6 +74,7 @@ namespace uaudio
 			// setup Dear ImGui context
 			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
+			ImPlot::CreateContext();
 
 			ImGui_ImplWin32_Init(m_Hwnd);
 			ImGui_ImplDX9_Init(m_DX9Window.g_pd3dDevice);
@@ -282,6 +284,7 @@ namespace uaudio
 		{
 			ImGui_ImplDX9_Shutdown();
 			ImGui_ImplWin32_Shutdown();
+			ImPlot::DestroyContext();
 			ImGui::DestroyContext();
 			m_DX9Window.CleanupDeviceD3D();
 		}

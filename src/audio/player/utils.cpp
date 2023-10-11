@@ -88,24 +88,24 @@ namespace uaudio
 				return (strncmp(a_ChunkID1, a_ChunkID2, uaudio::wave_reader::CHUNK_ID_SIZE) == 0);
 			}
 
-			float* ToSample(unsigned char* data, size_t buffersize, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels)
+			float* ToSample(unsigned char* data, size_t buffersize, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels, size_t numSamples)
 			{
 				unsigned char* pData = data;
-				size_t numSamples = buffersize / blockAlign;
+				size_t realNumSamples = buffersize / blockAlign;
 
-				float* samples = reinterpret_cast<float*>(malloc(numSamples * 4));
+				size_t div = realNumSamples / numSamples;
+
+				float* samples = reinterpret_cast<float*>(malloc(numSamples * sizeof(float)));
 				if (!samples)
 					return nullptr;
+
 				if (bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_16 && channels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
 				{
 					for (size_t i = 0; i < numSamples; i++)
 					{
 						int16_t left = *(int16_t*)pData;
-						pData += 2;
-						int16_t right = *(int16_t*)pData;
-						pData += 2;
-						float together = static_cast<float>(left + right);
-						samples[i] = together / INT16_MAX;
+						pData += div * (sizeof(int16_t) + sizeof(int16_t));
+						samples[i] = static_cast<float>(left) / 32768.0f;
 					}
 				}
 
