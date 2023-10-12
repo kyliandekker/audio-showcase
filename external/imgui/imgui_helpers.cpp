@@ -656,8 +656,8 @@ namespace ImGui
                 ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
                 ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
                 ImPlot::SetupAxisLimits(ImAxis_Y1, -1.25f, 1.25f, ImPlotCond_Always);
-                ImPlot::SetupAxisLimits(ImAxis_X1, 0, numSamples);
-                ImPlot::PlotLine("Waveform", samples, numSamples);
+                ImPlot::SetupAxisLimits(ImAxis_X1, 0, static_cast<double>(numSamples));
+                ImPlot::PlotLine("Waveform", samples, static_cast<int>(numSamples));
             }
 
             bool isHovered = ImGui::IsItemHovered();
@@ -675,7 +675,7 @@ namespace ImGui
 
                 mousePositionRelative.x = std::clamp(mousePositionRelative.x, 0.0f, plotSize.x);
 
-                pos = max_pos / plotSize.x * (mousePositionRelative.x - imPlotStyle.PlotPadding.x);
+                pos = max_pos / static_cast<int>(plotSize.x) * static_cast<int>(mousePositionRelative.x - imPlotStyle.PlotPadding.x);
             }
 
             ImVec2 plotSize = ImPlot::GetPlotSize();

@@ -74,7 +74,6 @@ namespace uaudio
 				return;
 
 			sound->m_Mutex.lock();
-
 			uaudio::wave_reader::FMT_Chunk fmt_chunk;
 			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
 			if (UAUDIOWAVEREADERFAILED(result))
@@ -92,13 +91,13 @@ namespace uaudio
 				sound->m_Mutex.unlock();
 				return;
 			}
+			sound->m_Mutex.unlock();
 
 			float fPos = 0;
 			presult = channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_POS, fPos);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve playback position from channel %i.", a_Index);
-				sound->m_Mutex.unlock();
 				return;
 			}
 			int pos = static_cast<uint32_t>(fPos);
@@ -108,7 +107,6 @@ namespace uaudio
 			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve playback position from channel %i.", a_Index);
-				sound->m_Mutex.unlock();
 				return;
 			}
 
@@ -117,7 +115,6 @@ namespace uaudio
 			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel %i is currently playing.", a_Index);
-				sound->m_Mutex.unlock();
 				return;
 			}
 
@@ -126,13 +123,14 @@ namespace uaudio
 			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve audio system buffer size.");
-				sound->m_Mutex.unlock();
 				return;
 			}
 
 			uint32_t final_pos_slider = isInUse ? data_chunk.chunkSize : 5000;
 
+			sound->m_Mutex.lock();
 			std::string sound_hash_id = "##Player_sound_" + std::to_string(sound->m_Hash) + "_";
+			sound->m_Mutex.unlock();
 			std::string graph_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph";
 
 			if (isInUse)
@@ -141,7 +139,9 @@ namespace uaudio
 				if (ImGui::CollapsingHeader(channel_name_text.c_str()))
 				{
 					ImGui::Indent(IMGUI_INDENT);
+					sound->m_Mutex.lock();
 					ShowValue("Currently playing: ", sound->m_Name.c_str());
+					sound->m_Mutex.unlock();
 					ShowValue("Progress: ", std::string(
 						uaudio::player::utils::FormatDuration(fPos / static_cast<float>(fmt_chunk.byteRate), false) +
 						"/" +
@@ -159,8 +159,6 @@ namespace uaudio
 					std::string eject_button_text = std::string(EJECT) + " Eject Channel##Eject_Channel" + std::to_string(a_Index);
 					if (ImGui::Button(eject_button_text.c_str(), ImVec2(120, 25)))
 					{
-						sound->m_Mutex.unlock();
-
 						uaudio::player::audioSystem.m_Update.lock();
 						channel->Stop();
 						channel->RemoveSound();
@@ -172,24 +170,20 @@ namespace uaudio
 				}
 			}
 
-			sound->m_Mutex.unlock();
-
 			ImGui::Unindent(IMGUI_INDENT);
 			size_t new_pos = ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_Samples, graph_name.c_str());
 			ImGui::Indent(IMGUI_INDENT);
-
-			sound->m_Mutex.lock();
 
 			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x, ImGui::GetCursorPos().y - style.ItemSpacing.y));
 
 			if (new_pos != pos)
 			{
-				uint32_t left_over = new_pos % static_cast<int>(buffersize);
-				uint32_t final_new_pos = new_pos - left_over;
+				uint32_t left_over = static_cast<uint32_t>(new_pos) % buffersize;
+				uint32_t final_new_pos = static_cast<uint32_t>(new_pos) - left_over;
 				channel->SetPos(final_new_pos);
 
 				if (!isPlaying)
-					channel->PlayRanged(final_new_pos, static_cast<int>(buffersize));
+					channel->PlayRanged(final_new_pos, static_cast<uint32_t>(buffersize));
 			}
 
 			bool active = false;
@@ -197,7 +191,6 @@ namespace uaudio
 			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel %i is active.", a_Index);
-				sound->m_Mutex.unlock();
 				return;
 			}
 			std::string on_off_button_text = "##OnOff_Channel_" + std::to_string(a_Index);
@@ -210,7 +203,6 @@ namespace uaudio
 			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume from panning %i.", a_Index);
-				sound->m_Mutex.unlock();
 				return;
 			}
 			std::string panning_tooltip_text = std::string(PANNING) + " Panning (affects channel " + std::to_string(a_Index) + ")";
@@ -224,7 +216,6 @@ namespace uaudio
 			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume from channel %i.", a_Index);
-				sound->m_Mutex.unlock();
 				return;
 			}
 			std::string volume_tooltip_text = std::string(VOLUME_UP) + " Volume (affects channel " + std::to_string(a_Index) + ")";
@@ -305,7 +296,6 @@ namespace uaudio
 			if (UAUDIOPLAYERFAILED(presult))
 			{
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel %i has looping turned on.", a_Index);
-				sound->m_Mutex.unlock();
 				return;
 			}
 			std::string loop_button_text = std::string(RETRY) + "##Loop_Channel_" + std::to_string(a_Index);
@@ -313,7 +303,6 @@ namespace uaudio
 				channel->SetLooping(isLooping);
 
 			ImGui::Separator();
-			sound->m_Mutex.unlock();
 		}
 	}
 }

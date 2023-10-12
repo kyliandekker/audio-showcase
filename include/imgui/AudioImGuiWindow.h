@@ -44,7 +44,7 @@ namespace uaudio
 			std::string m_PopUpTitle;
 			std::mutex m_RenderMutex;
 		private:
-			HWND m_Hwnd;
+			HWND m_Hwnd = nullptr;
 			WNDCLASSEX m_Wc;
 			bool m_Enabled = true;
 

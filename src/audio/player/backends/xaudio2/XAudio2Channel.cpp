@@ -135,6 +135,9 @@ namespace uaudio
 					m_Sound->Read(a_StartPos, a_Size, data);
 
 					unsigned char* new_data = reinterpret_cast<unsigned char*>(malloc(a_Size));
+					if (new_data == nullptr)
+						return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+
 					memcpy(new_data, data, a_Size);
 
 					// Make sure the new pos is the current pos.
