@@ -191,7 +191,7 @@ namespace uaudio
 			colors = pStyle.Colors;
 			colors[ImPlotCol_Line] = ImVec4(1.00f, 0.66f, 0.18f, 0.24f);
 
-			pStyle.PlotPadding = ImVec2(0, 0);
+			pStyle.PlotPadding = ImVec2(pStyle.PlotPadding.x, 0);
 			pStyle.LabelPadding = ImVec2(0, 0);
 			pStyle.LegendPadding = ImVec2(0, 0);
 			pStyle.LegendInnerPadding = ImVec2(0, 0);

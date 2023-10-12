@@ -625,7 +625,7 @@ namespace ImGui
         return value_changed;
     }
 
-    size_t BeginPlayPlot(int pos, int max_pos, size_t numSamples, const float* samples, const char* title_id, float width, float height)
+    bool BeginPlayPlot(size_t& pos, int max_pos, size_t numSamples, const float* samples, const char* title_id, float width, float height)
     {
         if (ImPlot::BeginPlot(title_id, ImVec2(width, height), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
         {
@@ -634,7 +634,7 @@ namespace ImGui
             {
                 ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
                 ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
-                ImPlot::SetupAxisLimits(ImAxis_Y1, -1.25f, 1.25f, ImPlotCond_Always);
+                ImPlot::SetupAxisLimits(ImAxis_Y1, -1.f, 1.f, ImPlotCond_Always);
                 ImPlot::SetupAxisLimits(ImAxis_X1, 0, static_cast<double>(numSamples));
                 ImPlot::PlotLine("Waveform", samples, static_cast<int>(numSamples));
             }
@@ -652,12 +652,13 @@ namespace ImGui
                 ImVec2 plotPos = ImPlot::GetPlotPos();
                 ImVec2 plotSize = ImPlot::GetPlotSize();
 
-                mousePositionRelative.x = std::clamp(mousePositionRelative.x, 0.0f, plotSize.x);
+                mousePositionRelative.x = std::clamp(mousePositionRelative.x, 0.0f, plotSize.x + imPlotStyle.PlotPadding.x);
 
-                pos = max_pos / static_cast<int>(plotSize.x) * static_cast<int>(mousePositionRelative.x - imPlotStyle.PlotPadding.x);
+                pos = max_pos / static_cast<int>(plotSize.x + imPlotStyle.PlotPadding.x) * static_cast<int>(mousePositionRelative.x - imPlotStyle.PlotPadding.x);
             }
 
             ImVec2 plotSize = ImPlot::GetPlotSize();
+            plotSize = ImVec2(plotSize.x + imPlotStyle.PlotPadding.x, plotSize.y);
             ImVec2 plotPos = ImPlot::GetPlotPos();
 
             float maxX = plotSize.x;
@@ -672,7 +673,7 @@ namespace ImGui
 
             ImPlot::EndPlot();
         }
-        return pos;
+        return false;
     }
 
     void ImGui::UvMeter(char const* label, ImVec2 const& size, int* value, int v_min, int v_max, int steps, int* stack, int* count, float background, std::map<float, float> segment)

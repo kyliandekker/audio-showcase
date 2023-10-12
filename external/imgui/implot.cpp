@@ -2351,7 +2351,7 @@ void SetupFinish() {
     }
 
     // canvas/axes bb
-    plot.CanvasRect = ImRect(plot.FrameRect.Min + gp.Style.PlotPadding, plot.FrameRect.Max - gp.Style.PlotPadding);
+    plot.CanvasRect = ImRect(plot.FrameRect.Min + gp.Style.PlotPadding, plot.FrameRect.Max);
     plot.AxesRect   = plot.FrameRect;
 
     // outside legend adjustments

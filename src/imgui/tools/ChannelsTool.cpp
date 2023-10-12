@@ -173,9 +173,10 @@ namespace uaudio
 
 			ImGui::Unindent(IMGUI_INDENT);
 			float height = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 50 : 100;
-			float width = 25;
+			float width = 20;
+			size_t new_pos = pos;
 			float ex_width = ImGui::GetWindowSize().x - width - 15;
-			size_t new_pos = ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_LeftSamples, graph_name.c_str(), ex_width, height);
+			ImGui::BeginPlayPlot(new_pos, final_pos_slider, sound->m_NumSamples, sound->m_LeftSamples, graph_name.c_str(), ex_width, height);
 
 			ImGui::SameLine();
 
@@ -190,7 +191,7 @@ namespace uaudio
 			}
 
 			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
-				ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_RightSamples, graph_name_2.c_str(), ex_width, height);
+				ImGui::BeginPlayPlot(new_pos, final_pos_slider, sound->m_NumSamples, sound->m_RightSamples, graph_name_2.c_str(), ex_width, height);
 			ImGui::Indent(IMGUI_INDENT);
 
 			if (new_pos != pos)
