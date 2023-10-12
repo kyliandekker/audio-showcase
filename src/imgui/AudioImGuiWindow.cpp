@@ -117,7 +117,7 @@ namespace uaudio
 			colors[ImGuiCol_PopupBg] = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
 			colors[ImGuiCol_Border] = ImVec4(0.19f, 0.19f, 0.19f, 0.29f);
 			colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.24f);
-			colors[ImGuiCol_FrameBg] = ImVec4(1.00f, 0.66f, 0.18f, 0.54f);
+			colors[ImGuiCol_FrameBg] = ImVec4(1.0f, 0.8f, 0.18f, 1.0f);
 			colors[ImGuiCol_FrameBgHovered] = ImVec4(0.19f, 0.19f, 0.19f, 0.54f);
 			colors[ImGuiCol_FrameBgActive] = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
 			colors[ImGuiCol_TitleBg] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
@@ -189,7 +189,7 @@ namespace uaudio
 			ImPlotStyle& pStyle = ImPlot::GetStyle();
 
 			colors = pStyle.Colors;
-			colors[ImPlotCol_Line] = ImVec4(1.00f, 0.66f, 0.18f, 0.24f);
+			colors[ImPlotCol_Line] = ImVec4(1.00f, 0.66f, 0.18f, 0.7f);
 
 			pStyle.PlotPadding = ImVec2(pStyle.PlotPadding.x, 0);
 			pStyle.LabelPadding = ImVec2(0, 0);

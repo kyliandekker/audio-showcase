@@ -625,7 +625,7 @@ namespace ImGui
         return value_changed;
     }
 
-    bool BeginPlayPlot(size_t& pos, int max_pos, size_t numSamples, const float* samples, const char* title_id, float width, float height)
+    bool BeginPlayPlot(size_t& pos, int max_pos, size_t numSamples, const float* samples, const char* title_id, float width, float height, size_t buffersize)
     {
         if (ImPlot::BeginPlot(title_id, ImVec2(width, height), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
         {
@@ -655,6 +655,9 @@ namespace ImGui
                 mousePositionRelative.x = std::clamp(mousePositionRelative.x, 0.0f, plotSize.x + imPlotStyle.PlotPadding.x);
 
                 pos = max_pos / static_cast<int>(plotSize.x + imPlotStyle.PlotPadding.x) * static_cast<int>(mousePositionRelative.x - imPlotStyle.PlotPadding.x);
+
+                uint32_t left_over = static_cast<uint32_t>(pos) % buffersize;
+                pos = static_cast<uint32_t>(pos) - left_over;
             }
 
             ImVec2 plotSize = ImPlot::GetPlotSize();

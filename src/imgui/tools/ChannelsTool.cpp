@@ -131,8 +131,6 @@ namespace uaudio
 			sound->m_Mutex.lock();
 			std::string sound_hash_id = "##Player_sound_" + std::to_string(sound->m_Hash) + "_";
 			sound->m_Mutex.unlock();
-			std::string graph_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph";
-			std::string graph_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph_2";
 
 			if (isInUse)
 			{
@@ -170,40 +168,6 @@ namespace uaudio
 					ImGui::Unindent(IMGUI_INDENT);
 				}
 			}
-
-			ImGui::Unindent(IMGUI_INDENT);
-			float height = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 50 : 100;
-			float width = 20;
-			size_t new_pos = pos;
-			float ex_width = ImGui::GetWindowSize().x - width - 15;
-			ImGui::BeginPlayPlot(new_pos, final_pos_slider, sound->m_NumSamples, sound->m_LeftSamples, graph_name.c_str(), ex_width, height);
-
-			ImGui::SameLine();
-
-			int left_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11);
-			int right_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11, false);
-			float meter_width = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 5.25f : 12.5f;
-			ImGui::UvMeter("Test", ImVec2(meter_width, 90), &left_val, 0, 11, 11);
-			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
-			{
-				ImGui::SameLine();
-				ImGui::UvMeter("Test", ImVec2(meter_width, 90), &right_val, 0, 11, 11);
-			}
-
-			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
-				ImGui::BeginPlayPlot(new_pos, final_pos_slider, sound->m_NumSamples, sound->m_RightSamples, graph_name_2.c_str(), ex_width, height);
-			ImGui::Indent(IMGUI_INDENT);
-
-			if (new_pos != pos)
-			{
-				uint32_t left_over = static_cast<uint32_t>(new_pos) % buffersize;
-				uint32_t final_new_pos = static_cast<uint32_t>(new_pos) - left_over;
-				channel->SetPos(final_new_pos);
-
-				if (!isPlaying)
-					channel->PlayRanged(final_new_pos, static_cast<uint32_t>(buffersize));
-			}
-
 			bool active = false;
 			presult = channel->IsActive(active);
 			if (UAUDIOPLAYERFAILED(presult))
@@ -211,6 +175,47 @@ namespace uaudio
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel %i is active.", a_Index);
 				return;
 			}
+
+			if (!active)
+				ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.00f, 0.66f, 0.18f, 0.05f));
+
+			ImGui::Unindent(IMGUI_INDENT);
+			float height = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 50 : 100;
+			float width = 25;
+			size_t new_pos = pos;
+			float ex_width = ImGui::GetWindowSize().x - width - 15;
+			std::string graph_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph_01";
+			std::string graph_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph_02";
+			ImGui::BeginPlayPlot(new_pos, final_pos_slider, sound->m_NumSamples, sound->m_LeftSamples, graph_name.c_str(), ex_width, height, buffersize);
+
+			ImGui::SameLine();
+
+			int left_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11);
+			int right_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11, false);
+			float meter_width = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 5.25f : 12.5f;
+			std::string meter_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_meter_01";
+			std::string meter_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_meter_02";
+			ImGui::UvMeter(meter_name.c_str(), ImVec2(meter_width, 90), &left_val, 0, 11, 11);
+			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
+			{
+				ImGui::SameLine();
+				ImGui::UvMeter(meter_name_2.c_str(), ImVec2(meter_width, 90), &right_val, 0, 11, 11);
+			}
+
+			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
+				ImGui::BeginPlayPlot(new_pos, final_pos_slider, sound->m_NumSamples, sound->m_RightSamples, graph_name_2.c_str(), ex_width, height, buffersize);
+			if (!active)
+				ImPlot::PopStyleColor();
+			ImGui::Indent(IMGUI_INDENT);
+
+			if (new_pos != pos)
+			{
+				channel->SetPos(new_pos);
+
+				if (!isPlaying)
+					channel->PlayRanged(new_pos, static_cast<uint32_t>(buffersize));
+			}
+
 			std::string on_off_button_text = "##OnOff_Channel_" + std::to_string(a_Index);
 			if (ImGui::OnOffButton(on_off_button_text.c_str(), &active, ImVec2(15, 15)))
 				channel->SetActive(active);
