@@ -252,9 +252,7 @@ namespace uaudio
 						if (m_ChunkId.chunk_id == chunk.chunk_id)
 							canAdd = false;
 					if (canAdd)
-					{
 						m_ChunkIds.push_back(chunk);
-					}
 				}
 				ImGui::Unindent(IMGUI_INDENT);
 			}

@@ -83,13 +83,13 @@ namespace ImGui
 
         draw_list->AddCircleFilled(center, radius_outer * 0.7f, GetColorU32(ImGuiCol_Button), 16);
         draw_list->PathArcTo(center, radius_outer, ANGLE_MIN, ANGLE_MAX, 16);
-        draw_list->PathStroke(GetColorU32(ImGuiCol_FrameBg), false, 3.0f);
+        draw_list->PathStroke(GetColorU32(ImVec4(0.25f, 0.25f, 0.25f, 1.0f)), false, 3.0f);
         draw_list->AddLine(
             ImVec2(center.x + angle_cos * (radius_outer * 0.35f), center.y + angle_sin * (radius_outer * 0.35f)),
             ImVec2(center.x + angle_cos * (radius_outer * 0.7f), center.y + angle_sin * (radius_outer * 0.7f)),
             GetColorU32(ImGuiCol_SliderGrabActive), 2.0f);
         draw_list->PathArcTo(center, radius_outer, ANGLE_MIN, angle + 0.02f, 16);
-        draw_list->PathStroke(GetColorU32(ImGuiCol_SliderGrabActive), false, 3.0f);
+        draw_list->PathStroke(GetColorU32(ImGuiCol_FrameBg), false, 3.0f);
 
         if (showLabel)
         {
