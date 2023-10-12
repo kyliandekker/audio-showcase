@@ -169,18 +169,18 @@ namespace uaudio
 					ImGui::EndCombo();
 				}
 
-				const std::string bits_per_sample_text = "Bits per sample";
-				ImGui::Text("%s", bits_per_sample_text.c_str());
-				if (ImGui::BeginCombo("##Bits_Per_Sample", m_BitsPerSampleTextOptions[m_SelectedBitsPerSample], ImGuiComboFlags_PopupAlignLeft))
-				{
-					for (uint16_t n = 0; n < static_cast<uint16_t>(m_BitsPerSampleOptions.size()); n++)
-					{
-						const bool is_selected = n == m_SelectedBitsPerSample;
-						if (ImGui::Selectable(m_BitsPerSampleTextOptions[n], is_selected))
-							m_SelectedBitsPerSample = n;
-					}
-					ImGui::EndCombo();
-				}
+				//const std::string bits_per_sample_text = "Bits per sample";
+				//ImGui::Text("%s", bits_per_sample_text.c_str());
+				//if (ImGui::BeginCombo("##Bits_Per_Sample", m_BitsPerSampleTextOptions[m_SelectedBitsPerSample], ImGuiComboFlags_PopupAlignLeft))
+				//{
+				//	for (uint16_t n = 0; n < static_cast<uint16_t>(m_BitsPerSampleOptions.size()); n++)
+				//	{
+				//		const bool is_selected = n == m_SelectedBitsPerSample;
+				//		if (ImGui::Selectable(m_BitsPerSampleTextOptions[n], is_selected))
+				//			m_SelectedBitsPerSample = n;
+				//	}
+				//	ImGui::EndCombo();
+				//}
 
 				const std::string backend_text = "Audio Backend";
 				ImGui::Text("%s", backend_text.c_str());
@@ -239,12 +239,22 @@ namespace uaudio
 				{
 					bool canAdd = true;
 					chunk_select chunk = { "", false, true };
-					chunk.chunk_id = m_SelectedChunkName;
+
+					std::string test = std::string(m_SelectedChunkName);
+					if (test.empty())
+						return;
+
+					for (size_t i = 0; i < 4 - test.size(); i++)
+						test += " ";
+
+					chunk.chunk_id = test.c_str();
 					for (auto& m_ChunkId : m_ChunkIds)
 						if (m_ChunkId.chunk_id == chunk.chunk_id)
 							canAdd = false;
 					if (canAdd)
+					{
 						m_ChunkIds.push_back(chunk);
+					}
 				}
 				ImGui::Unindent(IMGUI_INDENT);
 			}
