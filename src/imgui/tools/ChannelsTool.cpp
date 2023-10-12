@@ -276,7 +276,7 @@ namespace uaudio
 			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x, ImGui::GetCursorPos().y - 5));
 
 			ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 25.0f);
-			ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+			ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_Slider);
 			ImGui::PushStyleColor(ImGuiCol_Button, color);
 			color = ImVec4(color.x - 0.05f, color.y - 0.05f, color.z, color.w);
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, color);

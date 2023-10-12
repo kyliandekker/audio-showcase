@@ -89,7 +89,7 @@ namespace ImGui
             ImVec2(center.x + angle_cos * (radius_outer * 0.7f), center.y + angle_sin * (radius_outer * 0.7f)),
             GetColorU32(ImGuiCol_SliderGrabActive), 2.0f);
         draw_list->PathArcTo(center, radius_outer, ANGLE_MIN, angle + 0.02f, 16);
-        draw_list->PathStroke(GetColorU32(ImGuiCol_FrameBg), false, 3.0f);
+        draw_list->PathStroke(GetColorU32(ImGuiCol_Slider), false, 3.0f);
 
         if (showLabel)
         {
@@ -219,8 +219,8 @@ namespace ImGui
         bool value_changed = false;
         bool is_clicked = IsItemClicked();
 
-        draw_list->AddCircleFilled(center, radius_outer * 0.35f, GetColorU32(ImGuiCol_FrameBg), 16);
-        draw_list->AddCircleFilled(center, radius_outer * 0.3f, *p_value ? GetColorU32(ImGuiCol_FrameBg) : GetColorU32(ImGuiCol_Button), 16);
+        draw_list->AddCircleFilled(center, radius_outer * 0.35f, GetColorU32(ImGuiCol_Slider), 16);
+        draw_list->AddCircleFilled(center, radius_outer * 0.3f, *p_value ? GetColorU32(ImGuiCol_Slider) : GetColorU32(ImGuiCol_Button), 16);
 
         if (is_clicked)
         {
@@ -287,7 +287,7 @@ namespace ImGui
 
         draw_list->AddCircleFilled(center, radius_outer * 0.7f, GetColorU32(ImGuiCol_Button), 16);
         draw_list->PathArcTo(center, radius_outer, ANGLE_MIN, ANGLE_MAX, 16);
-        draw_list->PathStroke(GetColorU32(ImGuiCol_FrameBg), false, 3.0f);
+        draw_list->PathStroke(GetColorU32(ImGuiCol_Slider), false, 3.0f);
         draw_list->AddLine(
             ImVec2(center.x + angle_cos * (radius_outer * 0.35f), center.y + angle_sin * (radius_outer * 0.35f)),
             ImVec2(center.x + angle_cos * (radius_outer * 0.7f), center.y + angle_sin * (radius_outer * 0.7f)),
@@ -380,7 +380,7 @@ namespace ImGui
 
     bool CheckboxButton(const char* label, bool* p_value, const ImVec2& size_arg)
     {
-        ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+        ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_Slider);
         ImVec4 color_inactive = ImVec4(0, 0, 0, 0);
         if (*p_value)
             ImGui::PushStyleColor(ImGuiCol_Button, color);
@@ -422,7 +422,7 @@ namespace ImGui
         const ImGuiStyle& style = g.Style;
 
         // Draw frame
-        RenderFrame(frame_bb.Min, frame_bb.Max, GetColorU32(ImGuiCol_FrameBg), true, style.FrameRounding);
+        RenderFrame(frame_bb.Min, frame_bb.Max, GetColorU32(ImGuiCol_Slider), true, style.FrameRounding);
 
         const bool is_non_linear = (power < 1.0f - 0.00001f) || (power > 1.0f + 0.00001f);
         const bool is_horizontal = (flags & ImGuiSliderFlags_Vertical) == 0;
