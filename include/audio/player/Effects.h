@@ -71,7 +71,7 @@ namespace uaudio
 			a_DataBuffer = reinterpret_cast<unsigned char*>(result);
 
 			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-			LOGF(logger::LOGSEVERITY_INFO, "(Volume) Time difference = %llu [ns].", std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count());
+			//LOGF(logger::LOGSEVERITY_INFO, "(Volume) Time difference = %llu [ns].", std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count());
 		}
 
 		template <class T>
@@ -149,10 +149,16 @@ namespace uaudio
 					result[i + 2] = static_cast<T>(fTemp[2]);
 					result[i + 3] = static_cast<T>(fTemp[3]);
 				}
-				for (;i < (a_Size / sizeof(T)); i += 2)
+				for (; i < leftOver; i++)
 				{
-					result[i] = static_cast<T>(static_cast<float>(result[i]) * left);
-					result[i + 1] = static_cast<T>(static_cast<float>(result[i + 1]) * right);
+
+					for (uint32_t j = 0; j < size - i; j += 2)
+					{
+						result[i + j] = static_cast<T>(static_cast<float>(result[i + j]) * left);
+						result[i + j + 1] = static_cast<T>(static_cast<float>(result[i + j + 1]) * right);
+					}
+
+					a_DataBuffer = reinterpret_cast<unsigned char*>(result);
 				}
 			}
 #pragma endregion SIMD
