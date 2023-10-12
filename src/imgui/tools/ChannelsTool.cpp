@@ -178,9 +178,9 @@ namespace uaudio
 			size_t new_pos = ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_Samples, graph_name.c_str());
 			ImGui::Indent(IMGUI_INDENT);
 
-			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x, ImGui::GetCursorPos().y - style.ItemSpacing.y));
-
 			sound->m_Mutex.lock();
+
+			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x, ImGui::GetCursorPos().y - style.ItemSpacing.y));
 
 			if (new_pos != pos)
 			{
