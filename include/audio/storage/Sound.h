@@ -22,7 +22,8 @@ namespace uaudio
 			std::string m_FullName;
 			uaudio::player::Hash m_Hash = HASH_INVALID;
 			uaudio::wave_reader::ChunkCollection* m_ChunkCollection = nullptr;
-			float* m_Samples = nullptr;
+			float* m_LeftSamples = nullptr;
+			float* m_RightSamples = nullptr;
 			size_t m_NumSamples = 0;
 			size_t m_RNumSamples = 0;
 			std::mutex m_Mutex;

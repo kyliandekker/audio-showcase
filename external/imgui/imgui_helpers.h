@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <map>
 
 namespace ImGui
 {
@@ -47,8 +48,6 @@ namespace ImGui
         unsigned int nameCount,
         char const *tooltip);
 
-    void UvMeter(char const *label, ImVec2 const &size, int *value, int v_min, int v_max);
-
     void TextBox(
         char const *label,
         ImVec2 const &size);
@@ -58,7 +57,12 @@ namespace ImGui
 
 	bool RangeSliderFloat(const char *label, float *v1, float *v2, float v_min, float v_max, const char *display_format = "(%.3f, %.3f)", float power = 1.0f);
 
-    size_t BeginPlayPlot(int pos, int max_pos, size_t numSamples, const float* samples, const char* title_id);
+    size_t BeginPlayPlot(int pos, int max_pos, size_t numSamples, const float* samples, const char* title_id, float width, float height);
+
+    void UvMeter(char const* label, ImVec2 const& size, int* value, int v_min, int v_max, int steps = 10, int* stack = nullptr, int* count = nullptr, float background = 0.f, std::map<float, float> segment = {});
+    void UvMeter(char const* label, ImVec2 const& size, float* value, float v_min, float v_max, int steps = 10, float* stack = nullptr, int* count = nullptr, float background = 0.f, std::map<float, float> segment = {});
+    void UvMeter(ImDrawList* draw_list, char const* label, ImVec2 const& size, int* value, int v_min, int v_max, int steps = 10, int* stack = nullptr, int* count = nullptr, float background = 0.f, std::map<float, float> segment = {});
+    void UvMeter(ImDrawList* draw_list, char const* label, ImVec2 const& size, float* value, float v_min, float v_max, int steps = 10, float* stack = nullptr, int* count = nullptr, float background = 0.f, std::map<float, float> segment = {});
 
 #endif // IMGUI_HELPERS_H
 }

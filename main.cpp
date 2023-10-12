@@ -90,7 +90,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 		WS_EX_CLIENTEDGE,
 		(LPCWSTR) g_szClassName,
 		L"Audio Showcase",
-		WS_OVERLAPPEDWINDOW,
+		WS_MINIMIZEBOX | WS_SYSMENU,
 		CW_USEDEFAULT, CW_USEDEFAULT, 1080, 720,
 		NULL, NULL, hInstance, NULL);
 

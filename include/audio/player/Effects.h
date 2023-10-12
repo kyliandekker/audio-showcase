@@ -60,10 +60,9 @@ namespace uaudio
 				}
 				for (; i < leftOver; i++)
 				{
-					T* result = reinterpret_cast<T*>(a_DataBuffer);
 
-					for (uint32_t i = 0; i < a_Size / sizeof(T); i++)
-						result[i] = static_cast<T>(static_cast<float>(result[i]) * a_Volume);
+					for (uint32_t j = 0; j < size - i; j++)
+						result[i + j] = static_cast<T>(static_cast<float>(result[i + j]) * a_Volume);
 
 					a_DataBuffer = reinterpret_cast<unsigned char*>(result);
 				}

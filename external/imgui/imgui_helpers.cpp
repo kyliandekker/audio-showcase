@@ -220,7 +220,7 @@ namespace ImGui
         bool is_clicked = IsItemClicked();
 
         draw_list->AddCircleFilled(center, radius_outer * 0.35f, GetColorU32(ImGuiCol_FrameBg), 16);
-        draw_list->AddCircleFilled(center, radius_outer * 0.3f, *p_value ? GetColorU32(ImGuiCol_Button) : GetColorU32(ImGuiCol_FrameBg), 16);
+        draw_list->AddCircleFilled(center, radius_outer * 0.3f, *p_value ? GetColorU32(ImGuiCol_FrameBg) : GetColorU32(ImGuiCol_Button), 16);
 
         if (is_clicked)
         {
@@ -367,27 +367,6 @@ namespace ImGui
         ShowTooltipOnHover(tooltip == nullptr ? label : tooltip);
 
         return value_changed;
-    }
-
-    void UvMeter(char const* label, ImVec2 const& size, int* value, int v_min, int v_max)
-    {
-        ImDrawList* draw_list = GetWindowDrawList();
-
-        ImVec2 pos = GetCursorScreenPos();
-
-        InvisibleButton(label, size);
-
-        float stepHeight = (v_max - v_min + 1) / size.y;
-        auto y = pos.y + size.y;
-        auto hue = 0.4f;
-        auto sat = 0.6f;
-        for (int i = v_min; i <= v_max; i += 5)
-        {
-            hue = 0.4f - (static_cast<float>(i) / static_cast<float>(v_max - v_min)) / 2.0f;
-            sat = (*value < i ? 0.0f : 0.6f);
-            draw_list->AddRectFilled(ImVec2(pos.x, y), ImVec2(pos.x + size.x, y - (stepHeight * 4)), static_cast<ImU32>(ImColor::HSV(hue, sat, 0.6f)));
-            y = pos.y + size.y - (i * stepHeight);
-        }
     }
 
     void TextBox(char const* label, ImVec2 const& size)
@@ -646,9 +625,9 @@ namespace ImGui
         return value_changed;
     }
 
-    size_t BeginPlayPlot(int pos, int max_pos, size_t numSamples, const float* samples, const char* title_id)
+    size_t BeginPlayPlot(int pos, int max_pos, size_t numSamples, const float* samples, const char* title_id, float width, float height)
     {
-        if (ImPlot::BeginPlot(title_id, ImVec2(-1, 100), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
+        if (ImPlot::BeginPlot(title_id, ImVec2(width, height), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
         {
             ImDrawList* drw = ImPlot::GetPlotDrawList();
             if (samples != nullptr)
@@ -694,5 +673,104 @@ namespace ImGui
             ImPlot::EndPlot();
         }
         return pos;
+    }
+
+    void ImGui::UvMeter(char const* label, ImVec2 const& size, int* value, int v_min, int v_max, int steps, int* stack, int* count, float background, std::map<float, float> segment)
+    {
+        UvMeter(ImGui::GetWindowDrawList(), label, size, value, v_min, v_max, steps, stack, count, background, segment);
+    }
+
+    void ImGui::UvMeter(ImDrawList* draw_list, char const* label, ImVec2 const& size, int* value, int v_min, int v_max, int steps, int* stack, int* count, float background, std::map<float, float> segment)
+    {
+        float fvalue = (float)*value;
+        float* fstack = nullptr;
+        float _f = 0.f;
+        if (stack) { fstack = &_f; *fstack = (float)*stack; }
+        UvMeter(draw_list, label, size, &fvalue, (float)v_min, (float)v_max, steps, fstack, count, background, segment);
+        *value = (int)fvalue;
+        if (stack) *stack = (int)*fstack;
+    }
+
+    void ImGui::UvMeter(char const* label, ImVec2 const& size, float* value, float v_min, float v_max, int steps, float* stack, int* count, float background, std::map<float, float> segment)
+    {
+        UvMeter(ImGui::GetWindowDrawList(), label, size, value, v_min, v_max, steps, stack, count, background, segment);
+    }
+
+    void ImGui::UvMeter(ImDrawList* draw_list, char const* label, ImVec2 const& size, float* value, float v_min, float v_max, int steps, float* stack, int* count, float background, std::map<float, float> segment)
+    {
+        ImVec2 pos = ImGui::GetCursorScreenPos();
+
+        ImGui::InvisibleButton(label, ImVec2(size.x, size.y / 2));
+        float steps_size = (v_max - v_min) / (float)steps;
+        if (stack && count)
+        {
+            if (*value > *stack)
+            {
+                *stack = *value;
+                *count = 0;
+            }
+            else
+            {
+                *(count) += 1;
+                if (*count > 10)
+                {
+                    *stack -= steps_size / 2;
+                    if (*stack < v_min) *stack = v_min;
+                }
+            }
+        }
+
+        if (size.y > size.x)
+        {
+            float stepHeight = size.y / (v_max - v_min + 1);
+            auto y = pos.y + size.y;
+            auto hue = 0.4f;
+            auto sat = 1.0f;
+            auto lum = 0.6f;
+            for (float i = v_min; i <= v_max; i += steps_size)
+            {
+                if (segment.empty())
+                    hue = 0.4f - (i / (v_max - v_min)) / 2.0f;
+                else
+                {
+                    for (const auto value : segment)
+                    {
+                        if (i <= value.first)
+                        {
+                            hue = value.second;
+                            break;
+                        }
+                    }
+                }
+                sat = (*value < i ? 0.8 : 1.0f);
+                lum = (*value < i ? background : 1.0f);
+                draw_list->AddRectFilled(ImVec2(pos.x, y), ImVec2(pos.x + size.x, y - (stepHeight * steps_size - 1)), static_cast<ImU32>(ImColor::HSV(hue, sat, lum)));
+                y = pos.y + size.y - (i * stepHeight);
+            }
+            if (stack && count)
+            {
+                draw_list->AddLine(ImVec2(pos.x, pos.y + size.y - (*stack * stepHeight)), ImVec2(pos.x + size.x, pos.y + size.y - (*stack * stepHeight)), IM_COL32_WHITE, 2.f);
+            }
+        }
+        else
+        {
+            float stepWidth = size.x / (v_max - v_min + 1);
+            auto x = pos.x;
+            auto hue = 0.4f;
+            auto sat = 0.6f;
+            auto lum = 0.6f;
+            for (float i = v_min; i <= v_max; i += steps_size)
+            {
+                hue = 0.4f - (i / (v_max - v_min)) / 2.0f;
+                sat = (*value < i ? 0.0f : 0.6f);
+                lum = (*value < i ? 0.0f : 0.6f);
+                draw_list->AddRectFilled(ImVec2(x, pos.y), ImVec2(x + (stepWidth * steps_size - 1), pos.y + size.y), static_cast<ImU32>(ImColor::HSV(hue, sat, lum)));
+                x = pos.x + (i * stepWidth);
+            }
+            if (stack && count)
+            {
+                draw_list->AddLine(ImVec2(pos.x + (*stack * stepWidth), pos.y), ImVec2(pos.x + (*stack * stepWidth), pos.y + size.y), IM_COL32_WHITE, 2.f);
+            }
+        }
     }
 }

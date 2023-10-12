@@ -44,6 +44,9 @@ namespace uaudio
 			UAUDIO_PLAYER_RESULT GetPos(TIMEUNIT a_TimeUnit, float& a_Pos) const;
 
 			UAUDIO_PLAYER_RESULT GetSoundBufferSize(uint32_t& a_BufferSize) const;
+
+			unsigned char* m_LastPlayedData = nullptr;
+			size_t m_LastDataSize = 0;
 		protected:
 			void AddEffects(unsigned char* a_Data, uint32_t a_BufferSize);
 

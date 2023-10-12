@@ -125,6 +125,8 @@ namespace uaudio
 						{
 							Pause();
 							SetPos(0);
+							m_LastDataSize = 0;
+							m_LastPlayedData = nullptr;
 							return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 						}
 					}
@@ -145,6 +147,9 @@ namespace uaudio
 
 					// Make sure we add the size of this read buffer to the total size, so that on the next frame we will get the next part of the wave file.
 					m_CurrentPos += a_Size;
+
+					m_LastPlayedData = new_data;
+					m_LastDataSize = a_Size;
 
 					AddEffects(new_data, a_Size);
 					PlayBuffer(new_data, a_Size);

@@ -88,8 +88,11 @@ namespace uaudio
 				return (strncmp(a_ChunkID1, a_ChunkID2, uaudio::wave_reader::CHUNK_ID_SIZE) == 0);
 			}
 
-			float* ToSample(unsigned char* data, size_t buffersize, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels, size_t numSamples)
+			float* ToSample(unsigned char* data, size_t buffersize, uint16_t blockAlign, uint16_t channels, size_t numSamples, bool left)
 			{
+				if (data == nullptr)
+					return nullptr;
+
 				unsigned char* pData = data;
 				size_t realNumSamples = buffersize / blockAlign;
 
@@ -99,17 +102,52 @@ namespace uaudio
 				if (!samples)
 					return nullptr;
 
-				if (bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_16 && channels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
+				for (size_t i = 0; i < numSamples; i++)
 				{
-					for (size_t i = 0; i < numSamples; i++)
+					if (channels == 1)
 					{
 						int16_t left = *(int16_t*)pData;
-						pData += div * (sizeof(int16_t) + sizeof(int16_t));
 						samples[i] = static_cast<float>(left) / 32768.0f;
 					}
+					else
+					{
+						if (left)
+						{
+							int16_t left = *(int16_t*)pData;
+							samples[i] = static_cast<float>(left) / 32768.0f;
+						}
+
+						pData += div * sizeof(int16_t);
+
+						if (!left)
+						{
+							int16_t right = *(int16_t*)pData;
+							samples[i] = static_cast<float>(right) / 32768.0f;
+						}
+					}
+
+					pData += div * sizeof(int16_t);
 				}
 
 				return samples;
+			}
+
+			int GetPeak(unsigned char* data, size_t data_size, uint16_t blockAlign, uint16_t channels, int scale, bool left)
+			{
+				size_t numSamples = data_size / blockAlign;
+
+				unsigned char* pData = data;
+
+				float* samples = ToSample(data, data_size, blockAlign, channels, numSamples, left);
+
+				float highest_value = 0;
+				for (size_t i = 0; i < numSamples; i++)
+					if (samples[i] > highest_value)
+						highest_value = samples[i];
+
+				free(samples);
+
+				return ceil(highest_value * scale);
 			}
 		}
 	}

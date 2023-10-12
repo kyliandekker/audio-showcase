@@ -132,6 +132,7 @@ namespace uaudio
 			std::string sound_hash_id = "##Player_sound_" + std::to_string(sound->m_Hash) + "_";
 			sound->m_Mutex.unlock();
 			std::string graph_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph";
+			std::string graph_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph_2";
 
 			if (isInUse)
 			{
@@ -171,10 +172,26 @@ namespace uaudio
 			}
 
 			ImGui::Unindent(IMGUI_INDENT);
-			size_t new_pos = ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_Samples, graph_name.c_str());
-			ImGui::Indent(IMGUI_INDENT);
+			float height = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 50 : 100;
+			float width = 25;
+			float ex_width = ImGui::GetWindowSize().x - width - 15;
+			size_t new_pos = ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_LeftSamples, graph_name.c_str(), ex_width, height);
 
-			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x, ImGui::GetCursorPos().y - style.ItemSpacing.y));
+			ImGui::SameLine();
+
+			int left_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11);
+			int right_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11, false);
+			float meter_width = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 5.25f : 12.5f;
+			ImGui::UvMeter("Test", ImVec2(meter_width, 90), &left_val, 0, 11, 11);
+			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
+			{
+				ImGui::SameLine();
+				ImGui::UvMeter("Test", ImVec2(meter_width, 90), &right_val, 0, 11, 11);
+			}
+
+			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
+				ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_RightSamples, graph_name_2.c_str(), ex_width, height);
+			ImGui::Indent(IMGUI_INDENT);
 
 			if (new_pos != pos)
 			{
@@ -224,8 +241,6 @@ namespace uaudio
 				channel->SetVolume(volume);
 
 			std::string player_text = std::string("###Player_" + std::to_string(a_Index));
-
-			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x, ImGui::GetCursorPos().y - style.ItemSpacing.y));
 
 			ImVec2 temp = ImVec2(ImGui::GetWindowSize().x - 45, 100);
 			ImGui::InvisibleButton("", ImVec2((temp.x / 2) - pStyle.PlotPadding.x - style.ItemInnerSpacing.x - style.ItemInnerSpacing.x - style.ItemInnerSpacing.x - 25 - 25 - 35, 35 + style.ItemInnerSpacing.y));
