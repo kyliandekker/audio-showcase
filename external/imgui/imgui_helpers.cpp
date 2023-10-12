@@ -401,8 +401,8 @@ namespace ImGui
 
     bool CheckboxButton(const char* label, bool* p_value, const ImVec2& size_arg)
     {
-        ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-        ImVec4 color_inactive = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+        ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+        ImVec4 color_inactive = ImVec4(0, 0, 0, 0);
         if (*p_value)
             ImGui::PushStyleColor(ImGuiCol_Button, color);
         else
@@ -646,7 +646,7 @@ namespace ImGui
         return value_changed;
     }
 
-    size_t BeginPlayPlot(int pos, int max_pos, size_t numSamples, const float* samples, const char* title_id, ImVec2& plotSize, std::string text)
+    size_t BeginPlayPlot(int pos, int max_pos, size_t numSamples, const float* samples, const char* title_id)
     {
         if (ImPlot::BeginPlot(title_id, ImVec2(-1, 100), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
         {
@@ -655,7 +655,7 @@ namespace ImGui
             {
                 ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
                 ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
-                ImPlot::SetupAxisLimits(ImAxis_Y1, -1, 1, ImPlotCond_Always);
+                ImPlot::SetupAxisLimits(ImAxis_Y1, -1.25f, 1.25f, ImPlotCond_Always);
                 ImPlot::SetupAxisLimits(ImAxis_X1, 0, numSamples);
                 ImPlot::PlotLine("Waveform", samples, numSamples);
             }
@@ -671,14 +671,14 @@ namespace ImGui
                 ImVec2 mousePositionRelative = ImVec2(mousePositionAbsolute.x - screenPositionAbsolute.x, mousePositionAbsolute.y - screenPositionAbsolute.y);
 
                 ImVec2 plotPos = ImPlot::GetPlotPos();
-                plotSize = ImPlot::GetPlotSize();
+                ImVec2 plotSize = ImPlot::GetPlotSize();
 
                 mousePositionRelative.x = std::clamp(mousePositionRelative.x, 0.0f, plotSize.x);
 
                 pos = max_pos / plotSize.x * (mousePositionRelative.x - imPlotStyle.PlotPadding.x);
             }
 
-            plotSize = ImPlot::GetPlotSize();
+            ImVec2 plotSize = ImPlot::GetPlotSize();
             ImVec2 plotPos = ImPlot::GetPlotPos();
 
             float maxX = plotSize.x;
@@ -692,10 +692,6 @@ namespace ImGui
             );
 
             ImPlot::EndPlot();
-            
-            //ImGuiStyle& style = ImGui::GetStyle();
-
-            //InvisibleButton("##sad", ImVec2(plotSize.x, 60 + style.ItemInnerSpacing.y));
         }
         return pos;
     }

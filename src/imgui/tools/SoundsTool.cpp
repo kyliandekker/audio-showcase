@@ -29,10 +29,9 @@ namespace uaudio
 		void SoundsTool::Render()
 		{
 			std::vector<uaudio::storage::Sound*> sounds = uaudio::storage::soundSystem.GetSounds();
-			for (int32_t i = static_cast<int32_t>(sounds.size() - 1); i > -1; i--)
-			{
-				RenderSound(*sounds[i]);
-			}
+			for (int32_t i = 0; i < sounds.size(); i++)
+				if (!RenderSound(*sounds[i]))
+					return;
 		}
 
 		void SoundsTool::ShowBaseChunk(char* a_ChunkId, uaudio::wave_reader::ChunkCollection& chunkCollection)
@@ -43,13 +42,13 @@ namespace uaudio
 			ShowValue("Chunk Size: ", std::to_string(size).c_str());
 		}
 
-		void SoundsTool::RenderSound(uaudio::storage::Sound& a_Sound)
+		bool SoundsTool::RenderSound(uaudio::storage::Sound& a_Sound)
 		{
 			std::string sound_hash_id = "##sound_" + std::to_string(a_Sound.m_Hash) + "_";
 
 			std::string sound_header = std::string(MUSIC) + " \"" + a_Sound.m_Name + "\"" + sound_hash_id + "sound_collapse";
 			if (!ImGui::CollapsingHeader(sound_header.c_str()))
-				return;
+				return true;
 
 			ImGui::Indent(IMGUI_INDENT);
 			uaudio::wave_reader::ChunkCollection& chunkCollection = *a_Sound.m_ChunkCollection;
@@ -79,7 +78,7 @@ namespace uaudio
 				uaudio::player::audioSystem.RemoveSound(a_Sound);
 				uaudio::storage::soundSystem.UnloadSound(a_Sound.m_Hash);
 				uaudio::player::audioSystem.m_Update.unlock();
-				return;
+				return false;
 			}
 
 			ImGui::SameLine();
@@ -96,7 +95,7 @@ namespace uaudio
 				if (UAUDIOWAVEREADERFAILED(result))
 				{
 					LOGF(logger::LOGSEVERITY_WARNING, "Tried to read from sound %s, but it has no fmt chunk.", m_Name.c_str());
-					return;
+					return true;
 				}
 
 				ImGui::Text("%s", std::string(
@@ -146,7 +145,7 @@ namespace uaudio
 							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read fmt chunk from sound %s but something went wrong.", m_Name.c_str());
-								return;
+								return true;
 							}
 
 							ShowValue("Audio Format: ", std::to_string(fmt_chunk.audioFormat).c_str());
@@ -180,7 +179,7 @@ namespace uaudio
 							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read acid chunk from sound %s but something went wrong.", m_Name.c_str());
-								return;
+								return true;
 							}
 
 							char type_of_file[256] = {};
@@ -212,7 +211,7 @@ namespace uaudio
 							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read bext chunk from sound %s but something went wrong.", m_Name.c_str());
-								return;
+								return true;
 							}
 
 							ShowValue("Description: ", std::string(bext_chunk.description).c_str());
@@ -245,7 +244,7 @@ namespace uaudio
 							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read fact chunk from sound %s but something went wrong.", m_Name.c_str());
-								return;
+								return true;
 							}
 
 							ShowValue("Sample Length: ", std::to_string(fact_chunk.sample_length).c_str());
@@ -264,7 +263,7 @@ namespace uaudio
 							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read cue chunk from sound %s but something went wrong.", m_Name.c_str());
-								return;
+								return true;
 							}
 
 							ShowValue("Number of cue points: ", std::to_string(cue_chunk.num_cue_points).c_str());
@@ -298,7 +297,7 @@ namespace uaudio
 							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read smpl chunk from sound %s but something went wrong.", m_Name.c_str());
-								return;
+								return true;
 							}
 
 							ShowValue("Manufacturer: ", std::to_string(smpl_chunk.manufacturer).c_str());
@@ -340,7 +339,7 @@ namespace uaudio
 							if (UAUDIOWAVEREADERFAILED(result))
 							{
 								LOGF(logger::LOGSEVERITY_WARNING, "Tried to read inst chunk from sound %s but something went wrong.", m_Name.c_str());
-								return;
+								return true;
 							}
 
 							ShowValue("Unshifted Note: ", std::to_string(smpl_chunk.unshiftedNote).c_str());
@@ -501,6 +500,8 @@ namespace uaudio
 			}
 #pragma endregion
 			ImGui::Unindent(IMGUI_INDENT);
+
+			return true;
 		}
 
 		void SoundsTool::SaveFile(uaudio::wave_reader::ChunkCollection& chunkCollection)

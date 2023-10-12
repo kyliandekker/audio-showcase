@@ -37,6 +37,8 @@ namespace uaudio
 		{
 			ImGuiStyle& style = ImGui::GetStyle();
 
+			ImPlotStyle& pStyle = ImPlot::GetStyle();
+
 			ImVec2 CursorPos = ImGui::GetCursorPos();
 			ImVec4 c = style.Colors[ImGuiCol_Header];
 			ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -81,46 +83,6 @@ namespace uaudio
 				sound->m_Mutex.unlock();
 				return;
 			}
-			
-			bool active = false;
-			presult = channel->IsActive(active);
-			if (UAUDIOPLAYERFAILED(presult))
-			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel %i is active.", a_Index);
-				sound->m_Mutex.unlock();
-				return;
-			}
-			std::string on_off_button_text = "##OnOff_Channel_" + std::to_string(a_Index);
-			if (ImGui::OnOffButton(on_off_button_text.c_str(), &active, ImVec2(25, 25)))
-				channel->SetActive(active);
-
-			ImGui::SameLine();
-			float panning = 0.0f;
-			presult = channel->GetPanning(panning);
-			if (UAUDIOPLAYERFAILED(presult))
-			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume from panning %i.", a_Index);
-				sound->m_Mutex.unlock();
-				return;
-			}
-			std::string panning_tooltip_text = std::string(PANNING) + " Panning (affects channel " + std::to_string(a_Index) + ")";
-			std::string panning_text = "##Panning_Channel_" + std::to_string(a_Index);
-			if (ImGui::Knob(panning_text.c_str(), &panning, -1, 1, ImVec2(25, 25), panning_tooltip_text.c_str(), 0.0f))
-				channel->SetPanning(panning);
-
-			ImGui::SameLine();
-			float volume = 1.0f;
-			presult = channel->GetVolume(volume);
-			if (UAUDIOPLAYERFAILED(presult))
-			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume from channel %i.", a_Index);
-				sound->m_Mutex.unlock();
-				return;
-			}
-			std::string volume_tooltip_text = std::string(VOLUME_UP) + " Volume (affects channel " + std::to_string(a_Index) + ")";
-			std::string volume_text = "##Volume_Channel_" + std::to_string(a_Index);
-			if (ImGui::Knob(volume_text.c_str(), &volume, 0, 1, ImVec2(25, 25), volume_tooltip_text.c_str(), 1.0f))
-				channel->SetVolume(volume);
 
 			uaudio::wave_reader::DATA_Chunk data_chunk;
 			result = sound->m_ChunkCollection->GetChunkFromData(data_chunk, uaudio::wave_reader::DATA_CHUNK_ID);
@@ -150,9 +112,6 @@ namespace uaudio
 				return;
 			}
 
-			uint32_t final_pos_slider = isInUse ? data_chunk.chunkSize : 5000;
-			std::string player_text = std::string("###Player_" + std::to_string(a_Index));
-
 			bool isPlaying = false;
 			presult = channel->IsPlaying(isPlaying);
 			if (UAUDIOPLAYERFAILED(presult))
@@ -171,18 +130,7 @@ namespace uaudio
 				return;
 			}
 
-			ImGui::SameLine();
-			std::string eject_button_text = std::string(EJECT) + "##Eject_Channel" + std::to_string(a_Index);
-			if (ImGui::InvisButton(eject_button_text.c_str(), ImVec2(25, 25)))
-			{
-				sound->m_Mutex.unlock();
-
-				uaudio::player::audioSystem.m_Update.lock();
-				channel->Stop();
-				channel->RemoveSound();
-				uaudio::player::audioSystem.m_Update.unlock();
-				return;
-			}
+			uint32_t final_pos_slider = isInUse ? data_chunk.chunkSize : 5000;
 
 			std::string sound_hash_id = "##Player_sound_" + std::to_string(sound->m_Hash) + "_";
 			std::string graph_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph";
@@ -208,20 +156,32 @@ namespace uaudio
 						std::to_string(data_chunk.chunkSize)
 					).c_str());
 
+					std::string eject_button_text = std::string(EJECT) + " Eject Channel##Eject_Channel" + std::to_string(a_Index);
+					if (ImGui::Button(eject_button_text.c_str(), ImVec2(120, 25)))
+					{
+						sound->m_Mutex.unlock();
+
+						uaudio::player::audioSystem.m_Update.lock();
+						channel->Stop();
+						channel->RemoveSound();
+						uaudio::player::audioSystem.m_Update.unlock();
+						return;
+					}
+
 					ImGui::Unindent(IMGUI_INDENT);
 				}
 			}
-			ImGui::Unindent(IMGUI_INDENT);
-
-			ImVec2 plotSize;
 
 			sound->m_Mutex.unlock();
-			size_t new_pos = ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_Samples, graph_name.c_str(), plotSize, std::string(
-				uaudio::player::utils::FormatDuration(seconds, false) +
-				"/" +
-				uaudio::player::utils::FormatDuration(final_pos, false))
-				.c_str());
+
+			ImGui::Unindent(IMGUI_INDENT);
+			size_t new_pos = ImGui::BeginPlayPlot(pos, final_pos_slider, sound->m_NumSamples, sound->m_Samples, graph_name.c_str());
 			ImGui::Indent(IMGUI_INDENT);
+
+			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x, ImGui::GetCursorPos().y - style.ItemSpacing.y));
+
+			sound->m_Mutex.lock();
+
 			if (new_pos != pos)
 			{
 				uint32_t left_over = new_pos % static_cast<int>(buffersize);
@@ -231,7 +191,54 @@ namespace uaudio
 				if (!isPlaying)
 					channel->PlayRanged(final_new_pos, static_cast<int>(buffersize));
 			}
-			sound->m_Mutex.lock();
+
+			bool active = false;
+			presult = channel->IsActive(active);
+			if (UAUDIOPLAYERFAILED(presult))
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel %i is active.", a_Index);
+				sound->m_Mutex.unlock();
+				return;
+			}
+			std::string on_off_button_text = "##OnOff_Channel_" + std::to_string(a_Index);
+			if (ImGui::OnOffButton(on_off_button_text.c_str(), &active, ImVec2(15, 15)))
+				channel->SetActive(active);
+
+			ImGui::SameLine();
+			float panning = 0.0f;
+			presult = channel->GetPanning(panning);
+			if (UAUDIOPLAYERFAILED(presult))
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume from panning %i.", a_Index);
+				sound->m_Mutex.unlock();
+				return;
+			}
+			std::string panning_tooltip_text = std::string(PANNING) + " Panning (affects channel " + std::to_string(a_Index) + ")";
+			std::string panning_text = "##Panning_Channel_" + std::to_string(a_Index);
+			if (ImGui::Knob(panning_text.c_str(), &panning, -1, 1, ImVec2(15, 15), panning_tooltip_text.c_str(), 0.0f))
+				channel->SetPanning(panning);
+
+			ImGui::SameLine();
+			float volume = 1.0f;
+			presult = channel->GetVolume(volume);
+			if (UAUDIOPLAYERFAILED(presult))
+			{
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume from channel %i.", a_Index);
+				sound->m_Mutex.unlock();
+				return;
+			}
+			std::string volume_tooltip_text = std::string(VOLUME_UP) + " Volume (affects channel " + std::to_string(a_Index) + ")";
+			std::string volume_text = "##Volume_Channel_" + std::to_string(a_Index);
+			if (ImGui::Knob(volume_text.c_str(), &volume, 0, 1, ImVec2(15, 15), volume_tooltip_text.c_str(), 1.0f))
+				channel->SetVolume(volume);
+
+			std::string player_text = std::string("###Player_" + std::to_string(a_Index));
+
+			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x, ImGui::GetCursorPos().y - style.ItemSpacing.y));
+
+			ImVec2 temp = ImVec2(ImGui::GetWindowSize().x - 45, 100);
+			ImGui::InvisibleButton("", ImVec2((temp.x / 2) - pStyle.PlotPadding.x - style.ItemInnerSpacing.x - style.ItemInnerSpacing.x - style.ItemInnerSpacing.x - 25 - 25 - 35, 35 + style.ItemInnerSpacing.y));
+			ImGui::SameLine();
 
 			std::string stop_button_text = std::string(STOP) + "##Stop_Sound_" + std::to_string(a_Index);
 			if (ImGui::InvisButton(stop_button_text.c_str(), ImVec2(25, 25)))
@@ -254,7 +261,13 @@ namespace uaudio
 
 			ImGui::SameLine();
 
+			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x, ImGui::GetCursorPos().y - 5));
+
 			ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 25.0f);
+			ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+			ImGui::PushStyleColor(ImGuiCol_Button, color);
+			color = ImVec4(color.x - 0.05f, color.y - 0.05f, color.z, color.w);
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, color);
 			if (isPlaying)
 			{
 				std::string pause_button_text = std::string(PAUSE) + "##Pause_Sound_" + std::to_string(a_Index);
@@ -267,9 +280,13 @@ namespace uaudio
 				if (ImGui::Button(play_button_text.c_str(), ImVec2(35, 35)))
 					channel->Play();
 			}
+			ImGui::PopStyleColor();
+			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
 
 			ImGui::SameLine();
+
+			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x, ImGui::GetCursorPos().y + 5));
 
 			std::string right_button_text = std::string(FORWARD) + "##Right_Sound_" + std::to_string(a_Index);
 			if (ImGui::InvisButton(right_button_text.c_str(), ImVec2(25, 25)))
