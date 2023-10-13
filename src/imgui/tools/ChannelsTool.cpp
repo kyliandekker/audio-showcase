@@ -182,6 +182,7 @@ namespace uaudio
 
 			int left_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11);
 			int right_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11, false);
+
 			float meter_width = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 5.25f : 12.5f;
 			std::string meter_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_meter_01";
 			std::string meter_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_meter_02";

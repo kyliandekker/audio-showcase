@@ -11,6 +11,7 @@
 #include "audio/player/backends/wasapi/WasAPIBackend.h"
 #include "audio/storage/Sound.h"
 #include "utils/Logger.h"
+#include "audio/player/AudioSystem.h"
 
 namespace uaudio
 {
@@ -144,8 +145,21 @@ namespace uaudio
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_WASAPI_FAILED_RETRIEVING_PADDING;
 				}
 
-				UINT32 soundBufferLatency = 2048;
-				UINT32 numFramesToWrite = soundBufferLatency - bufferPadding;
+				uaudio::wave_reader::FMT_Chunk fmt_chunk;
+				uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_Sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+				if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+					return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FMT_CHUNK;
+
+				double buffersize = fmt_chunk.byteRate * uaudio::player::audioSystem.m_DeltaTime;
+
+				double left_over = floor(fmod(buffersize, fmt_chunk.blockAlign));
+				double add = fmt_chunk.blockAlign - left_over;
+				double real_buffersize = static_cast<uint32_t>(buffersize) + static_cast<uint32_t>(add);
+
+				if (real_buffersize == 0)
+					return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+
+				UINT32 numFramesToWrite = real_buffersize - bufferPadding;
 				PlayRanged(m_CurrentPos, numFramesToWrite);
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
@@ -212,6 +226,9 @@ namespace uaudio
 
 				AddEffects(data, actual_size);
 				PlayBuffer(data, a_Size);
+
+				m_LastPlayedData = data;
+				m_LastDataSize = actual_size;
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}
