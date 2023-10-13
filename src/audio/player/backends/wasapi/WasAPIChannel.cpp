@@ -146,10 +146,7 @@ namespace uaudio
 
 				UINT32 soundBufferLatency = 2048;
 				UINT32 numFramesToWrite = soundBufferLatency - bufferPadding;
-				m_Sound->m_Mutex.lock();
 				PlayRanged(m_CurrentPos, numFramesToWrite);
-				if (m_Sound)
-					m_Sound->m_Mutex.unlock();
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}
@@ -180,9 +177,10 @@ namespace uaudio
 					// If the sound is not set to repeat, then stop the channel.
 					if (!m_Looping)
 					{
-						Stop();
-						m_Sound->m_Mutex.unlock();
-						m_Sound = nullptr;
+						Pause();
+						SetPos(0);
+						m_LastDataSize = 0;
+						m_LastPlayedData = nullptr;
 						return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 					}
 				}
