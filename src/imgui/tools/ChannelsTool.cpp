@@ -91,6 +91,11 @@ namespace uaudio
 				sound->m_Mutex.unlock();
 				return;
 			}
+			std::string sound_hash_id = "##Player_sound_" + std::to_string(sound->m_Hash) + "_";
+			std::string sound_name = sound->m_Name;
+			float* left_samples = sound->m_LeftSamples;
+			float* right_samples = sound->m_RightSamples;
+			size_t numSamples = sound->m_NumSamples;
 			sound->m_Mutex.unlock();
 
 			float fPos = 0;
@@ -128,19 +133,13 @@ namespace uaudio
 
 			uint32_t final_pos_slider = isInUse ? data_chunk.chunkSize : 5000;
 
-			sound->m_Mutex.lock();
-			std::string sound_hash_id = "##Player_sound_" + std::to_string(sound->m_Hash) + "_";
-			sound->m_Mutex.unlock();
-
 			if (isInUse)
 			{
-				std::string channel_name_text = "Channel " + std::to_string(a_Index) + " (" + sound->m_Name + ")" + "##Channel_" + std::to_string(a_Index);
+				std::string channel_name_text = "Channel " + std::to_string(a_Index) + " (" + sound_name + ")" + "##Channel_" + std::to_string(a_Index);
 				if (ImGui::CollapsingHeader(channel_name_text.c_str()))
 				{
 					ImGui::Indent(IMGUI_INDENT);
-					sound->m_Mutex.lock();
-					ShowValue("Currently playing: ", sound->m_Name.c_str());
-					sound->m_Mutex.unlock();
+					ShowValue("Currently playing: ", sound_name.c_str());
 					ShowValue("Progress: ", std::string(
 						uaudio::player::utils::FormatDuration(fPos / static_cast<float>(fmt_chunk.byteRate), false) +
 						"/" +
@@ -185,7 +184,7 @@ namespace uaudio
 			float ex_width = ImGui::GetWindowSize().x - width - 35;
 			std::string graph_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph_01";
 			std::string graph_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph_02";
-			ImGui::BeginPlayPlot(new_pos, final_pos_slider, sound->m_NumSamples, sound->m_LeftSamples, graph_name.c_str(), ex_width, height, buffersize);
+			ImGui::BeginPlayPlot(new_pos, final_pos_slider, numSamples, left_samples, graph_name.c_str(), ex_width, height, buffersize);
 
 			ImGui::SameLine();
 
@@ -202,7 +201,7 @@ namespace uaudio
 			}
 
 			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
-				ImGui::BeginPlayPlot(new_pos, final_pos_slider, sound->m_NumSamples, sound->m_RightSamples, graph_name_2.c_str(), ex_width, height, buffersize);
+				ImGui::BeginPlayPlot(new_pos, final_pos_slider, numSamples, right_samples, graph_name_2.c_str(), ex_width, height, buffersize);
 			if (!active)
 				ImPlot::PopStyleColor();
 
