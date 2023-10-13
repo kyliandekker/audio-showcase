@@ -19,6 +19,10 @@ namespace uaudio
 			uint32_t SecondsToMinutes(float m_Seconds);
 			float GetDuration(uint32_t a_ChunkSize, uint32_t a_ByteRate);
 			std::string FormatDuration(float a_Duration, bool a_Milliseconds);
+			inline unsigned char* add(void* a_Ptr, size_t a_Size)
+			{
+				return reinterpret_cast<unsigned char*>(a_Ptr) + a_Size;
+			}
 
 			bool chunkcmp(const char* a_ChunkID1, const char* a_ChunkID2);
 			float* ToSample(unsigned char* data, size_t buffersize, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels, size_t numSamples, bool left = true);

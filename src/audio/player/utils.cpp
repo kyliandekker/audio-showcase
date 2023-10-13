@@ -108,8 +108,8 @@ namespace uaudio
 				{
 					if (bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_8)
 					{
-						int8_t sample = *(int8_t*)pData;
-						samples[i] = static_cast<float>(sample) / INT8_MAX;
+						int8_t psample = INT8_MAX - *(uint8_t*)pData;
+						samples[i] = static_cast<float>(psample) / INT8_MAX;
 					}
 					else if (bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_16)
 					{
@@ -123,7 +123,6 @@ namespace uaudio
 					}
 
 					pData += div * blockAlign;
-
 				}
 
 				return samples;

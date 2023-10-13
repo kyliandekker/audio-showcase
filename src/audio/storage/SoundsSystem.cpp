@@ -14,7 +14,7 @@ namespace uaudio
 {
 	namespace storage
 	{
-		constexpr int MAX_SAMPLES = 70560 / 16;
+		constexpr int MAX_SAMPLES = 70560 / 4;
 
 		Sound* SoundsSystem::AddSound(const char* a_Path, const uaudio::wave_reader::WaveReadSettings& a_Settings)
 		{
