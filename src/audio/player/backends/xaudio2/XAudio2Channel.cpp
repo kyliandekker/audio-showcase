@@ -74,7 +74,7 @@ namespace uaudio
 			{
 				while (!m_DataBuffers.empty())
 				{
-					buffer buffer = m_DataBuffers.front();
+					buffer& buffer = m_DataBuffers.front();
 					free(buffer.data);
 					m_DataBuffers.pop();
 				}
@@ -112,9 +112,9 @@ namespace uaudio
 					if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
 						return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FMT_CHUNK;
 
-					while (total_buffer_size >= fmt_chunk.byteRate)
+					while (total_buffer_size >= fmt_chunk.byteRate + a_Size)
 					{
-						buffer buffer = m_DataBuffers.front();
+						buffer& buffer = m_DataBuffers.front();
 						total_buffer_size = total_buffer_size - buffer.size;
 
 						free(buffer.data);
