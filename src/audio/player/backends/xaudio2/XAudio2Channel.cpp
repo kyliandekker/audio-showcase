@@ -105,7 +105,7 @@ namespace uaudio
 				GetSoundBufferSize(buffersize);
 				if (state.BuffersQueued < buffersize)
 				{
-					if (m_DataBuffers.size() == 2)
+					if (m_DataBuffers.size() == buffersize)
 					{
 						unsigned char* buffer = m_DataBuffers.front();
 						free(buffer);

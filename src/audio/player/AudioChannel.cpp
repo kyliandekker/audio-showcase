@@ -168,7 +168,7 @@ namespace uaudio
 			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_Sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
 			if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
 				return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FMT_CHUNK;
-			a_BufferSize = fmt_chunk.bitsPerSample / 8;
+			a_BufferSize = fmt_chunk.bitsPerSample / 8 * fmt_chunk.numChannels;
 
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}

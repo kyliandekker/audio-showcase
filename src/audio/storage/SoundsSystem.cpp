@@ -19,8 +19,11 @@ namespace uaudio
 		Sound* SoundsSystem::AddSound(const char* a_Path, const uaudio::wave_reader::WaveReadSettings& a_Settings)
 		{
 			uaudio::player::Hash hash = uaudio::player::GetHash(a_Path);
-			if (m_Sounds.find(hash) != m_Sounds.end())
-				return nullptr;
+			for (size_t i = 0; i < m_Sounds.size(); i++)
+			{
+				if (m_Sounds[i]->m_Hash == hash)
+					return nullptr;
+			}
 
 			size_t size = 0;
 			uaudio::wave_reader::WaveReader::FTell(a_Path, size, a_Settings);
@@ -66,11 +69,11 @@ namespace uaudio
 				sound->m_NumSamples = sound->m_RNumSamples;
 				if (sound->m_NumSamples > MAX_SAMPLES)
 					sound->m_NumSamples = MAX_SAMPLES;
-				sound->m_LeftSamples = uaudio::player::utils::ToSample(data_chunk.data, data_chunk_size, fmt_chunk.blockAlign, fmt_chunk.numChannels, sound->m_NumSamples);
-				sound->m_RightSamples = uaudio::player::utils::ToSample(data_chunk.data, data_chunk_size, fmt_chunk.blockAlign, fmt_chunk.numChannels, sound->m_NumSamples, false);
+				sound->m_LeftSamples = uaudio::player::utils::ToSample(data_chunk.data, data_chunk_size, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, sound->m_NumSamples);
+				sound->m_RightSamples = uaudio::player::utils::ToSample(data_chunk.data, data_chunk_size, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, sound->m_NumSamples, false);
 			}
 
-			m_Sounds.insert(std::make_pair(hash, sound));
+			m_Sounds.push_back(sound);
 
 			LOGF(logger::LOGSEVERITY_INFO, "Loaded sound: %s.", sound->m_Name.c_str());
 
@@ -79,17 +82,22 @@ namespace uaudio
 
 		void SoundsSystem::UnloadSound(uaudio::player::Hash a_Hash)
 		{
-			Sound* s = m_Sounds[a_Hash];
-			m_Sounds.erase(a_Hash);
-			delete s;
+			Sound* sound = nullptr;
+			for (size_t i = 0; i < m_Sounds.size(); i++)
+			{
+				if (m_Sounds[i]->m_Hash == a_Hash)
+				{
+					sound = m_Sounds[i];
+					m_Sounds.erase(m_Sounds.begin() + i);
+				}
+			}
+			if (sound)
+				delete sound;
 		}
 
-        std::vector<Sound*> SoundsSystem::GetSounds() const
+        const std::vector<Sound*>& SoundsSystem::GetSounds() const
         {
-			std::vector<Sound*> sounds;
-			for (auto& resource : m_Sounds)
-				sounds.push_back(resource.second);
-            return sounds;
+			return m_Sounds;
         }
 	}
 }

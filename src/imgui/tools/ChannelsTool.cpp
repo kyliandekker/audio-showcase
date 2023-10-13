@@ -179,19 +179,18 @@ namespace uaudio
 			if (!active)
 				ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.00f, 0.66f, 0.18f, 0.05f));
 
-			ImGui::Unindent(IMGUI_INDENT);
 			float height = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 50 : 100;
 			float width = 25;
 			size_t new_pos = pos;
-			float ex_width = ImGui::GetWindowSize().x - width - 15;
+			float ex_width = ImGui::GetWindowSize().x - width - 35;
 			std::string graph_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph_01";
 			std::string graph_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph_02";
 			ImGui::BeginPlayPlot(new_pos, final_pos_slider, sound->m_NumSamples, sound->m_LeftSamples, graph_name.c_str(), ex_width, height, buffersize);
 
 			ImGui::SameLine();
 
-			int left_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11);
-			int right_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11, false);
+			int left_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11);
+			int right_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11, false);
 			float meter_width = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 5.25f : 12.5f;
 			std::string meter_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_meter_01";
 			std::string meter_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_meter_02";
@@ -206,7 +205,6 @@ namespace uaudio
 				ImGui::BeginPlayPlot(new_pos, final_pos_slider, sound->m_NumSamples, sound->m_RightSamples, graph_name_2.c_str(), ex_width, height, buffersize);
 			if (!active)
 				ImPlot::PopStyleColor();
-			ImGui::Indent(IMGUI_INDENT);
 
 			if (new_pos != pos)
 			{

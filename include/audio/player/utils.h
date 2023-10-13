@@ -21,8 +21,8 @@ namespace uaudio
 			std::string FormatDuration(float a_Duration, bool a_Milliseconds);
 
 			bool chunkcmp(const char* a_ChunkID1, const char* a_ChunkID2);
-			float* ToSample(unsigned char* data, size_t buffersize, uint16_t blockAlign, uint16_t channels, size_t numSamples, bool left = true);
-			int GetPeak(unsigned char* data, size_t data_size, uint16_t blockAlign, uint16_t channels, int scale, bool left = true);
+			float* ToSample(unsigned char* data, size_t buffersize, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels, size_t numSamples, bool left = true);
+			int GetPeak(unsigned char* data, size_t data_size, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels, int scale, bool left = true);
 		}
 	}
 }
