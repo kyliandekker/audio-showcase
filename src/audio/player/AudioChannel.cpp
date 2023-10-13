@@ -79,7 +79,10 @@ namespace uaudio
 		UAUDIO_PLAYER_RESULT AudioChannel::RemoveSound()
 		{
 			Stop();
+			m_Sound->m_Mutex.lock();
+			storage::Sound* sound = m_Sound;
 			m_Sound = nullptr;
+			sound->m_Mutex.unlock();
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}
 
