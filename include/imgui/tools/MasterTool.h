@@ -31,28 +31,6 @@ namespace uaudio
 		private:
 			void OpenFile();
 
-			std::array<const char*, 7> m_BufferSizeTextOptions = {
-				"256",
-				"384",
-				"512",
-				"1024",
-				"2048",
-				"4096",
-				"8192",
-			};
-
-			size_t m_BufferSizeSelection = 0;
-
-			std::array<uint32_t, 7> m_BufferSizeOptions = {
-				256,
-				384,
-				512,
-				1024,
-				2048,
-				4096,
-				8192,
-			};
-
 			std::array<const char*, 4> m_BitsPerSampleTextOptions = {
 				"I don't really care",
 				"16-bit",

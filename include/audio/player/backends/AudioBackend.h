@@ -19,9 +19,6 @@ namespace uaudio
 		class AudioBackend
 		{
 		public:
-			uint32_t GetBufferSize() const { return m_BufferSize; }
-			void SetBufferSize(uint32_t a_BufferSize) { m_BufferSize = a_BufferSize; }
-
 			bool IsPaused() const { return m_Paused; }
 			void SetPaused(bool a_Paused) { m_Paused = a_Paused; }
 
@@ -40,7 +37,6 @@ namespace uaudio
 			virtual AudioChannel* GetChannel(ChannelHandle& a_Handle) = 0;
 			virtual void RemoveSound(storage::Sound& a_Sound) = 0;
 		protected:
-			uint32_t m_BufferSize = 4096;
 			bool m_Paused = false;
 			float m_Volume = UAUDIO_DEFAULT_VOLUME;
 			float m_Panning = UAUDIO_DEFAULT_PANNING;

@@ -74,10 +74,12 @@ namespace uaudio
 			{
 				while (!m_DataBuffers.empty())
 				{
-					unsigned char* buffer = m_DataBuffers.front();
-					free(buffer);
+					buffer buffer = m_DataBuffers.front();
+					free(buffer.data);
 					m_DataBuffers.pop();
 				}
+				total_buffer_size = 0;
+
 				// Stop the source voice.
 				if (m_SourceVoice != nullptr)
 				{
@@ -105,15 +107,22 @@ namespace uaudio
 				GetSoundBufferSize(buffersize);
 				if (state.BuffersQueued < buffersize)
 				{
-					if (m_DataBuffers.size() == buffersize)
+					uaudio::wave_reader::FMT_Chunk fmt_chunk;
+					uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_Sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+					if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+						return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FMT_CHUNK;
+
+					while (total_buffer_size >= fmt_chunk.byteRate)
 					{
-						unsigned char* buffer = m_DataBuffers.front();
-						free(buffer);
+						buffer buffer = m_DataBuffers.front();
+						total_buffer_size = total_buffer_size - buffer.size;
+
+						free(buffer.data);
 						m_DataBuffers.pop();
 					}
 
 					uint32_t size = 0;
-					uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_Sound->m_ChunkCollection->GetChunkSize(size, uaudio::wave_reader::DATA_CHUNK_ID);
+					result = m_Sound->m_ChunkCollection->GetChunkSize(size, uaudio::wave_reader::DATA_CHUNK_ID);
 					// If the sound is done playing, check whether it needs to be repeated or whether it needs to be stopped entirely.
 					if (a_StartPos >= size)
 					{
@@ -150,10 +159,11 @@ namespace uaudio
 
 					m_LastPlayedData = new_data;
 					m_LastDataSize = a_Size;
+					total_buffer_size += m_LastDataSize;
 
 					AddEffects(new_data, a_Size);
 					PlayBuffer(new_data, a_Size);
-					m_DataBuffers.push(new_data);
+					m_DataBuffers.push({ new_data, a_Size });
 				}
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
@@ -191,14 +201,21 @@ namespace uaudio
 				if (!m_IsPlaying)
 					return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 
-				uint32_t buffersize = 0;
-				uaudio::player::UAUDIO_PLAYER_RESULT result = audioSystem.GetBufferSize(buffersize);
-				if (UAUDIOPLAYERFAILED(result))
-				{
-					LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve buffer size from audio system.");
-					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_CHANNEL_CANNOT_RETRIEVE_BUFFERSIZE;
-				}
-				PlayRanged(m_CurrentPos, buffersize);
+				uaudio::wave_reader::FMT_Chunk fmt_chunk;
+				uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_Sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+				if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+					return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FMT_CHUNK;
+
+				double buffersize = fmt_chunk.byteRate * uaudio::player::audioSystem.m_DeltaTime;
+
+				double left_over = floor(fmod(buffersize, fmt_chunk.blockAlign));
+				double add = fmt_chunk.blockAlign - left_over;
+				double real_buffersize = static_cast<uint32_t>(buffersize) + static_cast<uint32_t>(add);
+
+				if (real_buffersize == 0)
+					return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+
+				PlayRanged(m_CurrentPos, real_buffersize);
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}

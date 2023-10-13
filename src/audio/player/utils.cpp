@@ -1,6 +1,7 @@
 #include "audio/player/utils.h"
 
 #include <uaudio_wave_reader/Defines.h>
+#include "audio/utils/int24_t.h"
 
 namespace uaudio
 {
@@ -96,6 +97,9 @@ namespace uaudio
 				unsigned char* pData = data;
 				size_t realNumSamples = buffersize / blockAlign;
 
+				if (realNumSamples == 0)
+					return nullptr;
+
 				size_t div = realNumSamples / numSamples;
 
 				float* samples = reinterpret_cast<float*>(malloc(numSamples * sizeof(float)));
@@ -116,9 +120,14 @@ namespace uaudio
 						int16_t sample = *(int16_t*)pData;
 						samples[i] = static_cast<float>(sample) / INT16_MAX;
 					}
+					else if (bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24)
+					{
+						int24_t sample = *(int24_t*)pData;
+						samples[i] = static_cast<float>(sample) / INT24_MAX;
+					}
 					else if (bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_32)
 					{
-						int32_t sample = *(int32_t*)pData;
+						float sample = *(int32_t*)pData;
 						samples[i] = static_cast<float>(sample) / INT32_MAX;
 					}
 

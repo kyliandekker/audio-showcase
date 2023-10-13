@@ -51,9 +51,9 @@ namespace uaudio
 			
 			if (!(UAUDIOWAVEREADERFAILED(result)))
 			{
-				if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24)
+				if (fmt_chunk.audioFormat != uaudio::wave_reader::WAV_FORMAT_PCM)
 				{
-					LOG(logger::LOGSEVERITY_ERROR, "Cannot load 24-bit wave files yet.");
+					LOG(logger::LOGSEVERITY_ERROR, "Cannot load non pcm-formatted files yet.");
 					free(allocated_space);
 					return nullptr;
 				}

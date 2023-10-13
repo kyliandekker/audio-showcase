@@ -31,9 +31,6 @@ namespace uaudio
 			AudioSystem();
 			~AudioSystem();
 
-			UAUDIO_PLAYER_RESULT GetBufferSize(uint32_t& a_BufferSize) const;
-			UAUDIO_PLAYER_RESULT SetBufferSize(uint32_t a_BufferSize);
-
 			UAUDIO_PLAYER_RESULT IsPaused(bool& a_IsPaused) const;
 			UAUDIO_PLAYER_RESULT SetPaused(bool a_Paused);
 
@@ -61,6 +58,7 @@ namespace uaudio
 			std::mutex m_Update;
 
 			bool simd = false;
+			double m_DeltaTime = 0.0f;
 		private:
 			Backend m_Backend = Backend::XAUDIO2;
 

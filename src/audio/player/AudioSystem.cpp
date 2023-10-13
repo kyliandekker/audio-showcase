@@ -7,6 +7,9 @@
 #include "audio/storage/Sound.h"
 #include "audio/player/Defines.h"
 #include "utils/Logger.h"
+#include <iostream>
+
+#include "windows.h"
 
 uaudio::player::AudioSystem uaudio::player::audioSystem;
 
@@ -24,25 +27,6 @@ namespace uaudio
 			m_Enabled = false;
 			m_AudioThread.join();
 			delete m_AudioBackend;
-		}
-
-		UAUDIO_PLAYER_RESULT AudioSystem::GetBufferSize(uint32_t& a_BufferSize) const
-		{
-			if (m_AudioBackend == nullptr)
-				return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_BACKEND;
-
-			a_BufferSize = m_AudioBackend->GetBufferSize();
-			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
-		}
-
-		UAUDIO_PLAYER_RESULT AudioSystem::SetBufferSize(uint32_t a_BufferSize)
-		{
-			if (m_AudioBackend == nullptr)
-				return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_BACKEND;
-
-
-			m_AudioBackend->SetBufferSize(a_BufferSize);
-			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 		}
 
 		UAUDIO_PLAYER_RESULT AudioSystem::IsPaused(bool& a_IsPaused) const
@@ -103,9 +87,22 @@ namespace uaudio
 		{
 			while (m_Enabled)
 			{
+				std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
 				m_Update.lock();
 				m_AudioBackend->Update();
 				m_Update.unlock();
+
+				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+				double to_sleep = (1000.0f / 60.0f);
+
+				m_DeltaTime = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count()) / 1000000;
+				to_sleep -= m_DeltaTime;
+
+				Sleep(to_sleep);
+
+				m_DeltaTime = (1000.0f / 60.0f) / 1000;
 			}
 			LOG(logger::LOGSEVERITY_INFO, "Stopped audio thread.");
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;

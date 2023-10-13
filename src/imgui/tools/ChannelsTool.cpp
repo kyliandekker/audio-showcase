@@ -123,14 +123,6 @@ namespace uaudio
 				return;
 			}
 
-			uint32_t buffersize = 0;
-			presult = uaudio::player::audioSystem.GetBufferSize(buffersize);
-			if (UAUDIOPLAYERFAILED(presult))
-			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve audio system buffer size.");
-				return;
-			}
-
 			uint32_t final_pos_slider = isInUse ? data_chunk.chunkSize : 5000;
 
 			if (isInUse)
@@ -184,7 +176,7 @@ namespace uaudio
 			float ex_width = ImGui::GetWindowSize().x - width - 35;
 			std::string graph_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph_01";
 			std::string graph_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph_02";
-			ImGui::BeginPlayPlot(new_pos, final_pos_slider, numSamples, left_samples, graph_name.c_str(), ex_width, height, buffersize);
+			ImGui::BeginPlayPlot(new_pos, final_pos_slider, numSamples, left_samples, graph_name.c_str(), ex_width, height, fmt_chunk.blockAlign);
 
 			ImGui::SameLine();
 
@@ -201,7 +193,7 @@ namespace uaudio
 			}
 
 			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
-				ImGui::BeginPlayPlot(new_pos, final_pos_slider, numSamples, right_samples, graph_name_2.c_str(), ex_width, height, buffersize);
+				ImGui::BeginPlayPlot(new_pos, final_pos_slider, numSamples, right_samples, graph_name_2.c_str(), ex_width, height, fmt_chunk.blockAlign);
 			if (!active)
 				ImPlot::PopStyleColor();
 
@@ -210,7 +202,7 @@ namespace uaudio
 				channel->SetPos(new_pos);
 
 				if (!isPlaying)
-					channel->PlayRanged(new_pos, static_cast<uint32_t>(buffersize));
+					channel->PlayRanged(new_pos, static_cast<uint32_t>(9600));
 			}
 
 			std::string on_off_button_text = "##OnOff_Channel_" + std::to_string(a_Index);
@@ -261,11 +253,11 @@ namespace uaudio
 			std::string left_button_text = std::string(BACKWARD) + "##Left_Sound_" + std::to_string(a_Index);
 			if (ImGui::InvisButton(left_button_text.c_str(), ImVec2(25, 25)))
 			{
-				int32_t prev_pos = pos - static_cast<int>(buffersize);
+				int32_t prev_pos = pos - static_cast<int>(9600);
 				prev_pos = clamp<int32_t>(prev_pos, 0, data_chunk.chunkSize);
 				channel->SetPos(prev_pos);
 				channel->Pause();
-				channel->PlayRanged(prev_pos, static_cast<int>(buffersize));
+				channel->PlayRanged(prev_pos, static_cast<int>(9600));
 			}
 
 			ImGui::SameLine();
@@ -300,11 +292,11 @@ namespace uaudio
 			std::string right_button_text = std::string(FORWARD) + "##Right_Sound_" + std::to_string(a_Index);
 			if (ImGui::InvisButton(right_button_text.c_str(), ImVec2(25, 25)))
 			{
-				int32_t next_pos = pos + static_cast<int>(buffersize);
+				int32_t next_pos = pos + static_cast<int>(9600);
 				next_pos = clamp<int32_t>(next_pos, 0, data_chunk.chunkSize);
 				channel->SetPos(next_pos);
 				channel->Pause();
-				channel->PlayRanged(next_pos, static_cast<int>(buffersize));
+				channel->PlayRanged(next_pos, static_cast<int>(9600));
 			}
 
 			ImGui::SameLine();

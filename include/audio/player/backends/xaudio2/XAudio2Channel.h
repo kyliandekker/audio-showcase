@@ -11,12 +11,25 @@ namespace uaudio
 	{
 		namespace xaudio2
 		{
+			struct buffer
+			{
+				unsigned char* data = nullptr;
+				size_t size = 0;
+
+				buffer(unsigned char* data, size_t size)
+				{
+					this->data = data;
+					this->size = size;
+				}
+			};
+
 			class XAudio2Backend;
 
 			class XAudio2Channel : public AudioChannel
 			{
 			private:
-				std::queue<unsigned char*> m_DataBuffers;
+				std::queue<buffer> m_DataBuffers;
+				size_t total_buffer_size = 0;
 
 				IXAudio2SourceVoice* m_SourceVoice = nullptr;
 				XAudio2Backend* m_Backend = nullptr;
