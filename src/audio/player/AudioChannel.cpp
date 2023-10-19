@@ -218,12 +218,12 @@ namespace uaudio
 						effects::ChangePanning<int16_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
 						effects::ChangePanning<int16_t>(a_Data, a_BufferSize, masterPanning, fmt_chunk.numChannels);
 					}
-					//else if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24)
-					//{
-					//	effects::ChangeVolume<int24_t>(a_Data, a_BufferSize, volume);
-					//	effects::ChangePanning<int24_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
-					//	effects::ChangePanning<int24_t>(a_Data, a_BufferSize, masterPanning, fmt_chunk.numChannels);
-					//}
+					else if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24)
+					{
+						effects::ChangeVolume<int24_t>(a_Data, a_BufferSize, volume);
+						effects::ChangePanning<int24_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
+						effects::ChangePanning<int24_t>(a_Data, a_BufferSize, masterPanning, fmt_chunk.numChannels);
+					}
 					else if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_32)
 					{
 						effects::ChangeVolume<int32_t>(a_Data, a_BufferSize, volume);

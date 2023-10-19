@@ -13,7 +13,6 @@
 #include "audio/player/utils.h"
 #include "imgui/ImguiDefines.h"
 #include "audio/utils/int24_t.h"
-#include "audio/utils/uint24_t.h"
 #include "audio/player/AudioSystem.h"
 #include "audio/player/ChannelHandle.h"
 #include "utils/Logger.h"
@@ -372,7 +371,6 @@ namespace uaudio
 									"int16",
 									"uint16",
 									"int24",
-									"uint24",
 									"int32",
 									"uint32",
 									"int64",
@@ -446,40 +444,35 @@ namespace uaudio
 									}
 									case 6:
 									{
-										ViewAs<uint24_t>(data, endianness_option);
+										ViewAs<int32_t>(data, endianness_option);
 										break;
 									}
 									case 7:
 									{
-										ViewAs<int32_t>(data, endianness_option);
+										ViewAs<uint32_t>(data, endianness_option);
 										break;
 									}
 									case 8:
 									{
-										ViewAs<uint32_t>(data, endianness_option);
+										ViewAs<int64_t>(data, endianness_option);
 										break;
 									}
 									case 9:
 									{
-										ViewAs<int64_t>(data, endianness_option);
+										ViewAs<uint64_t>(data, endianness_option);
 										break;
 									}
 									case 10:
 									{
-										ViewAs<uint64_t>(data, endianness_option);
+										ViewAs<char>(data, endianness_option);
 										break;
 									}
 									case 11:
 									{
-										ViewAs<char>(data, endianness_option);
-										break;
-									}
-									case 12:
-									{
 										ViewAsChar(data, endianness_option);
 										break;
 									}
-									case 13:
+									case 12:
 									{
 										ViewAsString(data, endianness_option);
 										break;

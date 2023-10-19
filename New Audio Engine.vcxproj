@@ -222,7 +222,6 @@
     <ClInclude Include="include\audio\storage\Sound.h" />
     <ClInclude Include="include\audio\player\UAUDIO_PLAYER_RESULT.h" />
     <ClInclude Include="include\audio\utils\int24_t.h" />
-    <ClInclude Include="include\audio\utils\uint24_t.h" />
     <ClInclude Include="include\audio\player\backends\xaudio2\XAudio2Callback.h" />
     <ClInclude Include="include\dx9\DX9Window.h" />
     <ClInclude Include="include\imgui\AudioImGuiWindow.h" />

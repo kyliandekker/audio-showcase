@@ -161,9 +161,6 @@
     <ClInclude Include="include\audio\player\backends\AudioBackend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\audio\utils\uint24_t.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\audio\utils\int24_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
