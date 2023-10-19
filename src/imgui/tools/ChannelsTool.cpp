@@ -180,23 +180,27 @@ namespace uaudio
 
 			ImGui::SameLine();
 
-			float left_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11);
-			float right_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11, false);
+			size_t steps = 10;
 
-			left_val = ImLerp(static_cast<float>(channel->m_LVol), left_val, 0.1f);
-			right_val = ImLerp(static_cast<float>(channel->m_RVol), right_val, 0.1f);
+			float left_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, steps);
+			float right_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, steps, false);
+
+			left_val = ImLerp(channel->m_LVol, left_val, 0.15f);
+			right_val = ImLerp(channel->m_RVol, right_val, 0.15f);
 
 			channel->m_LVol = left_val;
 			channel->m_RVol = right_val;
 
+			size_t actual_steps = steps - (10 * 0.15f);
+
 			float meter_width = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 5.25f : 12.5f;
 			std::string meter_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_meter_01";
 			std::string meter_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_meter_02";
-			ImGui::UvMeter(meter_name.c_str(), ImVec2(meter_width, 90), &left_val, 0, 9, 9);
+			ImGui::UvMeter(meter_name.c_str(), ImVec2(meter_width, 90), &left_val, 0, actual_steps, actual_steps);
 			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
 			{
 				ImGui::SameLine();
-				ImGui::UvMeter(meter_name_2.c_str(), ImVec2(meter_width, 90), &right_val, 0, 9, 9);
+				ImGui::UvMeter(meter_name_2.c_str(), ImVec2(meter_width, 90), &right_val, 0, actual_steps, actual_steps);
 			}
 
 			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)

@@ -137,7 +137,7 @@ namespace uaudio
 				return samples;
 			}
 
-			int GetPeak(unsigned char* data, size_t data_size, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels, int scale, bool left)
+			float GetPeak(unsigned char* data, size_t data_size, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels, int scale, bool left)
 			{
 				data_size /= 2;
 				size_t numSamples = data_size / blockAlign;
@@ -153,7 +153,7 @@ namespace uaudio
 
 				free(samples);
 
-				return ceil(highest_value * scale);
+				return highest_value * scale;
 			}
 		}
 	}
