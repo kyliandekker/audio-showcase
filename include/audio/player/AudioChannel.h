@@ -47,6 +47,8 @@ namespace uaudio
 
 			unsigned char* m_LastPlayedData = nullptr;
 			size_t m_LastDataSize = 0;
+
+			float m_LVol = 0, m_RVol = 0;
 		protected:
 			void AddEffects(unsigned char* a_Data, uint32_t a_BufferSize);
 

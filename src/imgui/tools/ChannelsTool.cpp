@@ -180,17 +180,23 @@ namespace uaudio
 
 			ImGui::SameLine();
 
-			int left_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11);
-			int right_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11, false);
+			float left_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11);
+			float right_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, 11, false);
+
+			left_val = ImLerp(static_cast<float>(channel->m_LVol), left_val, 0.1f);
+			right_val = ImLerp(static_cast<float>(channel->m_RVol), right_val, 0.1f);
+
+			channel->m_LVol = left_val;
+			channel->m_RVol = right_val;
 
 			float meter_width = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 5.25f : 12.5f;
 			std::string meter_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_meter_01";
 			std::string meter_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_meter_02";
-			ImGui::UvMeter(meter_name.c_str(), ImVec2(meter_width, 90), &left_val, 0, 11, 11);
+			ImGui::UvMeter(meter_name.c_str(), ImVec2(meter_width, 90), &left_val, 0, 9, 9);
 			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
 			{
 				ImGui::SameLine();
-				ImGui::UvMeter(meter_name_2.c_str(), ImVec2(meter_width, 90), &right_val, 0, 11, 11);
+				ImGui::UvMeter(meter_name_2.c_str(), ImVec2(meter_width, 90), &right_val, 0, 9, 9);
 			}
 
 			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
