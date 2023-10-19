@@ -191,6 +191,12 @@ namespace uaudio
 			channel->m_LVol = left_val;
 			channel->m_RVol = right_val;
 
+			if (!isPlaying)
+			{
+				channel->m_LastPlayedData = nullptr;
+				channel->m_LastDataSize = 0;
+			}
+
 			size_t actual_steps = steps - (10 * 0.15f);
 
 			float meter_width = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 5.25f : 12.5f;
