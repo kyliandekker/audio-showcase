@@ -625,7 +625,7 @@ namespace ImGui
         return value_changed;
     }
 
-    bool BeginPlayPlot(size_t& pos, int max_pos, size_t numSamples, const float* samples, const char* title_id, float width, float height, size_t buffersize)
+    bool BeginPlayPlot(size_t& pos, int max_pos, size_t numSamples, const double* samples, const char* title_id, float width, float height, size_t buffersize)
     {
         if (ImPlot::BeginPlot(title_id, ImVec2(width, height), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
         {

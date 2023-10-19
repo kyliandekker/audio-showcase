@@ -5,6 +5,9 @@
 #include <imgui/imgui_helpers.h>
 #include <imgui/ImguiDefines.h>
 #include <imgui/implot.h>
+#include <imgui/imgui_internal.h>
+#include <fftw/fftw3.h>
+
 
 #include "audio/player/AudioSystem.h"
 #include "audio/player/ChannelHandle.h"
@@ -13,7 +16,6 @@
 #include "audio/player/utils.h"
 #include "utils/Utils.h"
 #include "utils/Logger.h"
-#include <imgui/imgui_internal.h>
 
 namespace uaudio
 {
@@ -93,8 +95,8 @@ namespace uaudio
 			}
 			std::string sound_hash_id = "##Player_sound_" + std::to_string(sound->m_Hash) + "_";
 			std::string sound_name = sound->m_Name;
-			float* left_samples = sound->m_LeftSamples;
-			float* right_samples = sound->m_RightSamples;
+			double* left_samples = sound->m_LeftSamples;
+			double* right_samples = sound->m_RightSamples;
 			size_t numSamples = sound->m_NumSamples;
 			sound->m_Mutex.unlock();
 
@@ -169,6 +171,30 @@ namespace uaudio
 
 			if (!active)
 				ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.00f, 0.66f, 0.18f, 0.05f));
+
+
+
+
+
+
+			//int input_size = channel->m_LastDataSize;
+			//int output_size = (input_size / 2 + 1);
+
+			//double* input_buffer = static_cast<double*>(fftw_malloc(input_size * sizeof(double)));
+			//fftw_complex* output_buffer = static_cast<fftw_complex*>(fftw_malloc(output_size * sizeof(fftw_complex)));
+
+			//int flags = FFTW_ESTIMATE;
+			//fftw_plan plan = fftw_plan_dft_r2c_1d(input_size,
+			//	input_buffer,
+			//	output_buffer,
+			//	flags);
+
+
+
+
+
+
+
 
 			float height = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 50 : 100;
 			float width = 25;

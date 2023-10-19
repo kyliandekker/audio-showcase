@@ -89,7 +89,7 @@ namespace uaudio
 				return (strncmp(a_ChunkID1, a_ChunkID2, uaudio::wave_reader::CHUNK_ID_SIZE) == 0);
 			}
 
-			float* ToSample(unsigned char* data, size_t buffersize, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels, size_t numSamples, bool left)
+			double* ToSample(unsigned char* data, size_t buffersize, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels, size_t numSamples, bool left)
 			{
 				if (data == nullptr)
 					return nullptr;
@@ -102,7 +102,7 @@ namespace uaudio
 
 				size_t div = realNumSamples / numSamples;
 
-				float* samples = reinterpret_cast<float*>(malloc(numSamples * sizeof(float)));
+				double* samples = reinterpret_cast<double*>(malloc(numSamples * sizeof(double)));
 				if (!samples)
 					return nullptr;
 
@@ -113,22 +113,22 @@ namespace uaudio
 					if (bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_8)
 					{
 						int8_t psample = INT8_MAX - *(uint8_t*)pData;
-						samples[i] = static_cast<float>(psample) / INT8_MAX;
+						samples[i] = static_cast<double>(psample) / INT8_MAX;
 					}
 					else if (bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_16)
 					{
 						int16_t sample = *(int16_t*)pData;
-						samples[i] = static_cast<float>(sample) / INT16_MAX;
+						samples[i] = static_cast<double>(sample) / INT16_MAX;
 					}
 					else if (bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24)
 					{
 						int24_t sample = *(int24_t*)pData;
-						samples[i] = static_cast<float>(sample) / INT24_MAX;
+						samples[i] = static_cast<double>(sample) / INT24_MAX;
 					}
 					else if (bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_32)
 					{
-						float sample = *(int32_t*)pData;
-						samples[i] = static_cast<float>(sample) / INT32_MAX;
+						double sample = *(int32_t*)pData;
+						samples[i] = static_cast<double>(sample) / INT32_MAX;
 					}
 
 					pData += div * blockAlign;
@@ -137,16 +137,16 @@ namespace uaudio
 				return samples;
 			}
 
-			float GetPeak(unsigned char* data, size_t data_size, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels, int scale, bool left)
+			double GetPeak(unsigned char* data, size_t data_size, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels, int scale, bool left)
 			{
 				data_size /= 2;
 				size_t numSamples = data_size / blockAlign;
 
 				unsigned char* pData = data;
 
-				float* samples = ToSample(data, data_size, bitsPerSample, blockAlign, channels, numSamples, left);
+				double* samples = ToSample(data, data_size, bitsPerSample, blockAlign, channels, numSamples, left);
 
-				float highest_value = 0;
+				double highest_value = 0;
 				for (size_t i = 0; i < numSamples; i++)
 					if (samples[i] > highest_value)
 						highest_value = samples[i];
