@@ -58,14 +58,10 @@ namespace uaudio
 					result[i + 2] = static_cast<T>(fTemp[2]);
 					result[i + 3] = static_cast<T>(fTemp[3]);
 				}
-				for (; i < leftOver; i++)
-				{
+				for (uint32_t j = 0; j < size - i; j++)
+					result[i + j] = static_cast<T>(static_cast<float>(result[i + j]) * a_Volume);
 
-					for (uint32_t j = 0; j < size - i; j++)
-						result[i + j] = static_cast<T>(static_cast<float>(result[i + j]) * a_Volume);
-
-					a_DataBuffer = reinterpret_cast<unsigned char*>(result);
-				}
+				a_DataBuffer = reinterpret_cast<unsigned char*>(result);
 			}
 #pragma endregion SIMD
 			a_DataBuffer = reinterpret_cast<unsigned char*>(result);
