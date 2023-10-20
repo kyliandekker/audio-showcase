@@ -67,12 +67,12 @@ namespace uaudio
 				// First look for inactive channels.
 				for (uint32_t i = 0; i < m_Channels.size(); i++)
 				{
-					bool isInUse = false;
-					m_Channels[i].IsInUse(isInUse);
-					if (!isInUse)
+					WasAPIChannel& channel = m_Channels[i];
+
+					if (channel.m_Sound == nullptr || (m_Channels[i].m_Sound != nullptr && channel.m_CurrentPos == 0 && !channel.m_IsPlaying))
 					{
-						m_Channels[i].SetSound(a_WaveFile);
-						m_Channels[i].Play();
+						channel.SetSound(a_WaveFile);
+						channel.Play();
 						a_Handle = static_cast<int32_t>(i);
 						return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 					}
@@ -102,10 +102,10 @@ namespace uaudio
 			{
 				for (size_t i = 0; i < m_Channels.size(); i++)
 				{
-					storage::Sound* sound = nullptr;
-					m_Channels[i].GetSound(sound);
-					if (&a_Sound == sound)
-						m_Channels[i].RemoveSound();
+					WasAPIChannel& channel = m_Channels[i];
+
+					if (channel.m_Sound == &a_Sound)
+						channel.RemoveSound();
 				}
 			}
 

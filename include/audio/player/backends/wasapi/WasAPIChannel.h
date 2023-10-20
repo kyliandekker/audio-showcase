@@ -24,6 +24,8 @@ namespace uaudio
 
 				UAUDIO_PLAYER_RESULT PlayRanged(uint32_t a_StartPos, uint32_t a_Size) override;
 				UAUDIO_PLAYER_RESULT PlayBuffer(const unsigned char* a_DataBuffer, uint32_t a_Size) const;
+
+				friend WasAPIBackend;
 			public:
 				WasAPIChannel();
 				WasAPIChannel(WasAPIBackend& a_Backend);

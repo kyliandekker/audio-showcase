@@ -101,70 +101,63 @@ namespace uaudio
 				if (m_SourceVoice == nullptr)
 					return UAUDIO_PLAYER_RESULT::UAUDIO_ERR_XAUDIO2_NO_SOURCEVOICE;
 
-				XAUDIO2_VOICE_STATE state;
-				m_SourceVoice->GetState(&state);
-				uint32_t buffersize = 0;
-				GetSoundBufferSize(buffersize);
-				if (state.BuffersQueued < buffersize)
+				uaudio::wave_reader::FMT_Chunk fmt_chunk;
+				uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_Sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+				if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+					return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FMT_CHUNK;
+
+				while (total_buffer_size >= fmt_chunk.byteRate + a_Size)
 				{
-					uaudio::wave_reader::FMT_Chunk fmt_chunk;
-					uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_Sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
-					if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
-						return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FMT_CHUNK;
+					buffer& buffer = m_DataBuffers.front();
+					total_buffer_size = total_buffer_size - buffer.size;
 
-					while (total_buffer_size >= fmt_chunk.byteRate + a_Size)
-					{
-						buffer& buffer = m_DataBuffers.front();
-						total_buffer_size = total_buffer_size - buffer.size;
-
-						free(buffer.data);
-						m_DataBuffers.pop();
-					}
-
-					uint32_t size = 0;
-					result = m_Sound->m_ChunkCollection->GetChunkSize(size, uaudio::wave_reader::DATA_CHUNK_ID);
-					// If the sound is done playing, check whether it needs to be repeated or whether it needs to be stopped entirely.
-					if (a_StartPos >= size)
-					{
-						m_CurrentPos = 0;
-						a_StartPos = 0;
-
-						// If the sound is not set to repeat, then stop the channel.
-						if (!m_Looping)
-						{
-							Pause();
-							SetPos(0);
-							m_LastDataSize = 0;
-							m_LastPlayedData = nullptr;
-							return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
-						}
-					}
-
-					unsigned char* data = {};
-
-					// Read the part of the wave file and store it back in the read buffer.
-					m_Sound->Read(a_StartPos, a_Size, data);
-
-					unsigned char* new_data = reinterpret_cast<unsigned char*>(malloc(a_Size));
-					if (new_data == nullptr)
-						return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
-
-					memcpy(new_data, data, a_Size);
-
-					// Make sure the new pos is the current pos.
-					m_CurrentPos = a_StartPos;
-
-					// Make sure we add the size of this read buffer to the total size, so that on the next frame we will get the next part of the wave file.
-					m_CurrentPos += a_Size;
-
-					m_LastPlayedData = new_data;
-					m_LastDataSize = a_Size;
-					total_buffer_size += m_LastDataSize;
-
-					AddEffects(new_data, a_Size);
-					PlayBuffer(new_data, a_Size);
-					m_DataBuffers.push({ new_data, a_Size });
+					free(buffer.data);
+					m_DataBuffers.pop();
 				}
+
+				uint32_t size = 0;
+				result = m_Sound->m_ChunkCollection->GetChunkSize(size, uaudio::wave_reader::DATA_CHUNK_ID);
+				// If the sound is done playing, check whether it needs to be repeated or whether it needs to be stopped entirely.
+				if (a_StartPos >= size)
+				{
+					m_CurrentPos = 0;
+					a_StartPos = 0;
+
+					// If the sound is not set to repeat, then stop the channel.
+					if (!m_Looping)
+					{
+						Pause();
+						SetPos(0);
+						m_LastDataSize = 0;
+						m_LastPlayedData = nullptr;
+						return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+					}
+				}
+
+				unsigned char* data = {};
+
+				// Read the part of the wave file and store it back in the read buffer.
+				m_Sound->Read(a_StartPos, a_Size, data);
+
+				unsigned char* new_data = reinterpret_cast<unsigned char*>(malloc(a_Size));
+				if (new_data == nullptr)
+					return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
+
+				memcpy(new_data, data, a_Size);
+
+				// Make sure the new pos is the current pos.
+				m_CurrentPos = a_StartPos;
+
+				// Make sure we add the size of this read buffer to the total size, so that on the next frame we will get the next part of the wave file.
+				m_CurrentPos += a_Size;
+
+				m_LastPlayedData = new_data;
+				m_LastDataSize = a_Size;
+				total_buffer_size += m_LastDataSize;
+
+				AddEffects(new_data, a_Size);
+				PlayBuffer(new_data, a_Size);
+				m_DataBuffers.push({ new_data, a_Size });
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}

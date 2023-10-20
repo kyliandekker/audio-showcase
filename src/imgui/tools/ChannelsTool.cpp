@@ -179,71 +179,71 @@ namespace uaudio
 
 
 
-			size_t numSSamples = channel->m_LastDataSize / fmt_chunk.blockAlign;
+			//size_t numSSamples = channel->m_LastDataSize / fmt_chunk.blockAlign;
 
-			if (numSSamples > 0)
-			{
-				int input_size = numSSamples;
-				int output_size = (input_size / 2 + 1);
+			//if (numSSamples > 0)
+			//{
+			//	int input_size = numSSamples;
+			//	int output_size = (input_size / 2 + 1);
 
-				double* input_buffer = player::utils::ToSample(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, numSSamples);
+			//	double* input_buffer = player::utils::ToSample(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, numSSamples);
 
-				/*double* hann_buffer = reinterpret_cast<double*>(fftw_malloc(numSSamples * sizeof(double)));
-				for (size_t i = 0; i < numSSamples; i++)
-				{
-					double mult = 0.5f - (0.5f * cos(2 * M_PI * i / (numSSamples - 1)));
-					hann_buffer[i] = mult * input_buffer[i];
-				}
+			//	/*double* hann_buffer = reinterpret_cast<double*>(fftw_malloc(numSSamples * sizeof(double)));
+			//	for (size_t i = 0; i < numSSamples; i++)
+			//	{
+			//		double mult = 0.5f - (0.5f * cos(2 * M_PI * i / (numSSamples - 1)));
+			//		hann_buffer[i] = mult * input_buffer[i];
+			//	}
 
-				fftw_complex* output_buffer = static_cast<fftw_complex*>(fftw_malloc(output_size * sizeof(fftw_complex)));
+			//	fftw_complex* output_buffer = static_cast<fftw_complex*>(fftw_malloc(output_size * sizeof(fftw_complex)));
 
-				int flags = FFTW_ESTIMATE;
-				fftw_plan plan = fftw_plan_dft_r2c_1d(input_size,
-					hann_buffer,
-					output_buffer,
-					flags);
+			//	int flags = FFTW_ESTIMATE;
+			//	fftw_plan plan = fftw_plan_dft_r2c_1d(input_size,
+			//		hann_buffer,
+			//		output_buffer,
+			//		flags);
 
-				double* freq_s = reinterpret_cast<double*>(malloc(numSSamples / 2 * sizeof(double)));
-				double* magn_s = reinterpret_cast<double*>(malloc(numSSamples / 2 * sizeof(double)));
+			//	double* freq_s = reinterpret_cast<double*>(malloc(numSSamples / 2 * sizeof(double)));
+			//	double* magn_s = reinterpret_cast<double*>(malloc(numSSamples / 2 * sizeof(double)));
 
-				fftw_execute(plan);
+			//	fftw_execute(plan);
 
-				for (size_t i = 0; i < numSSamples / 2; i++)
-				{
-					auto re = output_buffer[i][0];
-					auto im = output_buffer[i][1];
-					auto magn = sqrt(re * re + im * im);
-					auto freq = i * (fmt_chunk.sampleRate / (double)(numSSamples / 2));
+			//	for (size_t i = 0; i < numSSamples / 2; i++)
+			//	{
+			//		auto re = output_buffer[i][0];
+			//		auto im = output_buffer[i][1];
+			//		auto magn = sqrt(re * re + im * im);
+			//		auto freq = i * (fmt_chunk.sampleRate / (double)(numSSamples / 2));
 
-					freq_s[i] = freq;
-					magn_s[i] = magn;
-				}
+			//		freq_s[i] = freq;
+			//		magn_s[i] = magn;
+			//	}
 
-				for (size_t i = 0; i < numSSamples / 2; i++)
-				{
-					auto scaledMagnitude = magn_s[i] / ((double)numSSamples / 2);
-					magn_s[i] = 20 * log10(scaledMagnitude);
-				}*/
+			//	for (size_t i = 0; i < numSSamples / 2; i++)
+			//	{
+			//		auto scaledMagnitude = magn_s[i] / ((double)numSSamples / 2);
+			//		magn_s[i] = 20 * log10(scaledMagnitude);
+			//	}*/
 
-				std::string graph_eq_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_eq_01";
-				if (ImPlot::BeginPlot(graph_eq_name.c_str(), ImVec2(ImGui::GetWindowSize().x - 100, 50), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
-				{
-					ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
-					ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
-					ImPlot::SetupAxisLimits(ImAxis_Y1, -1.f, 1.f, ImPlotCond_Always);
-					ImPlot::SetupAxisLimits(ImAxis_Y1, -1, 1, ImPlotCond_Always);
-					ImPlot::PlotLine("", input_buffer, numSSamples);
-					ImPlot::EndPlot();
-				}
+			//	std::string graph_eq_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_eq_01";
+			//	if (ImPlot::BeginPlot(graph_eq_name.c_str(), ImVec2(ImGui::GetWindowSize().x - 100, 50), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
+			//	{
+			//		ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
+			//		ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
+			//		ImPlot::SetupAxisLimits(ImAxis_Y1, -1.f, 1.f, ImPlotCond_Always);
+			//		ImPlot::SetupAxisLimits(ImAxis_Y1, -1, 1, ImPlotCond_Always);
+			//		ImPlot::PlotLine("", input_buffer, numSSamples);
+			//		ImPlot::EndPlot();
+			//	}
 
-				//free(freq_s);
-				//free(magn_s);
+			//	free(freq_s);
+			//	free(magn_s);
 
-				free(input_buffer);
-				//fftw_free(hann_buffer);
-				//fftw_free(output_buffer);
-				//fftw_destroy_plan(plan);
-			}
+			//	free(input_buffer);
+			//	fftw_free(hann_buffer);
+			//	fftw_free(output_buffer);
+			//	fftw_destroy_plan(plan);
+			//}
 
 			float height = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 50 : 100;
 			float width = 25;
