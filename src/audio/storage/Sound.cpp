@@ -17,6 +17,7 @@ namespace uaudio
 				delete m_ChunkCollection;
 			}
 			free(m_LeftSamples);
+			free(m_RightSamples);
 		}
 
 		void Sound::Read(uint32_t a_StartingPoint, uint32_t& a_ElementCount, unsigned char*& a_DataBuffer) const

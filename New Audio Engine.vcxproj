@@ -96,8 +96,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)external/uaudio_wave_reader/$(PlatformShortname);$(SolutionDir)external/fftw/lib;$(SolutionDir)external/sdl/$(PlatformShortname);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>uaudio_wave_reader_$(PlatformShortname)_$(Configuration).lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)external/uaudio_wave_reader/$(PlatformShortname);$(SolutionDir)external/fftw;$(SolutionDir)external/sdl/$(PlatformShortname);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>uaudio_wave_reader_$(PlatformShortname)_$(Configuration).lib;d3d9.lib;libfftw3-3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -120,8 +120,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)external/uaudio_wave_reader/$(PlatformShortname);$(SolutionDir)external/fftw/lib;$(SolutionDir)external/sdl/$(PlatformShortname);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>uaudio_wave_reader_$(PlatformShortname)_$(Configuration).lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)external/uaudio_wave_reader/$(PlatformShortname);$(SolutionDir)external/fftw;$(SolutionDir)external/sdl/$(PlatformShortname);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>uaudio_wave_reader_$(PlatformShortname)_$(Configuration).lib;d3d9.lib;libfftw3-3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -140,8 +140,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)external/uaudio_wave_reader/$(PlatformShortname);$(SolutionDir)external/fftw/lib;$(SolutionDir)external/sdl/$(PlatformShortname);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>uaudio_wave_reader_$(PlatformShortname)_$(Configuration).lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)external/uaudio_wave_reader/$(PlatformShortname);$(SolutionDir)external/fftw;$(SolutionDir)external/sdl/$(PlatformShortname);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>uaudio_wave_reader_$(PlatformShortname)_$(Configuration).lib;d3d9.lib;libfftw3-3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -164,8 +164,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)external/uaudio_wave_reader/$(PlatformShortname);$(SolutionDir)external/fftw/lib;$(SolutionDir)external/sdl/$(PlatformShortname);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>uaudio_wave_reader_$(PlatformShortname)_$(Configuration).lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)external/uaudio_wave_reader/$(PlatformShortname);$(SolutionDir)external/fftw;$(SolutionDir)external/sdl/$(PlatformShortname);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>uaudio_wave_reader_$(PlatformShortname)_$(Configuration).lib;d3d9.lib;libfftw3-3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
