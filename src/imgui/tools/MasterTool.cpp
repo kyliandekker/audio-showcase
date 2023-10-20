@@ -44,6 +44,8 @@ namespace uaudio
 
 		void MasterTool::Render()
 		{
+			ImGui::LabelText("FPS", std::to_string(player::audioSystem.m_Fps).c_str());
+
 			bool paused = false;
 			uaudio::player::UAUDIO_PLAYER_RESULT result = player::audioSystem.IsPaused(paused);
 			if (UAUDIOPLAYERFAILED(result))

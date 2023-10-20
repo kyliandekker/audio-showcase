@@ -245,7 +245,7 @@ namespace uaudio
 			//	fftw_destroy_plan(plan);
 			//}
 
-			float height = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 50 : 100;
+			float height = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 50.0f : 100.0f;
 			float width = 25;
 			size_t new_pos = pos;
 			float ex_width = ImGui::GetWindowSize().x - width - 35;
@@ -257,8 +257,8 @@ namespace uaudio
 
 			size_t steps = 10;
 
-			float left_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, steps);
-			float right_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, steps, false);
+			float left_val = static_cast<float>(player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, steps));
+			float right_val = static_cast<float>(player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, steps, false));
 
 			left_val = ImLerp(channel->m_LVol, left_val, 0.15f);
 			right_val = ImLerp(channel->m_RVol, right_val, 0.15f);

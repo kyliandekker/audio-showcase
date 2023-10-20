@@ -59,9 +59,7 @@ namespace ImGui
 
     bool BeginPlayPlot(size_t& pos, int max_pos, size_t numSamples, const double* samples, const char* title_id, float width, float height, size_t buffersize);
 
-    void UvMeter(char const* label, ImVec2 const& size, int* value, int v_min, int v_max, int steps = 10, int* stack = nullptr, int* count = nullptr, float background = 0.f, std::map<float, float> segment = {});
     void UvMeter(char const* label, ImVec2 const& size, float* value, float v_min, float v_max, int steps = 10, float* stack = nullptr, int* count = nullptr, float background = 0.f, std::map<float, float> segment = {});
-    void UvMeter(ImDrawList* draw_list, char const* label, ImVec2 const& size, int* value, int v_min, int v_max, int steps = 10, int* stack = nullptr, int* count = nullptr, float background = 0.f, std::map<float, float> segment = {});
     void UvMeter(ImDrawList* draw_list, char const* label, ImVec2 const& size, float* value, float v_min, float v_max, int steps = 10, float* stack = nullptr, int* count = nullptr, float background = 0.f, std::map<float, float> segment = {});
 
 #endif // IMGUI_HELPERS_H

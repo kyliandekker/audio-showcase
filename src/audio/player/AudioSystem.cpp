@@ -104,10 +104,15 @@ namespace uaudio
 				if (to_sleep > 0.0)
 				{
 					total += to_sleep / 1000.0;
-					Sleep(to_sleep);
+					Sleep(static_cast<DWORD>(to_sleep));
 				}
 
 				m_DeltaTime = total;
+
+				m_Frames++;
+				m_Time += m_DeltaTime;
+
+				m_Fps = (m_Frames / (m_Time / 1000)) / 1000;
 			}
 			LOG(logger::LOGSEVERITY_INFO, "Stopped audio thread.");
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;

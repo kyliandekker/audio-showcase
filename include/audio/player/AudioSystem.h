@@ -59,7 +59,10 @@ namespace uaudio
 
 			bool simd = false;
 			double m_DeltaTime = 0.0f;
+			float m_Fps = 0;
 		private:
+			double m_Time = 0.0;
+			size_t m_Frames = 0;
 			Backend m_Backend = Backend::XAUDIO2;
 
 			UAUDIO_PLAYER_RESULT Update();

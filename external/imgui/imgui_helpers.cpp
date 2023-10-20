@@ -679,22 +679,6 @@ namespace ImGui
         return false;
     }
 
-    void ImGui::UvMeter(char const* label, ImVec2 const& size, int* value, int v_min, int v_max, int steps, int* stack, int* count, float background, std::map<float, float> segment)
-    {
-        UvMeter(ImGui::GetWindowDrawList(), label, size, value, v_min, v_max, steps, stack, count, background, segment);
-    }
-
-    void ImGui::UvMeter(ImDrawList* draw_list, char const* label, ImVec2 const& size, int* value, int v_min, int v_max, int steps, int* stack, int* count, float background, std::map<float, float> segment)
-    {
-        float fvalue = (float)*value;
-        float* fstack = nullptr;
-        float _f = 0.f;
-        if (stack) { fstack = &_f; *fstack = (float)*stack; }
-        UvMeter(draw_list, label, size, &fvalue, (float)v_min, (float)v_max, steps, fstack, count, background, segment);
-        *value = (int)fvalue;
-        if (stack) *stack = (int)*fstack;
-    }
-
     void ImGui::UvMeter(char const* label, ImVec2 const& size, float* value, float v_min, float v_max, int steps, float* stack, int* count, float background, std::map<float, float> segment)
     {
         UvMeter(ImGui::GetWindowDrawList(), label, size, value, v_min, v_max, steps, stack, count, background, segment);
