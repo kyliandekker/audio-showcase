@@ -95,14 +95,19 @@ namespace uaudio
 
 				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
-				double to_sleep = (1000.0f / 60.0f);
+				double to_sleep = (1000.0 / 60.0);
 
-				m_DeltaTime = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count()) / 1000000;
+				m_DeltaTime = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count()) / 1000000.0;
 				to_sleep -= m_DeltaTime;
+				double total = m_DeltaTime / 1000.0;
 
-				Sleep(to_sleep);
+				if (to_sleep > 0.0)
+				{
+					total += to_sleep / 1000.0;
+					Sleep(to_sleep);
+				}
 
-				m_DeltaTime = (1000.0f / 60.0f) / 1000;
+				m_DeltaTime = total;
 			}
 			LOG(logger::LOGSEVERITY_INFO, "Stopped audio thread.");
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
