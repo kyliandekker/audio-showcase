@@ -51,11 +51,43 @@ namespace uaudio
 			
 			if (!(UAUDIOWAVEREADERFAILED(result)))
 			{
-				if (fmt_chunk.audioFormat != uaudio::wave_reader::WAV_FORMAT_PCM)
+				if (fmt_chunk.bitsPerSample != uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_8 && fmt_chunk.bitsPerSample != uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_16 && fmt_chunk.bitsPerSample != uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24 && fmt_chunk.bitsPerSample != uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_32 && fmt_chunk.bitsPerSample != uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_64)
 				{
-					LOG(logger::LOGSEVERITY_ERROR, "Cannot load non pcm-formatted files yet.");
+					LOG(logger::LOGSEVERITY_ERROR, "Bits per sample not supported.");
 					free(allocated_space);
 					return nullptr;
+				}
+				if (fmt_chunk.numChannels * fmt_chunk.bitsPerSample / 8 != fmt_chunk.blockAlign)
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "Block align is wrong.");
+					free(allocated_space);
+					return nullptr;
+				}
+				if (fmt_chunk.sampleRate * fmt_chunk.numChannels * fmt_chunk.bitsPerSample / 8 != fmt_chunk.byteRate)
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "Byte rate is wrong.");
+					free(allocated_space);
+					return nullptr;
+				}
+				if (fmt_chunk.numChannels > uaudio::wave_reader::WAVE_CHANNELS_STEREO)
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "Too many channels.");
+					free(allocated_space);
+					return nullptr;
+				}
+				if (fmt_chunk.numChannels < uaudio::wave_reader::WAVE_CHANNELS_MONO)
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "Too few channels.");
+					free(allocated_space);
+					return nullptr;
+				}
+				if (fmt_chunk.audioFormat == uaudio::wave_reader::WAV_FORMAT_IEEE_FLOAT && fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_64)
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "Playing 64-float format is not supported. You can still view this file's chunks, however.");
+				}
+				if (fmt_chunk.audioFormat != uaudio::wave_reader::WAV_FORMAT_IEEE_FLOAT && fmt_chunk.audioFormat != uaudio::wave_reader::WAV_FORMAT_PCM)
+				{
+					LOG(logger::LOGSEVERITY_ERROR, "Unknown format. Playing is not supported. You can still view this file's chunks, however.");
 				}
 			}
 
@@ -69,8 +101,8 @@ namespace uaudio
 				sound->m_NumSamples = sound->m_RNumSamples;
 				if (sound->m_NumSamples > MAX_SAMPLES)
 					sound->m_NumSamples = MAX_SAMPLES;
-				sound->m_LeftSamples = uaudio::player::utils::ToSample(data_chunk.data, data_chunk_size, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, sound->m_NumSamples);
-				sound->m_RightSamples = uaudio::player::utils::ToSample(data_chunk.data, data_chunk_size, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, sound->m_NumSamples, false);
+				sound->m_LeftSamples = uaudio::player::utils::ToSample(data_chunk.data, data_chunk_size, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, fmt_chunk.audioFormat, sound->m_NumSamples);
+				sound->m_RightSamples = uaudio::player::utils::ToSample(data_chunk.data, data_chunk_size, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, fmt_chunk.audioFormat, sound->m_NumSamples, false);
 			}
 
 			m_Sounds.push_back(sound);

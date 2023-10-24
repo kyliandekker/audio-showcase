@@ -159,7 +159,7 @@ namespace uaudio
 				if (real_buffersize == 0)
 					return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 
-				UINT32 numFramesToWrite = real_buffersize - bufferPadding;
+				UINT32 numFramesToWrite = static_cast<UINT32>(real_buffersize) - bufferPadding;
 				PlayRanged(m_CurrentPos, numFramesToWrite);
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;

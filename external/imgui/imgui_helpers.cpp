@@ -625,7 +625,7 @@ namespace ImGui
         return value_changed;
     }
 
-    bool BeginPlayPlot(size_t& pos, int max_pos, size_t numSamples, const double* samples, const char* title_id, float width, float height, size_t buffersize)
+    bool BeginPlayPlot(uint32_t& pos, int max_pos, size_t numSamples, const double* samples, const char* title_id, float width, float height, size_t blockAlign)
     {
         if (ImPlot::BeginPlot(title_id, ImVec2(width, height), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
         {
@@ -656,7 +656,7 @@ namespace ImGui
 
                 pos = max_pos / static_cast<int>(plotSize.x + imPlotStyle.PlotPadding.x) * static_cast<int>(mousePositionRelative.x - imPlotStyle.PlotPadding.x);
 
-                uint32_t left_over = static_cast<uint32_t>(pos) % buffersize;
+                uint32_t left_over = static_cast<uint32_t>(pos) % blockAlign;
                 pos = static_cast<uint32_t>(pos) - left_over;
             }
 
@@ -677,6 +677,12 @@ namespace ImGui
             ImPlot::EndPlot();
         }
         return false;
+    }
+
+    void UvMeter(char const* label, ImVec2 const& size, double* value, float v_min, float v_max, int steps, float* stack, int* count, float background, std::map<float, float> segment)
+    {
+        float v = static_cast<float>(*value);
+        UvMeter(label, size, &v, v_min, v_max, steps, stack, count, background, segment);
     }
 
     void ImGui::UvMeter(char const* label, ImVec2 const& size, float* value, float v_min, float v_max, int steps, float* stack, int* count, float background, std::map<float, float> segment)
@@ -730,7 +736,7 @@ namespace ImGui
                         }
                     }
                 }
-                sat = (*value < i ? 0.8 : 1.0f);
+                sat = (*value < i ? 0.8f : 1.0f);
                 lum = (*value < i ? background : 1.0f);
                 draw_list->AddRectFilled(ImVec2(pos.x, y), ImVec2(pos.x + size.x, y - (stepHeight * steps_size - 1)), static_cast<ImU32>(ImColor::HSV(hue, sat, lum)));
                 y = pos.y + size.y - (i * stepHeight);

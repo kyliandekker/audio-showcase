@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <cstring>
 
 #include "./Defines.h"
 
@@ -10,7 +9,6 @@ namespace uaudio
 	namespace wave_reader
 	{
 #pragma pack(push, 1)
-
 		/*
 		 * WHAT IS THIS FILE?
 		 * This is a wave chunk header. Every chunk in a wave file has an ID and size.
@@ -23,11 +21,18 @@ namespace uaudio
 		struct ChunkHeader
 		{
 			ChunkHeader() {};
+			ChunkHeader(const ChunkHeader& rhs);
 			ChunkHeader(ChunkHeader* a_DataBuffer);
 
 			unsigned char chunk_id[wave_reader::CHUNK_ID_SIZE] = {};
-			uint32_t chunkSize = 0;
+			unsigned char chunkSize[sizeof(uint32_t)] = {};
+
+			uint32_t ChunkSize(bool isBigEndian = false) const;
+			void SetChunkSize(uint32_t chunk_size, bool toBigEndian = false);
 		};
+
+		using WaveHeader = ChunkHeader;
+		using Header = ChunkHeader;
 #pragma pack(pop)
 	}
 }

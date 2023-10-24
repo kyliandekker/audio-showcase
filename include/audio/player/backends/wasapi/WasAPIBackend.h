@@ -24,7 +24,7 @@ namespace uaudio
 				~WasAPIBackend();
 
 				virtual void Update() override;
-				UAUDIO_PLAYER_RESULT Play(storage::Sound& a_WaveFile, ChannelHandle& a_Handle) override;
+				UAUDIO_PLAYER_RESULT Play(storage::Sound& a_Sound, ChannelHandle& a_Handle) override;
 
 				size_t NumChannels() const override;
 				AudioChannel* GetChannel(ChannelHandle& a_Handle) override;

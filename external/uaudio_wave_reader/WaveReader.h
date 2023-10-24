@@ -3,13 +3,14 @@
 #include <cstdint>
 #include <cstdio>
 
-#include "./UAUDIO_WAVE_READER_RESULT.h"
 #include "./WaveReadSettings.h"
 
 namespace uaudio
 {
 	namespace wave_reader
 	{
+		enum class UAUDIO_WAVE_READER_RESULT;
+
 		class ChunkCollection;
 
 		/*
@@ -24,7 +25,7 @@ namespace uaudio
 			static UAUDIO_WAVE_READER_RESULT SaveWave(const char* a_FilePath, const ChunkCollection& a_ChunkCollection);
 		private:
 			static UAUDIO_WAVE_READER_RESULT OpenWave(const char* a_FilePath, FILE*& a_File, long& a_FileSize);
-			static UAUDIO_WAVE_READER_RESULT LoadChunk(FILE* a_File, long& a_PreviousTell, char* a_PrevChunkID, char* a_ChunkID, uint32_t& a_ChunkSize);
+			static UAUDIO_WAVE_READER_RESULT LoadChunk(FILE* a_File, long& a_PreviousTell, unsigned char* a_PrevChunkID, unsigned char* a_ChunkID, uint32_t& a_ChunkSize);
 			static void Conversion(FILE* a_File, ChunkCollection& a_ChunkCollection, const WaveReadSettings& a_WaveReadSettings, size_t fmt_chunk_offset, size_t data_chunk_offset);
 		};
 	}

@@ -112,7 +112,7 @@ namespace uaudio
 				m_Frames++;
 				m_Time += m_DeltaTime;
 
-				m_Fps = (m_Frames / (m_Time / 1000)) / 1000;
+				m_Fps = (m_Frames / (m_Time / 1000.0)) / 1000.0;
 			}
 			LOG(logger::LOGSEVERITY_INFO, "Stopped audio thread.");
 			return UAUDIO_PLAYER_RESULT::UAUDIO_OK;

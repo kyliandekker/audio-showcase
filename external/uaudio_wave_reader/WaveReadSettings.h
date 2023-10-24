@@ -1,25 +1,25 @@
 #pragma once
 
-#include "UAUDIO_WAVE_READER_RESULT.h"
-
 namespace uaudio
 {
 	namespace wave_reader
 	{
+		enum class UAUDIO_WAVE_READER_RESULT;
+
 		enum class BPSConversionSettings
 		{
-			CONVERSION_IDC,
-			CONVERSION_8_BIT,
-			CONVERSION_16_BIT,
-			CONVERSION_24_BIT,
-			CONVERSION_32_BIT
+			CONVERSION_IDC = 0,
+			CONVERSION_8_BIT = 8,
+			CONVERSION_16_BIT = 16,
+			CONVERSION_24_BIT = 24,
+			CONVERSION_32_BIT = 32
 		};
 
 		enum class ChannelsConversionSettings
 		{
-			CONVERSION_IDC,
-			CONVERSION_MONO,
-			CONVERSION_STEREO
+			CONVERSION_IDC = 0,
+			CONVERSION_MONO = 1,
+			CONVERSION_STEREO = 2
 		};
 
 		class ChunkFilter;

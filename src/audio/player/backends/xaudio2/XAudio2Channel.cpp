@@ -208,7 +208,7 @@ namespace uaudio
 				if (real_buffersize == 0)
 					return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 
-				PlayRanged(m_CurrentPos, real_buffersize);
+				PlayRanged(m_CurrentPos, static_cast<uint32_t>(real_buffersize));
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}

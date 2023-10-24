@@ -20,7 +20,7 @@ namespace uaudio
 				~XAudio2Backend();
 				XAudio2Backend();
 				virtual void Update() override;
-				UAUDIO_PLAYER_RESULT Play(storage::Sound& a_WaveFile, ChannelHandle& a_Handle) override;
+				UAUDIO_PLAYER_RESULT Play(storage::Sound& a_Sound, ChannelHandle& a_Handle) override;
 
 				IXAudio2& GetEngine() const;
 				IXAudio2MasteringVoice& GetMasteringVoice() const;

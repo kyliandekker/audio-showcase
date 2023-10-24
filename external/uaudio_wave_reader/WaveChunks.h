@@ -1,10 +1,8 @@
 ﻿#pragma once
 
 #include <cstdint>
-#include <cstring>
 
 #include "./Defines.h"
-#include "./Utils.h"
 #include "./ChunkHeader.h"
 
 /*
@@ -35,6 +33,7 @@
 // http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
 // https://www.recordingblogs.com/wiki/sample-chunk-of-a-wave-file
 // https://sites.google.com/site/musicgapi/technical-documents/wav-file-format
+// https://code.google.com/archive/p/awesome-wav/wikis/WAVFormat.wiki
 
 namespace uaudio
 {
@@ -66,13 +65,7 @@ namespace uaudio
 		struct RIFF_Chunk : ChunkHeader
 		{
 			RIFF_Chunk() = default;
-			RIFF_Chunk(RIFF_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
-			{
-				if (a_DataBuffer != nullptr)
-				{
-					memcpy(format, a_DataBuffer->format, sizeof(format));
-				}
-			}
+			RIFF_Chunk(RIFF_Chunk* a_DataBuffer);
 			unsigned char format[CHUNK_ID_SIZE] = {};
 		};
 
@@ -135,18 +128,7 @@ namespace uaudio
 		struct FMT_Chunk : ChunkHeader
 		{
 			FMT_Chunk() = default;
-			FMT_Chunk(FMT_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
-			{
-				if (a_DataBuffer != nullptr)
-				{
-					audioFormat = a_DataBuffer->audioFormat;
-					numChannels = a_DataBuffer->numChannels;
-					sampleRate = a_DataBuffer->sampleRate;
-					byteRate = a_DataBuffer->byteRate;
-					blockAlign = a_DataBuffer->blockAlign;
-					bitsPerSample = a_DataBuffer->bitsPerSample;
-				}
-			}
+			FMT_Chunk(FMT_Chunk* a_DataBuffer);
 			uint16_t audioFormat = 0;
 			uint16_t numChannels = 0;
 			uint32_t sampleRate = 0;
@@ -180,14 +162,7 @@ namespace uaudio
 		struct DATA_Chunk : ChunkHeader
 		{
 			DATA_Chunk() = default;
-			DATA_Chunk(DATA_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
-			{
-				if (a_DataBuffer != nullptr)
-				{
-					// data is a pointer to everything after the data header.
-					data = reinterpret_cast<unsigned char*>(utils::add(a_DataBuffer, sizeof(DATA_Chunk) - sizeof(data)));
-				}
-			}
+			DATA_Chunk(DATA_Chunk* a_DataBuffer);
 			unsigned char* data = nullptr;
 		};
 
@@ -235,20 +210,7 @@ namespace uaudio
 		struct ACID_Chunk : ChunkHeader
 		{
 			ACID_Chunk() = default;
-			ACID_Chunk(ACID_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
-			{
-				if (a_DataBuffer != nullptr)
-				{
-					type_of_file = a_DataBuffer->type_of_file;
-					root_note = a_DataBuffer->root_note;
-					unknown1 = a_DataBuffer->unknown1;
-					unknown2 = a_DataBuffer->unknown2;
-					num_of_beats = a_DataBuffer->num_of_beats;
-					meter_denominator = a_DataBuffer->meter_denominator;
-					meter_numerator = a_DataBuffer->meter_numerator;
-					tempo = a_DataBuffer->tempo;
-				}
-			}
+			ACID_Chunk(ACID_Chunk* a_DataBuffer);
 			uint32_t type_of_file = 0x5;
 			uint16_t root_note = 0x3c;
 			uint16_t unknown1 = 0x8000;
@@ -351,27 +313,7 @@ namespace uaudio
 		struct BEXT_Chunk : ChunkHeader
 		{
 			BEXT_Chunk() = default;
-			BEXT_Chunk(BEXT_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
-			{
-				if (a_DataBuffer != nullptr)
-				{
-					memcpy(description, a_DataBuffer->description, sizeof(description));
-					memcpy(originator, a_DataBuffer->originator, sizeof(originator));
-					memcpy(originator_reference, a_DataBuffer->originator_reference, sizeof(originator_reference));
-					memcpy(origination_date, a_DataBuffer->origination_date, sizeof(origination_date));
-					memcpy(origination_time, a_DataBuffer->origination_time, sizeof(origination_time));
-					time_reference_low = a_DataBuffer->time_reference_low;
-					time_reference_high = a_DataBuffer->time_reference_high;
-					version = a_DataBuffer->version;
-					memcpy(umid, a_DataBuffer->umid, sizeof(umid));
-					loudness_value = a_DataBuffer->loudness_value;
-					loudness_range = a_DataBuffer->loudness_range;
-					max_true_peak_level = a_DataBuffer->max_true_peak_level;
-					max_momentary_loudness = a_DataBuffer->max_momentary_loudness;
-					max_short_term_loudness = a_DataBuffer->max_short_term_loudness;
-					memcpy(reserved, a_DataBuffer->reserved, sizeof(reserved));
-				}
-			}
+			BEXT_Chunk(BEXT_Chunk* a_DataBuffer);
 			char description[256] = {};
 			char originator[32] = {};
 			char originator_reference[32] = {};
@@ -409,13 +351,7 @@ namespace uaudio
 		struct FACT_Chunk : ChunkHeader
 		{
 			FACT_Chunk() = default;
-			FACT_Chunk(FACT_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
-			{
-				if (a_DataBuffer != nullptr)
-				{
-					sample_length = a_DataBuffer->sample_length;
-				}
-			}
+			FACT_Chunk(FACT_Chunk* a_DataBuffer);
 			uint32_t sample_length = 0;
 		};
 
@@ -483,16 +419,7 @@ namespace uaudio
 		struct CUE_Chunk : ChunkHeader
 		{
 			CUE_Chunk() = default;
-			CUE_Chunk(CUE_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
-			{
-				if (a_DataBuffer != nullptr)
-				{
-					num_cue_points = a_DataBuffer->num_cue_points;
-
-					// cue_points is a pointer to everything after the cue_chunk header and the num_cue_points field.
-					cue_points = reinterpret_cast<CUE_Point*>(utils::add(a_DataBuffer, sizeof(CUE_Chunk) - sizeof(cue_points)));
-				}
-			}
+			CUE_Chunk(CUE_Chunk* a_DataBuffer);
 
 			uint32_t num_cue_points = 0;
 
@@ -687,24 +614,7 @@ namespace uaudio
 		struct SMPL_Chunk : ChunkHeader
 		{
 			SMPL_Chunk() = default;
-			SMPL_Chunk(SMPL_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
-			{
-				if (a_DataBuffer != nullptr)
-				{
-					manufacturer = a_DataBuffer->manufacturer;
-					product = a_DataBuffer->product;
-					sample_period = a_DataBuffer->sample_period;
-					midi_unity_node = a_DataBuffer->midi_unity_node;
-					midi_pitch_fraction = a_DataBuffer->midi_pitch_fraction;
-					smpte_format = a_DataBuffer->smpte_format;
-					smpte_offset = a_DataBuffer->smpte_offset;
-					num_sample_loops = a_DataBuffer->num_sample_loops;
-					sampler_data = a_DataBuffer->sampler_data;
-
-					// samples is a pointer to the smpl_chunk header and everything before the samples field.
-					samples = reinterpret_cast<SMPL_Sample_Loop*>(utils::add(a_DataBuffer, sizeof(SMPL_Chunk) - sizeof(samples)));
-				}
-			}
+			SMPL_Chunk(SMPL_Chunk* a_DataBuffer);
 
 			uint32_t manufacturer = 0;
 			uint32_t product = 0;
@@ -764,19 +674,7 @@ namespace uaudio
 		struct INST_Chunk : ChunkHeader
 		{
 			INST_Chunk() = default;
-			INST_Chunk(INST_Chunk* a_DataBuffer) : ChunkHeader(a_DataBuffer)
-			{
-				if (a_DataBuffer != nullptr)
-				{
-					unshiftedNote = a_DataBuffer->unshiftedNote;
-					fineTune = a_DataBuffer->fineTune;
-					gain = a_DataBuffer->gain;
-					lowNote = a_DataBuffer->lowNote;
-					highNote = a_DataBuffer->highNote;
-					lowVelocity = a_DataBuffer->lowVelocity;
-					highVelocity = a_DataBuffer->highVelocity;
-				}
-			}
+			INST_Chunk(INST_Chunk* a_DataBuffer);
 
 			uint8_t unshiftedNote = 0;
 			uint8_t fineTune = 0;

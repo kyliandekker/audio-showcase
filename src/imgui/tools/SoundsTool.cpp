@@ -59,15 +59,30 @@ namespace uaudio
 
 			if (hasFmtChunk && hasDataChunk)
 			{
-				chunkCollection.GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);
-
-				std::string play_button_text = std::string(PLAY) + " Play" + sound_hash_id + "play_button";
-				if (ImGui::Button(play_button_text.c_str()))
+				uaudio::wave_reader::FMT_Chunk fmt_chunk;
+				uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+				if (UAUDIOWAVEREADERFAILED(result))
 				{
-					uaudio::player::ChannelHandle handle;
-					uaudio::player::audioSystem.Play(a_Sound, handle);
+					LOGF(logger::LOGSEVERITY_WARNING, "Tried to read from sound %s, but it has no fmt chunk.", m_Name.c_str());
+					return true;
 				}
-				ImGui::SameLine();
+
+				if ((fmt_chunk.audioFormat == uaudio::wave_reader::WAV_FORMAT_PCM || fmt_chunk.audioFormat == uaudio::wave_reader::WAV_FORMAT_IEEE_FLOAT) &&
+					fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_8 || 
+					fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_16 ||
+					fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24 ||
+					fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_32)
+				{
+					chunkCollection.GetChunkSize(data_chunk_size, uaudio::wave_reader::DATA_CHUNK_ID);
+
+					std::string play_button_text = std::string(PLAY) + " Play" + sound_hash_id + "play_button";
+					if (ImGui::Button(play_button_text.c_str()))
+					{
+						uaudio::player::ChannelHandle handle;
+						uaudio::player::audioSystem.Play(a_Sound, handle);
+					}
+					ImGui::SameLine();
+				}
 			}
 
 			std::string eject_sound_text = std::string(EJECT) + " Eject" + sound_hash_id + "eject_sound_button";
@@ -539,7 +554,7 @@ namespace uaudio
 		template <class T>
 		void SoundsTool::ViewAs(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness)
 		{
-			for (size_t i = 0; i < a_ChunkHeader->chunkSize / sizeof(T); i++)
+			for (size_t i = 0; i < a_ChunkHeader->ChunkSize() / sizeof(T); i++)
 			{
 				unsigned char* ptr = reinterpret_cast<unsigned char*>(utils::add(a_ChunkHeader, sizeof(uaudio::wave_reader::ChunkHeader)));
 				ptr = reinterpret_cast<unsigned char*>(utils::add(ptr, i * sizeof(T)));
@@ -557,7 +572,7 @@ namespace uaudio
 
 		void SoundsTool::ViewAsChar(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness)
 		{
-			for (size_t i = 0; i < a_ChunkHeader->chunkSize; i++)
+			for (size_t i = 0; i < a_ChunkHeader->ChunkSize(); i++)
 			{
 				unsigned char* ptr = reinterpret_cast<unsigned char*>(utils::add(a_ChunkHeader, sizeof(uaudio::wave_reader::ChunkHeader)));
 				ptr = reinterpret_cast<unsigned char*>(utils::add(ptr, i));
@@ -571,10 +586,10 @@ namespace uaudio
 
 		void SoundsTool::ViewAsString(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness)
 		{
-			unsigned char* complete = reinterpret_cast<unsigned char*>(malloc(a_ChunkHeader->chunkSize - sizeof(uaudio::wave_reader::ChunkHeader)));
+			unsigned char* complete = reinterpret_cast<unsigned char*>(malloc(a_ChunkHeader->ChunkSize() - sizeof(uaudio::wave_reader::ChunkHeader)));
 			if (complete != nullptr)
 			{
-				memcpy(complete, utils::add(a_ChunkHeader, sizeof(uaudio::wave_reader::ChunkHeader)), a_ChunkHeader->chunkSize - sizeof(uaudio::wave_reader::ChunkHeader));
+				memcpy(complete, utils::add(a_ChunkHeader, sizeof(uaudio::wave_reader::ChunkHeader)), a_ChunkHeader->ChunkSize() - sizeof(uaudio::wave_reader::ChunkHeader));
 				ShowValue("Text", std::string(reinterpret_cast<char*>(complete)).c_str());
 				free(complete);
 			}

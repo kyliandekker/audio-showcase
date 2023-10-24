@@ -4,6 +4,8 @@
 #include "./ChunkHeader.h"
 #include "./UAUDIO_WAVE_READER_RESULT.h"
 
+#include <cstring>
+
 namespace uaudio
 {
 	namespace wave_reader

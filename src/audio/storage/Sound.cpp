@@ -31,9 +31,9 @@ namespace uaudio
 				return;
 			}
 			// NOTE: This part will reduce the size of the buffer array. It is necessary when reaching the end of the file if we want to loop it.
-			if (a_StartingPoint + a_ElementCount >= data_chunk.chunkSize)
+			if (a_StartingPoint + a_ElementCount >= data_chunk.ChunkSize())
 			{
-				const uint32_t new_size = a_ElementCount - ((a_StartingPoint + a_ElementCount) - data_chunk.chunkSize);
+				const uint32_t new_size = a_ElementCount - ((a_StartingPoint + a_ElementCount) - data_chunk.ChunkSize());
 				a_ElementCount = new_size;
 			}
 			a_DataBuffer = reinterpret_cast<unsigned char*>(utils::add(data_chunk.data, a_StartingPoint));
@@ -49,9 +49,9 @@ namespace uaudio
 				return;
 			}
 			// NOTE: This part will reduce the size of the buffer array. It is necessary when reaching the end of the file if we want to loop it.
-			if (a_StartingPoint + a_ElementCount >= data_chunk.chunkSize)
+			if (a_StartingPoint + a_ElementCount >= data_chunk.ChunkSize())
 			{
-				const uint32_t new_size = a_ElementCount - ((a_StartingPoint + a_ElementCount) - data_chunk.chunkSize);
+				const uint32_t new_size = a_ElementCount - ((a_StartingPoint + a_ElementCount) - data_chunk.ChunkSize());
 				a_ElementCount = new_size;
 			}
 		}

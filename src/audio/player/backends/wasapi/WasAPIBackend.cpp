@@ -62,16 +62,16 @@ namespace uaudio
 					m_Channels[i].Update();
 			}
 
-			UAUDIO_PLAYER_RESULT WasAPIBackend::Play(storage::Sound& a_WaveFile, ChannelHandle& a_Handle)
+			UAUDIO_PLAYER_RESULT WasAPIBackend::Play(storage::Sound& a_Sound, ChannelHandle& a_Handle)
 			{
 				// First look for inactive channels.
 				for (uint32_t i = 0; i < m_Channels.size(); i++)
 				{
 					WasAPIChannel& channel = m_Channels[i];
 
-					if (channel.m_Sound == nullptr || (m_Channels[i].m_Sound != nullptr && channel.m_CurrentPos == 0 && !channel.m_IsPlaying))
+					if (channel.m_Sound == nullptr || (channel.m_Sound == &a_Sound && channel.m_Sound != nullptr && channel.m_CurrentPos == 0 && !channel.m_IsPlaying))
 					{
-						channel.SetSound(a_WaveFile);
+						channel.SetSound(a_Sound);
 						channel.Play();
 						a_Handle = static_cast<int32_t>(i);
 						return UAUDIO_PLAYER_RESULT::UAUDIO_OK;

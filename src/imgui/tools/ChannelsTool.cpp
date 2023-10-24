@@ -107,8 +107,8 @@ namespace uaudio
 				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve playback position from channel %i.", a_Index);
 				return;
 			}
-			int pos = static_cast<uint32_t>(fPos);
-			float final_pos = uaudio::player::utils::PosToSeconds(data_chunk.chunkSize, fmt_chunk.byteRate);
+			uint32_t pos = static_cast<uint32_t>(fPos);
+			float final_pos = uaudio::player::utils::PosToSeconds(data_chunk.ChunkSize(), fmt_chunk.byteRate);
 			float seconds = 0;
 			presult = channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_S, seconds);
 			if (UAUDIOPLAYERFAILED(presult))
@@ -125,7 +125,7 @@ namespace uaudio
 				return;
 			}
 
-			uint32_t final_pos_slider = isInUse ? data_chunk.chunkSize : 5000;
+			uint32_t final_pos_slider = isInUse ? data_chunk.ChunkSize() : 5000;
 
 			if (isInUse)
 			{
@@ -137,15 +137,15 @@ namespace uaudio
 					ShowValue("Progress: ", std::string(
 						uaudio::player::utils::FormatDuration(fPos / static_cast<float>(fmt_chunk.byteRate), false) +
 						"/" +
-						uaudio::player::utils::FormatDuration(uaudio::player::utils::GetDuration(data_chunk.chunkSize, fmt_chunk.byteRate), false))
+						uaudio::player::utils::FormatDuration(uaudio::player::utils::GetDuration(data_chunk.ChunkSize(), fmt_chunk.byteRate), false))
 						.c_str());
 
 					ShowValue("Time Left: ", std::string(uaudio::player::utils::FormatDuration(
-						uaudio::player::utils::GetDuration(data_chunk.chunkSize, fmt_chunk.byteRate) - (static_cast<float>(fPos) / static_cast<float>(fmt_chunk.byteRate)), false)).c_str());
+						uaudio::player::utils::GetDuration(data_chunk.ChunkSize(), fmt_chunk.byteRate) - (static_cast<float>(fPos) / static_cast<float>(fmt_chunk.byteRate)), false)).c_str());
 
 					ShowValue("Progress (position): ", std::string(std::to_string(static_cast<int>(fPos)) +
 						"/" +
-						std::to_string(data_chunk.chunkSize)
+						std::to_string(data_chunk.ChunkSize())
 					).c_str());
 
 					std::string eject_button_text = std::string(EJECT) + " Eject Channel##Eject_Channel" + std::to_string(a_Index);
@@ -247,7 +247,7 @@ namespace uaudio
 
 			float height = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 50.0f : 100.0f;
 			float width = 25;
-			size_t new_pos = pos;
+			uint32_t new_pos = pos;
 			float ex_width = ImGui::GetWindowSize().x - width - 35;
 			std::string graph_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph_01";
 			std::string graph_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_waveform_graph_02";
@@ -257,8 +257,8 @@ namespace uaudio
 
 			size_t steps = 10;
 
-			float left_val = static_cast<float>(player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, steps));
-			float right_val = static_cast<float>(player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, steps, false));
+			double left_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, fmt_chunk.audioFormat, steps);
+			double right_val = player::utils::GetPeak(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, fmt_chunk.audioFormat, steps, false);
 
 			left_val = ImLerp(channel->m_LVol, left_val, 0.15f);
 			right_val = ImLerp(channel->m_RVol, right_val, 0.15f);
@@ -272,16 +272,16 @@ namespace uaudio
 				channel->m_LastDataSize = 0;
 			}
 
-			size_t actual_steps = steps - (10 * 0.15f);
+			float actual_steps = steps - (steps * 0.15f);
 
 			float meter_width = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 5.25f : 12.5f;
 			std::string meter_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_meter_01";
 			std::string meter_name_2 = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_meter_02";
-			ImGui::UvMeter(meter_name.c_str(), ImVec2(meter_width, 90), &left_val, 0, actual_steps, actual_steps);
+			ImGui::UvMeter(meter_name.c_str(), ImVec2(meter_width, 90), &left_val, 0, actual_steps, static_cast<int>(actual_steps));
 			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
 			{
 				ImGui::SameLine();
-				ImGui::UvMeter(meter_name_2.c_str(), ImVec2(meter_width, 90), &right_val, 0, actual_steps, actual_steps);
+				ImGui::UvMeter(meter_name_2.c_str(), ImVec2(meter_width, 90), &right_val, 0, actual_steps, static_cast<int>(actual_steps));
 			}
 
 			if (fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO)
@@ -346,7 +346,7 @@ namespace uaudio
 			if (ImGui::InvisButton(left_button_text.c_str(), ImVec2(25, 25)))
 			{
 				int32_t prev_pos = pos - static_cast<int>(9600);
-				prev_pos = clamp<int32_t>(prev_pos, 0, data_chunk.chunkSize);
+				prev_pos = clamp<int32_t>(prev_pos, 0, data_chunk.ChunkSize());
 				channel->SetPos(prev_pos);
 				channel->Pause();
 				channel->PlayRanged(prev_pos, static_cast<int>(9600));
@@ -385,7 +385,7 @@ namespace uaudio
 			if (ImGui::InvisButton(right_button_text.c_str(), ImVec2(25, 25)))
 			{
 				int32_t next_pos = pos + static_cast<int>(9600);
-				next_pos = clamp<int32_t>(next_pos, 0, data_chunk.chunkSize);
+				next_pos = clamp<int32_t>(next_pos, 0, data_chunk.ChunkSize());
 				channel->SetPos(next_pos);
 				channel->Pause();
 				channel->PlayRanged(next_pos, static_cast<int>(9600));
