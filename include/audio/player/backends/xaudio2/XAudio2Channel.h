@@ -38,6 +38,7 @@ namespace uaudio
 
 				UAUDIO_PLAYER_RESULT PlayRanged(uint32_t a_StartPos, uint32_t a_Size) override;
 				UAUDIO_PLAYER_RESULT PlayBuffer(const unsigned char* a_DataBuffer, uint32_t a_Size) const;
+				uint32_t m_LeftOver = 0;
 			public:
 				XAudio2Channel();
 				XAudio2Channel(XAudio2Backend& a_Backend);

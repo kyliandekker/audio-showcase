@@ -182,7 +182,6 @@ namespace uaudio
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}
 
-
 			UAUDIO_PLAYER_RESULT XAudio2Channel::Update()
 			{
 				if (m_Sound == nullptr)
@@ -199,18 +198,21 @@ namespace uaudio
 				if (result != uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
 					return uaudio::player::UAUDIO_PLAYER_RESULT::UAUDIO_ERR_NO_FMT_CHUNK;
 
-				double buffersize = fmt_chunk.byteRate * uaudio::player::audioSystem.m_DeltaTime;
+				uint32_t buffersize = static_cast<uint32_t>(ceil(fmt_chunk.byteRate * uaudio::player::audioSystem.m_DeltaTime));
+				buffersize += m_LeftOver;
 
-				double left_over = floor(fmod(buffersize, fmt_chunk.blockAlign));
-				double add = 0.0f;
+				uint32_t left_over = buffersize % fmt_chunk.blockAlign;
+				m_LeftOver = fmt_chunk.blockAlign - left_over;
+
+				buffersize -= left_over;
+
 				if (left_over > 0)
-					add = fmt_chunk.blockAlign;
-				double real_buffersize = static_cast<uint32_t>(buffersize) + static_cast<uint32_t>(add);
+					buffersize += fmt_chunk.blockAlign;
 
-				if (real_buffersize == 0)
+				if (buffersize == 0)
 					return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 
-				PlayRanged(m_CurrentPos, static_cast<uint32_t>(real_buffersize));
+				PlayRanged(m_CurrentPos, buffersize);
 
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}

@@ -24,7 +24,6 @@ namespace uaudio
 		Played_Sample,
 		Scrolling_Sample,
 		Led_Bars,
-		Led_Bars_2,
 		EQ,
 		Spectrum_Analyzer,
 	};

@@ -232,7 +232,7 @@ namespace uaudio
 					ImGui::EndCombo();
 				}
 
-				const int OPTIONS_AMNT = 7;
+				const int OPTIONS_AMNT = 6;
 				size_t amntSamples = fmt_chunk.blockAlign * block_size_options[m_BlockSize];
 
 				dsp_analysis_settings dsp_options[OPTIONS_AMNT] = {
@@ -240,7 +240,6 @@ namespace uaudio
 					{ 100, "Played Sample", (channel->m_LastDataSize * fmt_chunk.blockAlign), -1, 1, amntSamples },
 					{ 100, "Scrolling sample", fmt_chunk.sampleRate, -2, 2, amntSamples },
 					{ 200, "Led_Bars", amntSamples, 0, 0.25f, 32 },
-					{ 200, "Led_Bars_2", amntSamples, 0, 0.25f, 32 },
 					{ 200, "EQ", amntSamples, -120, 6, amntSamples },
 					{ 200, "Spectrum Analyzer", amntSamples, -120, 6, amntSamples }
 				};
@@ -403,7 +402,7 @@ namespace uaudio
 								ImPlot::SetupAxisTicks(ImAxis_X1, ticks, 10, tick_labels);
 								ImPlot::SetNextLineStyle({ 1,1,1,1 });
 								ImPlot::PlotInfLines("##3dB", &co, 1, ImPlotInfLinesFlags_Horizontal);
-								//ImPlot::PlotShaded("", freq_bins, magn_s, NUM_BINS, -INFINITY);
+								ImPlot::PlotShaded("", freq_bins, magn_s, NUM_BINS, -INFINITY);
 								ImPlot::PlotLine("", freq_bins, magn_s, NUM_BINS, ImPlotLineFlags_SkipNaN, 0);
 							}
 
