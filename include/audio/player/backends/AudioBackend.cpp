@@ -4,9 +4,10 @@ namespace uaudio
 {
 	namespace player
 	{
-		void AudioBackend::Update()
-		{
+		AudioBackend::~AudioBackend()
+		{ }
 
-		}
+		void AudioBackend::Update()
+		{ }
 	}
 }

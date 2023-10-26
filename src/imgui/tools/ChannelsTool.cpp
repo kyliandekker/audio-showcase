@@ -17,6 +17,7 @@
 #include "utils/Utils.h"
 #include "utils/Logger.h"
 
+double highest = 0.0f;
 namespace uaudio
 {
 	namespace imgui
@@ -35,6 +36,22 @@ namespace uaudio
 				RenderChannel(i);
 		}
 
+		double hanning(int i, int nn)
+		{
+			return (0.5 * (1.0 - cos(2.0 * M_PI * (double)i / (double)(nn - 1))));
+		}
+
+		double hamming(int i, int nn)
+		{
+			return (0.54 - 0.46 * cos(2.0 * M_PI * (double)i / (double)(nn - 1)));
+		}
+
+		double blackman(int i, int nn)
+		{
+			return (0.42 - 0.5 * cos(2.0 * M_PI * (double)i / (double)(nn - 1))
+				+ 0.08 * cos(4.0 * M_PI * (double)i / (double)(nn - 1)));
+		}
+
 		void ChannelsTool::RenderChannel(player::ChannelHandle a_Index)
 		{
 			ImGuiStyle& style = ImGui::GetStyle();
@@ -50,7 +67,7 @@ namespace uaudio
 			uaudio::player::UAUDIO_PLAYER_RESULT presult = uaudio::player::audioSystem.GetChannel(a_Index, channel);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot get channel %i.", a_Index);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot get channel %i.", static_cast<int>(a_Index));
 				return;
 			}
 
@@ -58,7 +75,7 @@ namespace uaudio
 			presult = channel->IsInUse(isInUse);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel %i is in use.", a_Index);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel %i is in use.", static_cast<int>(a_Index));
 				return;
 			}
 			if (!isInUse)
@@ -68,7 +85,7 @@ namespace uaudio
 			presult = channel->GetSound(sound);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve sound from channel %i.", a_Index);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve sound from channel %i.", static_cast<int>(a_Index));
 				return;
 			}
 
@@ -104,16 +121,15 @@ namespace uaudio
 			presult = channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_POS, fPos);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve playback position from channel %i.", a_Index);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve playback position from channel %i.", static_cast<int>(a_Index));
 				return;
 			}
 			uint32_t pos = static_cast<uint32_t>(fPos);
-			float final_pos = uaudio::player::utils::PosToSeconds(data_chunk.ChunkSize(), fmt_chunk.byteRate);
 			float seconds = 0;
 			presult = channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_S, seconds);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve playback position from channel %i.", a_Index);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve playback position from channel %i.", static_cast<int>(a_Index));
 				return;
 			}
 
@@ -121,7 +137,7 @@ namespace uaudio
 			presult = channel->IsPlaying(isPlaying);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel %i is currently playing.", a_Index);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel %i is currently playing.", static_cast<int>(a_Index));
 				return;
 			}
 
@@ -165,7 +181,7 @@ namespace uaudio
 			presult = channel->IsActive(active);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel %i is active.", a_Index);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot check if channel %i is active.", static_cast<int>(a_Index));
 				return;
 			}
 
@@ -179,71 +195,186 @@ namespace uaudio
 
 
 
-			//size_t numSSamples = channel->m_LastDataSize / fmt_chunk.blockAlign;
 
-			//if (numSSamples > 0)
-			//{
-			//	int input_size = numSSamples;
-			//	int output_size = (input_size / 2 + 1);
 
-			//	double* input_buffer = player::utils::ToSample(channel->m_LastPlayedData, channel->m_LastDataSize, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, numSSamples);
 
-			//	/*double* hann_buffer = reinterpret_cast<double*>(fftw_malloc(numSSamples * sizeof(double)));
-			//	for (size_t i = 0; i < numSSamples; i++)
-			//	{
-			//		double mult = 0.5f - (0.5f * cos(2 * M_PI * i / (numSSamples - 1)));
-			//		hann_buffer[i] = mult * input_buffer[i];
-			//	}
+			const int OPTIONS_AMNT = 5;
 
-			//	fftw_complex* output_buffer = static_cast<fftw_complex*>(fftw_malloc(output_size * sizeof(fftw_complex)));
+			fft_analysis_settings fa_options[OPTIONS_AMNT] = {
+				{ 100, "Sample", 4096, -1, 1 },
+				{ 100, "Played Sample", (channel->m_LastDataSize * fmt_chunk.blockAlign), -1, 1 },
+				{ 100, "Scrolling sample", fmt_chunk.sampleRate, -2, 2 },
+				{ 200, "Led_Bars", 4096, 0, 0.25f },
+				{ 200, "EQ", 4096, -120, 6 }
+			};
 
-			//	int flags = FFTW_ESTIMATE;
-			//	fftw_plan plan = fftw_plan_dft_r2c_1d(input_size,
-			//		hann_buffer,
-			//		output_buffer,
-			//		flags);
+			std::string sp_name_text = "Signal Processing##SignalProcessing_" + std::to_string(a_Index);
+			if (ImGui::CollapsingHeader(sp_name_text.c_str()))
+			{
+				std::string view_options[OPTIONS_AMNT];
 
-			//	double* freq_s = reinterpret_cast<double*>(malloc(numSSamples / 2 * sizeof(double)));
-			//	double* magn_s = reinterpret_cast<double*>(malloc(numSSamples / 2 * sizeof(double)));
+				for (size_t i = 0; i < OPTIONS_AMNT; i++)
+					view_options[i] = fa_options[i].option_name.c_str();
 
-			//	fftw_execute(plan);
+				const std::string view_as_text = "Type";
+				const std::string view_as_text_id = "##Type_" + std::to_string(a_Index) + " (" + sound_name + ")" + "##Type_" + std::to_string(a_Index);
+				ImGui::Text("%s", view_as_text.c_str());
+				ImGui::SameLine();
+				if (ImGui::BeginCombo(view_as_text_id.c_str(), view_options[m_SelectedSP].c_str(), ImGuiComboFlags_PopupAlignLeft))
+				{
+					for (uint32_t n = 0; n < OPTIONS_AMNT; n++)
+					{
+						const bool is_selected = n == m_SelectedSP;
+						if (ImGui::Selectable(view_options[n].c_str(), is_selected))
+							m_SelectedSP = static_cast<fft_option>(n);
+					}
+					ImGui::EndCombo();
+				}
 
-			//	for (size_t i = 0; i < numSSamples / 2; i++)
-			//	{
-			//		auto re = output_buffer[i][0];
-			//		auto im = output_buffer[i][1];
-			//		auto magn = sqrt(re * re + im * im);
-			//		auto freq = i * (fmt_chunk.sampleRate / (double)(numSSamples / 2));
+				fft_analysis_settings& option = fa_options[m_SelectedSP];
 
-			//		freq_s[i] = freq;
-			//		magn_s[i] = magn;
-			//	}
+				std::string graph_eq_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_eq_01";
+				if (ImPlot::BeginPlot(graph_eq_name.c_str(), ImVec2(ImGui::GetWindowSize().x - 65, option.graph_height), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
+				{
+					float bytePos;
+					channel->GetPos(uaudio::player::TIMEUNIT::TIMEUNIT_POS, bytePos);
 
-			//	for (size_t i = 0; i < numSSamples / 2; i++)
-			//	{
-			//		auto scaledMagnitude = magn_s[i] / ((double)numSSamples / 2);
-			//		magn_s[i] = 20 * log10(scaledMagnitude);
-			//	}*/
+					uint32_t bytes = option.numSamples * fmt_chunk.blockAlign;
+					sound->PreRead(static_cast<uint32_t>(bytePos), bytes);
+					size_t numSSamples = bytes / fmt_chunk.blockAlign;
+					if (numSSamples > 0)
+					{
+						int input_size = static_cast<int>(numSSamples);
+						int output_size = (input_size / 2 + 1);
 
-			//	std::string graph_eq_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_eq_01";
-			//	if (ImPlot::BeginPlot(graph_eq_name.c_str(), ImVec2(ImGui::GetWindowSize().x - 100, 50), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
-			//	{
-			//		ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
-			//		ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
-			//		ImPlot::SetupAxisLimits(ImAxis_Y1, -1.f, 1.f, ImPlotCond_Always);
-			//		ImPlot::SetupAxisLimits(ImAxis_Y1, -1, 1, ImPlotCond_Always);
-			//		ImPlot::PlotLine("", input_buffer, numSSamples);
-			//		ImPlot::EndPlot();
-			//	}
+						double* input_buffer = player::utils::ToSample(reinterpret_cast<unsigned char*>(utils::add(data_chunk.data, static_cast<uint32_t>(bytePos))), bytes, fmt_chunk.bitsPerSample, fmt_chunk.blockAlign, fmt_chunk.numChannels, fmt_chunk.audioFormat, numSSamples);
 
-			//	free(freq_s);
-			//	free(magn_s);
+						if (m_SelectedSP == Sample || m_SelectedSP == Played_Sample || m_SelectedSP == Scrolling_Sample)
+						{
+							ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit);
+							ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin);
+							ImPlot::SetupAxisLimits(ImAxis_Y1, option.min_y, option.max_y, ImPlotCond_Always);
+							ImPlot::PlotLine("", input_buffer, static_cast<int>(numSSamples));
+						}
+						else if (m_SelectedSP == Led_Bars || m_SelectedSP == EQ)
+						{
+							for (size_t i = 0; i < numSSamples; i++)
+							{
+								double mult = hamming(i, numSSamples);
+								input_buffer[i] = mult * input_buffer[i];
+							}
 
-			//	free(input_buffer);
-			//	fftw_free(hann_buffer);
-			//	fftw_free(output_buffer);
-			//	fftw_destroy_plan(plan);
-			//}
+							fftw_complex* output_buffer = static_cast<fftw_complex*>(fftw_malloc(output_size * sizeof(fftw_complex)));
+
+							int flags = FFTW_ESTIMATE;
+							fftw_plan plan = fftw_plan_dft_r2c_1d(input_size,
+								input_buffer,
+								output_buffer,
+								flags);
+
+							const int NUM_BINS = option.numSamples;
+
+							double* magn_s = reinterpret_cast<double*>(malloc(NUM_BINS * sizeof(double)));
+							double* freq_bins = reinterpret_cast<double*>(malloc(NUM_BINS * sizeof(double)));
+							for (size_t i = 0; i < NUM_BINS; i++)
+							{
+								double d = ((double)fmt_chunk.sampleRate / 2.0) / (double)NUM_BINS * (double)i;
+								freq_bins[i] = d;
+								magn_s[i] = 1.7E-308;
+							}
+
+							fftw_execute(plan);
+
+							for (size_t i = 0; i < numSSamples / 2; ++i)
+							{
+								auto re = output_buffer[i][0];
+								auto im = output_buffer[i][1];
+								auto magn = sqrt(re * re + im * im);
+								double initial = magn;
+								double scaledMagnitude = initial / numSSamples;
+
+								auto freq = i * (fmt_chunk.sampleRate / (double)numSSamples);
+								for (size_t j = 0; j < NUM_BINS; ++j)
+								{
+									if (freq >= freq_bins[j] && freq <= freq_bins[j + 1])
+									{
+										if (scaledMagnitude > magn_s[j])
+											magn_s[j] = scaledMagnitude;
+									}
+								}
+							}
+
+							ImPlot::SetupAxisLimits(ImAxis_Y1, option.min_y, option.max_y, ImPlotCond_Always);
+							ImPlot::SetupAxes("Frequency [Hz]", "Magnitude [dB]", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_LockMin);
+							if (m_SelectedSP == Led_Bars)
+								ImPlot::PlotBars("", freq_bins, magn_s, NUM_BINS, 10);
+							else if (m_SelectedSP == EQ)
+							{
+								for (size_t i = 0; i < NUM_BINS; ++i)
+								{
+									double d = 10 * (log10(magn_s[i]));
+									magn_s[i] = d;
+								}
+
+								double ticks[10] = {
+									20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000
+								};
+
+								const char* tick_labels[10] = {
+									"20",
+									"50",
+									"100",
+									"200",
+									"500",
+									"1k",
+									"2k",
+									"5k",
+									"10k",
+									"20k",
+								};
+
+								static const double co = -3;
+								ImPlot::SetupAxisScale(ImAxis_X1, ImPlotScale_Log10);
+								ImPlot::SetupAxisTicks(ImAxis_X1, ticks, 10, tick_labels);
+								ImPlot::SetNextLineStyle({ 1,1,1,1 });
+								ImPlot::PlotInfLines("##3dB", &co, 1, ImPlotInfLinesFlags_Horizontal);
+								ImPlot::PlotShaded("", freq_bins, magn_s, NUM_BINS, -INFINITY);
+								ImPlot::PlotLine("", freq_bins, magn_s, NUM_BINS, ImPlotLineFlags_SkipNaN, 0);
+							}
+
+							free(freq_bins);
+							free(magn_s);
+
+							fftw_free(output_buffer);
+							fftw_destroy_plan(plan);
+						}
+
+						free(input_buffer);
+					}
+					ImPlot::EndPlot();
+				}
+			}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 			float height = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 50.0f : 100.0f;
 			float width = 25;
@@ -306,7 +437,7 @@ namespace uaudio
 			presult = channel->GetPanning(panning);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume from panning %i.", a_Index);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume from panning %i.", static_cast<int>(a_Index));
 				return;
 			}
 			std::string panning_tooltip_text = std::string(PANNING) + " Panning (affects channel " + std::to_string(a_Index) + ")";
@@ -319,7 +450,7 @@ namespace uaudio
 			presult = channel->GetVolume(volume);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume from channel %i.", a_Index);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve volume from channel %i.", static_cast<int>(a_Index));
 				return;
 			}
 			std::string volume_tooltip_text = std::string(VOLUME_UP) + " Volume (affects channel " + std::to_string(a_Index) + ")";
@@ -397,7 +528,7 @@ namespace uaudio
 			presult = channel->IsLooping(isLooping);
 			if (UAUDIOPLAYERFAILED(presult))
 			{
-				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel %i has looping turned on.", a_Index);
+				LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot retrieve whether channel %i has looping turned on.", static_cast<int>(a_Index));
 				return;
 			}
 			std::string loop_button_text = std::string(RETRY) + "##Loop_Channel_" + std::to_string(a_Index);

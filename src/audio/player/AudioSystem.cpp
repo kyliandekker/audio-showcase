@@ -1,5 +1,8 @@
 #include "audio/player/AudioSystem.h"
 
+#include <iostream>
+#include <windows.h>
+
 #include "audio/player/backends/AudioBackend.h"
 #include "audio/player/backends/xaudio2/XAudio2Backend.h"
 #include "audio/player/backends/wasapi/WasAPIBackend.h"
@@ -7,9 +10,6 @@
 #include "audio/storage/Sound.h"
 #include "audio/player/Defines.h"
 #include "utils/Logger.h"
-#include <iostream>
-
-#include "windows.h"
 
 uaudio::player::AudioSystem uaudio::player::audioSystem;
 
@@ -26,7 +26,8 @@ namespace uaudio
 		{
 			m_Enabled = false;
 			m_AudioThread.join();
-			delete m_AudioBackend;
+			if (m_AudioBackend)
+				delete m_AudioBackend;
 		}
 
 		UAUDIO_PLAYER_RESULT AudioSystem::IsPaused(bool& a_IsPaused) const

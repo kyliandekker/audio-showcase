@@ -89,7 +89,7 @@ namespace uaudio
 				return (strncmp(a_ChunkID1, a_ChunkID2, uaudio::wave_reader::CHUNK_ID_SIZE) == 0);
 			}
 
-			double* ToSample(unsigned char* data, size_t buffersize, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t channels, uint16_t audioFormat, size_t numSamples, bool left)
+			double* ToSample(unsigned char* data, size_t buffersize, uint16_t bitsPerSample, uint16_t blockAlign, uint16_t, uint16_t audioFormat, size_t numSamples, bool left)
 			{
 				if (data == nullptr)
 					return nullptr;
@@ -135,6 +135,11 @@ namespace uaudio
 						double sample = *(int32_t*)pData;
 						samples[i] = static_cast<double>(sample) / INT32_MAX;
 					}
+					else if (bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_64)
+					{
+						double sample = *(double*)pData;
+						samples[i] = static_cast<double>(sample);
+					}
 
 					pData += div * blockAlign;
 				}
@@ -146,8 +151,6 @@ namespace uaudio
 			{
 				data_size /= 2;
 				size_t numSamples = data_size / blockAlign;
-
-				unsigned char* pData = data;
 
 				double* samples = ToSample(data, data_size, bitsPerSample, blockAlign, channels, audioFormat, numSamples, left);
 

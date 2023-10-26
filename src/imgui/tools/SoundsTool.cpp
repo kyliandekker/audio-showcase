@@ -102,6 +102,53 @@ namespace uaudio
 
 #pragma region duration
 
+			std::string waveform_header = "Waveform" + sound_hash_id;
+			if (ImGui::CollapsingHeader(waveform_header.c_str()))
+			{
+				double* left_samples = a_Sound.m_LeftSamples;
+				double* right_samples = a_Sound.m_RightSamples;
+				size_t numSamples = a_Sound.m_NumSamples;
+
+				uaudio::wave_reader::FMT_Chunk fmt_chunk;
+				uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = chunkCollection.GetChunkFromData<uaudio::wave_reader::FMT_Chunk>(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+				if (UAUDIOWAVEREADERFAILED(result))
+				{
+					LOGF(logger::LOGSEVERITY_WARNING, "Tried to read from sound %s, but it has no fmt chunk.", m_Name.c_str());
+					return true;
+				}
+
+				float height = fmt_chunk.numChannels == uaudio::wave_reader::WAVE_CHANNELS_STEREO ? 50.0f : 100.0f;
+				float width = ImGui::GetWindowSize().x - 30;
+
+				std::string waveform_header_l = "waveform_plot_" + sound_hash_id + "left";
+				std::string waveform_header_r = "waveform_plot_" + sound_hash_id + "right";
+				if (ImPlot::BeginPlot(waveform_header_l.c_str(), ImVec2(width, height), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
+				{
+					if (left_samples != nullptr)
+					{
+						ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
+						ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
+						ImPlot::SetupAxisLimits(ImAxis_Y1, -1.f, 1.f, ImPlotCond_Always);
+						ImPlot::SetupAxisLimits(ImAxis_X1, 0, static_cast<double>(numSamples));
+						ImPlot::PlotLine("Waveform", left_samples, static_cast<int>(numSamples));
+					}
+
+					ImPlot::EndPlot();
+				}
+				if (ImPlot::BeginPlot(waveform_header_r.c_str(), ImVec2(width, height), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
+				{
+					if (right_samples != nullptr)
+					{
+						ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
+						ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels);
+						ImPlot::SetupAxisLimits(ImAxis_Y1, -1.f, 1.f, ImPlotCond_Always);
+						ImPlot::SetupAxisLimits(ImAxis_X1, 0, static_cast<double>(numSamples));
+						ImPlot::PlotLine("Waveform", right_samples, static_cast<int>(numSamples));
+					}
+
+					ImPlot::EndPlot();
+				}
+			}
 			if (hasFmtChunk && hasDataChunk)
 			{
 				uaudio::wave_reader::FMT_Chunk fmt_chunk;
@@ -281,18 +328,18 @@ namespace uaudio
 							}
 
 							ShowValue("Number of cue points: ", std::to_string(cue_chunk.num_cue_points).c_str());
-							for (uint32_t i = 0; i < cue_chunk.num_cue_points; i++)
+							for (uint32_t j = 0; j < cue_chunk.num_cue_points; j++)
 							{
 								const std::string chunk_cue_point_text = chunk_header + "cue_point_" + std::to_string(i);
 								if (ImGui::CollapsingHeader(chunk_cue_point_text.c_str()))
 								{
 									ImGui::Indent(IMGUI_INDENT);
-									ShowValue("ID: ", std::to_string(cue_chunk.cue_points[i].id).c_str());
-									ShowValue("Position: ", std::to_string(cue_chunk.cue_points[i].position).c_str());
+									ShowValue("ID: ", std::to_string(cue_chunk.cue_points[j].id).c_str());
+									ShowValue("Position: ", std::to_string(cue_chunk.cue_points[j].position).c_str());
 									ShowValue("Data Chunk ID: ", std::string(reinterpret_cast<const char*>(cue_chunk.cue_points[i].data_chunk_id)).c_str());
-									ShowValue("Chunk Start: ", std::to_string(cue_chunk.cue_points[i].chunk_start).c_str());
-									ShowValue("Block Start: ", std::to_string(cue_chunk.cue_points[i].block_start).c_str());
-									ShowValue("Block Offset: ", std::to_string(cue_chunk.cue_points[i].sample_offset).c_str());
+									ShowValue("Chunk Start: ", std::to_string(cue_chunk.cue_points[j].chunk_start).c_str());
+									ShowValue("Block Start: ", std::to_string(cue_chunk.cue_points[j].block_start).c_str());
+									ShowValue("Block Offset: ", std::to_string(cue_chunk.cue_points[j].sample_offset).c_str());
 									ImGui::Unindent(IMGUI_INDENT);
 								}
 							}
@@ -323,18 +370,18 @@ namespace uaudio
 							ShowValue("SMPTE Offset: ", std::to_string(smpl_chunk.smpte_offset).c_str());
 							ShowValue("Number of Sample loops: ", std::to_string(smpl_chunk.num_sample_loops).c_str());
 							ShowValue("Sampler Data: ", std::to_string(smpl_chunk.sampler_data).c_str());
-							for (uint32_t i = 0; i < smpl_chunk.num_sample_loops; i++)
+							for (uint32_t j = 0; j < smpl_chunk.num_sample_loops; j++)
 							{
-								const std::string chunk_smpl_loop_text = "Cue Point " + std::to_string(i) + sound_hash_id + "loop_point_" + std::to_string(i);
+								const std::string chunk_smpl_loop_text = "Cue Point " + std::to_string(j) + sound_hash_id + "loop_point_" + std::to_string(j);
 								if (ImGui::CollapsingHeader(chunk_smpl_loop_text.c_str()))
 								{
 									ImGui::Indent(IMGUI_INDENT);
-									ShowValue("Cue Point ID: ", std::to_string(smpl_chunk.samples[i].cue_point_id).c_str());
-									ShowValue("Type: ", std::to_string(smpl_chunk.samples[i].type).c_str());
-									ShowValue("Start: ", std::to_string(smpl_chunk.samples[i].start).c_str());
-									ShowValue("End: ", std::to_string(smpl_chunk.samples[i].end).c_str());
-									ShowValue("Fraction: ", std::to_string(smpl_chunk.samples[i].fraction).c_str());
-									ShowValue("Play Count: ", std::to_string(smpl_chunk.samples[i].play_count).c_str());
+									ShowValue("Cue Point ID: ", std::to_string(smpl_chunk.samples[j].cue_point_id).c_str());
+									ShowValue("Type: ", std::to_string(smpl_chunk.samples[j].type).c_str());
+									ShowValue("Start: ", std::to_string(smpl_chunk.samples[j].start).c_str());
+									ShowValue("End: ", std::to_string(smpl_chunk.samples[j].end).c_str());
+									ShowValue("Fraction: ", std::to_string(smpl_chunk.samples[j].fraction).c_str());
+									ShowValue("Play Count: ", std::to_string(smpl_chunk.samples[j].play_count).c_str());
 									ImGui::Unindent(IMGUI_INDENT);
 								}
 							}
@@ -559,8 +606,8 @@ namespace uaudio
 				unsigned char* ptr = reinterpret_cast<unsigned char*>(utils::add(a_ChunkHeader, sizeof(uaudio::wave_reader::ChunkHeader)));
 				ptr = reinterpret_cast<unsigned char*>(utils::add(ptr, i * sizeof(T)));
 				unsigned char complete[sizeof(T)];
-				for (size_t i = 0; i < sizeof(T); i++)
-					complete[i] = ptr[i];
+				for (size_t j = 0; j < sizeof(T); j++)
+					complete[j] = ptr[j];
 
 				if (a_Endianness == 1)
 					reverseBytes(complete, sizeof(T));
@@ -570,7 +617,7 @@ namespace uaudio
 			}
 		}
 
-		void SoundsTool::ViewAsChar(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness)
+		void SoundsTool::ViewAsChar(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t )
 		{
 			for (size_t i = 0; i < a_ChunkHeader->ChunkSize(); i++)
 			{
@@ -584,7 +631,7 @@ namespace uaudio
 			}
 		}
 
-		void SoundsTool::ViewAsString(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t a_Endianness)
+		void SoundsTool::ViewAsString(uaudio::wave_reader::ChunkHeader* a_ChunkHeader, uint32_t )
 		{
 			unsigned char* complete = reinterpret_cast<unsigned char*>(malloc(a_ChunkHeader->ChunkSize() - sizeof(uaudio::wave_reader::ChunkHeader)));
 			if (complete != nullptr)

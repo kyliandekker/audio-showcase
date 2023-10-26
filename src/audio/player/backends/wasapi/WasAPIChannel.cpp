@@ -225,7 +225,7 @@ namespace uaudio
 				m_CurrentPos += actual_size;
 
 				AddEffects(data, actual_size);
-				PlayBuffer(data, a_Size);
+				PlayBuffer(a_Size);
 
 				m_LastPlayedData = data;
 				m_LastDataSize = actual_size;
@@ -233,7 +233,8 @@ namespace uaudio
 				return UAUDIO_PLAYER_RESULT::UAUDIO_OK;
 			}
 
-			UAUDIO_PLAYER_RESULT WasAPIChannel::PlayBuffer(const unsigned char* a_DataBuffer, uint32_t a_Size) const
+			// TODO: FIX
+			UAUDIO_PLAYER_RESULT WasAPIChannel::PlayBuffer(uint32_t a_Size) const
 			{
 				HRESULT hr = m_RenderClient->ReleaseBuffer(a_Size, 0);
 				if (FAILED(hr))

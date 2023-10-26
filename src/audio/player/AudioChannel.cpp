@@ -179,8 +179,8 @@ namespace uaudio
 		void AudioChannel::AddEffects(unsigned char* a_Data, uint32_t a_BufferSize)
 		{
 			uaudio::wave_reader::FMT_Chunk fmt_chunk;
-			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT result = m_Sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
-			if (result == uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
+			uaudio::wave_reader::UAUDIO_WAVE_READER_RESULT wrresult = m_Sound->m_ChunkCollection->GetChunkFromData(fmt_chunk, uaudio::wave_reader::FMT_CHUNK_ID);
+			if (!(UAUDIOWAVEREADERFAILED(wrresult)))
 			{
 				float masterVolume = 1.0f;
 				uaudio::player::UAUDIO_PLAYER_RESULT result = uaudio::player::audioSystem.GetVolume(masterVolume);
@@ -220,9 +220,9 @@ namespace uaudio
 					}
 					else if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24)
 					{
-						effects::ChangeVolume<int24_t>(a_Data, a_BufferSize, volume);
-						effects::ChangePanning<int24_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
-						effects::ChangePanning<int24_t>(a_Data, a_BufferSize, masterPanning, fmt_chunk.numChannels);
+						//effects::ChangeVolume<int24_t>(a_Data, a_BufferSize, volume);
+						//effects::ChangePanning<int24_t>(a_Data, a_BufferSize, m_Panning, fmt_chunk.numChannels);
+						//effects::ChangePanning<int24_t>(a_Data, a_BufferSize, masterPanning, fmt_chunk.numChannels);
 					}
 					else if (fmt_chunk.bitsPerSample == uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_32)
 					{

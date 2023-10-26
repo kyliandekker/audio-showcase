@@ -31,15 +31,17 @@ namespace uaudio
 		private:
 			void OpenFile();
 
-			std::array<const char*, 4> m_BitsPerSampleTextOptions = {
+			std::array<const char*, 5> m_BitsPerSampleTextOptions = {
 				"I don't really care",
+				"8-bit",
 				"16-bit",
 				"24-bit",
 				"32-bit",
 			};
 
-			std::array<uint16_t, 4> m_BitsPerSampleOptions = {
+			std::array<uint16_t, 5> m_BitsPerSampleOptions = {
 				0,
+				uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_8,
 				uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_16,
 				uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_24,
 				uaudio::wave_reader::WAVE_BITS_PER_SAMPLE_32,

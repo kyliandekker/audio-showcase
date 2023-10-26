@@ -19,6 +19,8 @@ namespace uaudio
 		class AudioBackend
 		{
 		public:
+			virtual ~AudioBackend();
+
 			bool IsPaused() const { return m_Paused; }
 			void SetPaused(bool a_Paused) { m_Paused = a_Paused; }
 

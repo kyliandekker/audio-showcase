@@ -77,7 +77,7 @@ namespace uaudio
 				{
 					uaudio::player::ChannelHandle handle = i;
 					uaudio::player::AudioChannel* channel = nullptr;
-					uaudio::player::UAUDIO_PLAYER_RESULT result = uaudio::player::audioSystem.GetChannel(handle, channel);
+					result = uaudio::player::audioSystem.GetChannel(handle, channel);
 					if (UAUDIOPLAYERFAILED(result) || !channel)
 					{
 						LOGF(uaudio::logger::LOGSEVERITY_WARNING, "Cannot get channel %i.", i);
@@ -141,18 +141,18 @@ namespace uaudio
 					ImGui::EndCombo();
 				}
 
-				//const std::string bits_per_sample_text = "Bits per sample";
-				//ImGui::Text("%s", bits_per_sample_text.c_str());
-				//if (ImGui::BeginCombo("##Bits_Per_Sample", m_BitsPerSampleTextOptions[m_SelectedBitsPerSample], ImGuiComboFlags_PopupAlignLeft))
-				//{
-				//	for (uint16_t n = 0; n < static_cast<uint16_t>(m_BitsPerSampleOptions.size()); n++)
-				//	{
-				//		const bool is_selected = n == m_SelectedBitsPerSample;
-				//		if (ImGui::Selectable(m_BitsPerSampleTextOptions[n], is_selected))
-				//			m_SelectedBitsPerSample = n;
-				//	}
-				//	ImGui::EndCombo();
-				//}
+				const std::string bits_per_sample_text = "Bits per sample";
+				ImGui::Text("%s", bits_per_sample_text.c_str());
+				if (ImGui::BeginCombo("##Bits_Per_Sample", m_BitsPerSampleTextOptions[m_SelectedBitsPerSample], ImGuiComboFlags_PopupAlignLeft))
+				{
+					for (uint16_t n = 0; n < static_cast<uint16_t>(m_BitsPerSampleOptions.size()); n++)
+					{
+						const bool is_selected = n == m_SelectedBitsPerSample;
+						if (ImGui::Selectable(m_BitsPerSampleTextOptions[n], is_selected))
+							m_SelectedBitsPerSample = n;
+					}
+					ImGui::EndCombo();
+				}
 
 				const std::string backend_text = "Audio Backend";
 				ImGui::Text("%s", backend_text.c_str());
@@ -261,6 +261,7 @@ namespace uaudio
 
 				uaudio::wave_reader::WaveReadSettings settings;
 				settings.SetChannels(static_cast<uaudio::wave_reader::ChannelsConversionSettings>(m_SelectedNumChannels));
+				settings.SetBitsPerSample(static_cast<uaudio::wave_reader::BPSConversionSettings>(m_BitsPerSampleOptions[m_SelectedBitsPerSample]));
 				if (chunks.size() > 0)
 				{
 					uaudio::wave_reader::ChunkFilter filters{ chunks.c_str(), chunks.size() / uaudio::wave_reader::CHUNK_ID_SIZE };

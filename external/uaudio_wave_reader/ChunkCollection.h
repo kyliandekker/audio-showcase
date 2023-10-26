@@ -1,10 +1,10 @@
 #pragma once
 
+#include <cstring>
+
 #include "./Utils.h"
 #include "./ChunkHeader.h"
 #include "./UAUDIO_WAVE_READER_RESULT.h"
-
-#include <cstring>
 
 namespace uaudio
 {

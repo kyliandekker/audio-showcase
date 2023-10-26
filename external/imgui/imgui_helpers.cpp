@@ -406,7 +406,8 @@ namespace ImGui
 
     float RoundScalarWithFormatFloat(const char* format, ImGuiDataType data_type, float v)
     {
-        return RoundScalarWithFormatT<float, float>(format, data_type, v);
+        //return RoundScalarWithFormatT<float, float>(format, data_type, v);
+        return 0.0f;
     }
 
     float SliderCalcRatioFromValueFloat(ImGuiDataType data_type, float v, float v_min, float v_max, float power, float linear_zero_pos)
@@ -579,7 +580,7 @@ namespace ImGui
             return false;
         }
 
-        const bool hovered = ItemHoverable(frame_bb, id);
+        const bool hovered = ItemHoverable(frame_bb, id, 0);
         if (hovered)
             SetHoveredID(id);
 
@@ -657,7 +658,10 @@ namespace ImGui
                 pos = max_pos / static_cast<int>(plotSize.x + imPlotStyle.PlotPadding.x) * static_cast<int>(mousePositionRelative.x - imPlotStyle.PlotPadding.x);
 
                 uint32_t left_over = static_cast<uint32_t>(pos) % blockAlign;
-                pos = static_cast<uint32_t>(pos) - left_over;
+                int32_t ppos = static_cast<uint32_t>(pos) - left_over;
+                if (ppos < 0)
+                    ppos = 0;
+                pos = ppos;
             }
 
             ImVec2 plotSize = ImPlot::GetPlotSize();
