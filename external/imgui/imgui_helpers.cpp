@@ -628,6 +628,17 @@ namespace ImGui
 
     bool BeginPlayPlot(uint32_t& pos, int max_pos, size_t numSamples, const double* samples, const char* title_id, float width, float height, size_t blockAlign)
     {
+        ImPlotStyle& pStyle = ImPlot::GetStyle();
+        ImPlot::PushStyleVar(ImPlotStyleVar_PlotPadding, ImVec2(pStyle.PlotPadding.x, 0));
+        ImPlot::PushStyleVar(ImPlotStyleVar_LabelPadding, ImVec2(0, 0));
+        ImPlot::PushStyleVar(ImPlotStyleVar_LegendPadding, ImVec2(0, 0));
+        ImPlot::PushStyleVar(ImPlotStyleVar_LegendInnerPadding, ImVec2(0, 0));
+        ImPlot::PushStyleVar(ImPlotStyleVar_LegendSpacing, ImVec2(0, 0));
+        ImPlot::PushStyleVar(ImPlotStyleVar_MousePosPadding, ImVec2(0, 0));
+        ImPlot::PushStyleVar(ImPlotStyleVar_AnnotationPadding, ImVec2(0, 0));
+        ImPlot::PushStyleVar(ImPlotStyleVar_FitPadding, ImVec2(0, 0));
+        ImPlot::PushStyleVar(ImPlotStyleVar_PlotDefaultSize, ImVec2(0, 0));
+        ImPlot::PushStyleVar(ImPlotStyleVar_PlotMinSize, ImVec2(0, 0));
         if (ImPlot::BeginPlot(title_id, ImVec2(width, height), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
         {
             ImDrawList* drw = ImPlot::GetPlotDrawList();
@@ -680,6 +691,7 @@ namespace ImGui
 
             ImPlot::EndPlot();
         }
+        ImPlot::PopStyleVar(10);
         return false;
     }
 

@@ -198,29 +198,63 @@ namespace uaudio
 
 
 
-			const int OPTIONS_AMNT = 5;
-
-			fft_analysis_settings fa_options[OPTIONS_AMNT] = {
-				{ 100, "Sample", 4096, -1, 1 },
-				{ 100, "Played Sample", (channel->m_LastDataSize * fmt_chunk.blockAlign), -1, 1 },
-				{ 100, "Scrolling sample", fmt_chunk.sampleRate, -2, 2 },
-				{ 200, "Led_Bars", 4096, 0, 0.25f },
-				{ 200, "EQ", 4096, -120, 6 }
-			};
-
 			std::string sp_name_text = "Signal Processing##SignalProcessing_" + std::to_string(a_Index);
 			if (ImGui::CollapsingHeader(sp_name_text.c_str()))
 			{
+				const int BLOCK_SIZE_OPTIONS = 7;
+				size_t block_size_options[BLOCK_SIZE_OPTIONS] =
+				{
+					32,
+					64,
+					128,
+					256,
+					512,
+					1024,
+					2048,
+				};
+
+				std::string view_block_size_options[BLOCK_SIZE_OPTIONS];
+				for (size_t i = 0; i < BLOCK_SIZE_OPTIONS; i++)
+					view_block_size_options[i] = std::to_string(block_size_options[i]);
+
+				const std::string block_size_text = "Block Size";
+				const std::string block_size_text_id = "##BlockSize_" + std::to_string(a_Index) + " (" + sound_name + ")" + "##BlockSize_" + std::to_string(a_Index);
+				ImGui::Text("%s", block_size_text.c_str());
+				ImGui::SameLine();
+				if (ImGui::BeginCombo(block_size_text_id.c_str(), view_block_size_options[m_BlockSize].c_str(), ImGuiComboFlags_PopupAlignLeft))
+				{
+					for (uint32_t n = 0; n < BLOCK_SIZE_OPTIONS; n++)
+					{
+						const bool is_selected = n == m_BlockSize;
+						if (ImGui::Selectable(view_block_size_options[n].c_str(), is_selected))
+							m_BlockSize = static_cast<fft_option>(n);
+					}
+					ImGui::EndCombo();
+				}
+
+				const int OPTIONS_AMNT = 7;
+				size_t amntSamples = fmt_chunk.blockAlign * block_size_options[m_BlockSize];
+
+				dsp_analysis_settings dsp_options[OPTIONS_AMNT] = {
+					{ 100, "Sample", amntSamples, -1, 1, amntSamples },
+					{ 100, "Played Sample", (channel->m_LastDataSize * fmt_chunk.blockAlign), -1, 1, amntSamples },
+					{ 100, "Scrolling sample", fmt_chunk.sampleRate, -2, 2, amntSamples },
+					{ 200, "Led_Bars", amntSamples, 0, 0.25f, 32 },
+					{ 200, "Led_Bars_2", amntSamples, 0, 0.25f, 32 },
+					{ 200, "EQ", amntSamples, -120, 6, amntSamples },
+					{ 200, "Spectrum Analyzer", amntSamples, -120, 6, amntSamples }
+				};
+
 				std::string view_options[OPTIONS_AMNT];
 
 				for (size_t i = 0; i < OPTIONS_AMNT; i++)
-					view_options[i] = fa_options[i].option_name.c_str();
+					view_options[i] = dsp_options[i].option_name.c_str();
 
-				const std::string view_as_text = "Type";
-				const std::string view_as_text_id = "##Type_" + std::to_string(a_Index) + " (" + sound_name + ")" + "##Type_" + std::to_string(a_Index);
-				ImGui::Text("%s", view_as_text.c_str());
+				const std::string dsp_text = "DSP";
+				const std::string dsp_text_id = "##DSP_" + std::to_string(a_Index) + " (" + sound_name + ")" + "##DSP_" + std::to_string(a_Index);
+				ImGui::Text("%s", dsp_text.c_str());
 				ImGui::SameLine();
-				if (ImGui::BeginCombo(view_as_text_id.c_str(), view_options[m_SelectedSP].c_str(), ImGuiComboFlags_PopupAlignLeft))
+				if (ImGui::BeginCombo(dsp_text_id.c_str(), view_options[m_SelectedSP].c_str(), ImGuiComboFlags_PopupAlignLeft))
 				{
 					for (uint32_t n = 0; n < OPTIONS_AMNT; n++)
 					{
@@ -231,7 +265,7 @@ namespace uaudio
 					ImGui::EndCombo();
 				}
 
-				fft_analysis_settings& option = fa_options[m_SelectedSP];
+				dsp_analysis_settings& option = dsp_options[m_SelectedSP];
 
 				std::string graph_eq_name = std::string("###Player_" + std::to_string(a_Index)) + "_" + sound_hash_id + "_eq_01";
 				if (ImPlot::BeginPlot(graph_eq_name.c_str(), ImVec2(ImGui::GetWindowSize().x - 65, option.graph_height), ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs | ImPlotFlags_NoFrame))
@@ -256,7 +290,7 @@ namespace uaudio
 							ImPlot::SetupAxisLimits(ImAxis_Y1, option.min_y, option.max_y, ImPlotCond_Always);
 							ImPlot::PlotLine("", input_buffer, static_cast<int>(numSSamples));
 						}
-						else if (m_SelectedSP == Led_Bars || m_SelectedSP == EQ)
+						else
 						{
 							for (size_t i = 0; i < numSSamples; i++)
 							{
@@ -272,7 +306,7 @@ namespace uaudio
 								output_buffer,
 								flags);
 
-							const int NUM_BINS = option.numSamples;
+							const int NUM_BINS = option.bins;
 
 							double* magn_s = reinterpret_cast<double*>(malloc(NUM_BINS * sizeof(double)));
 							double* freq_bins = reinterpret_cast<double*>(malloc(NUM_BINS * sizeof(double)));
@@ -290,8 +324,7 @@ namespace uaudio
 								auto re = output_buffer[i][0];
 								auto im = output_buffer[i][1];
 								auto magn = sqrt(re * re + im * im);
-								double initial = magn;
-								double scaledMagnitude = initial / numSSamples;
+								double scaledMagnitude = magn / numSSamples;
 
 								auto freq = i * (fmt_chunk.sampleRate / (double)numSSamples);
 								for (size_t j = 0; j < NUM_BINS; ++j)
@@ -305,9 +338,9 @@ namespace uaudio
 							}
 
 							ImPlot::SetupAxisLimits(ImAxis_Y1, option.min_y, option.max_y, ImPlotCond_Always);
-							ImPlot::SetupAxes("Frequency [Hz]", "Magnitude [dB]", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_LockMin);
+							ImPlot::SetupAxes("Hz", "dB", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_LockMin);
 							if (m_SelectedSP == Led_Bars)
-								ImPlot::PlotBars("", freq_bins, magn_s, NUM_BINS, 10);
+								ImPlot::PlotBars("", freq_bins, magn_s, NUM_BINS, 500);
 							else if (m_SelectedSP == EQ)
 							{
 								for (size_t i = 0; i < NUM_BINS; ++i)
@@ -339,6 +372,38 @@ namespace uaudio
 								ImPlot::SetNextLineStyle({ 1,1,1,1 });
 								ImPlot::PlotInfLines("##3dB", &co, 1, ImPlotInfLinesFlags_Horizontal);
 								ImPlot::PlotShaded("", freq_bins, magn_s, NUM_BINS, -INFINITY);
+								ImPlot::PlotLine("", freq_bins, magn_s, NUM_BINS, ImPlotLineFlags_SkipNaN, 0);
+							}
+							else if (m_SelectedSP == Spectrum_Analyzer)
+							{
+								for (size_t i = 0; i < NUM_BINS; ++i)
+								{
+									double d = 10 * (log10(magn_s[i]));
+									magn_s[i] = d;
+								}
+
+								double ticks[10] = {
+									20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000
+								};
+
+								const char* tick_labels[10] = {
+									"20",
+									"50",
+									"100",
+									"200",
+									"500",
+									"1k",
+									"2k",
+									"5k",
+									"10k",
+									"20k",
+								};
+
+								static const double co = -3;
+								ImPlot::SetupAxisTicks(ImAxis_X1, ticks, 10, tick_labels);
+								ImPlot::SetNextLineStyle({ 1,1,1,1 });
+								ImPlot::PlotInfLines("##3dB", &co, 1, ImPlotInfLinesFlags_Horizontal);
+								//ImPlot::PlotShaded("", freq_bins, magn_s, NUM_BINS, -INFINITY);
 								ImPlot::PlotLine("", freq_bins, magn_s, NUM_BINS, ImPlotLineFlags_SkipNaN, 0);
 							}
 

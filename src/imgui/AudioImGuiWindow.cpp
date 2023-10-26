@@ -191,17 +191,6 @@ namespace uaudio
 
 			colors = pStyle.Colors;
 			colors[ImPlotCol_Line] = ImVec4(1.00f, 0.66f, 0.18f, 0.7f);
-
-			pStyle.PlotPadding = ImVec2(pStyle.PlotPadding.x, 0);
-			pStyle.LabelPadding = ImVec2(0, 0);
-			pStyle.LegendPadding = ImVec2(0, 0);
-			pStyle.LegendInnerPadding = ImVec2(0, 0);
-			pStyle.LegendSpacing = ImVec2(0, 0);
-			pStyle.MousePosPadding = ImVec2(0, 0);
-			pStyle.AnnotationPadding = ImVec2(0, 0);
-			pStyle.FitPadding = ImVec2(0, 0);
-			pStyle.PlotDefaultSize = ImVec2(0, 0);
-			pStyle.PlotMinSize = ImVec2(0, 0);
 		}
 
 		void AudioImGuiWindow::ResetDevice()

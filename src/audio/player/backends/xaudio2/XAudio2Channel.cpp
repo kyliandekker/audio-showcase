@@ -202,7 +202,9 @@ namespace uaudio
 				double buffersize = fmt_chunk.byteRate * uaudio::player::audioSystem.m_DeltaTime;
 
 				double left_over = floor(fmod(buffersize, fmt_chunk.blockAlign));
-				double add = fmt_chunk.blockAlign - left_over;
+				double add = 0.0f;
+				if (left_over > 0)
+					add = fmt_chunk.blockAlign;
 				double real_buffersize = static_cast<uint32_t>(buffersize) + static_cast<uint32_t>(add);
 
 				if (real_buffersize == 0)
